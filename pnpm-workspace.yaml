@@ -5,4 +5,5 @@ packages:
   - "packages/sclsdk"
   - "packages/fileio"
 
-# linkWorkspacePackages: true
+linkWorkspacePackages: true
+sharedWorkspaceLockfile: false

@@ -1,4 +1,4 @@
-name: Install
+name: _install
 on:
   workflow_call:
     inputs:
@@ -18,7 +18,6 @@ jobs:
       cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -28,22 +27,14 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
         with:
-          node-version: 20
-          cache: 'pnpm'
+          path: packages/${{inputs.package-name}}/node_modules
+          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
 
-      # - name: Cache node_modules
-      #   id: cache-node-modules
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: packages/${{inputs.package-name}}/node_modules
-      #     key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles('packages/${{inputs.package-name}}/pnpm-lock.yaml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-node-modules-${{inputs.package-name}}
-
-      # - name: Install dependencies
-      #   working-directory: packages/${{ inputs.package-name }}
-      #   run: pnpm install
-      #   if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        working-directory: packages/${{ inputs.package-name }}
+        run: pnpm install
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
