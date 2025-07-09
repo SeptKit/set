@@ -53,3 +53,5 @@ jobs:
           repository-name: 'SeptKit/septkit.github.io'
           target-folder: ${{ inputs.target-folder }}
           token: ${{ secrets.deployment-token }}
+          clean-exclude: |
+            README.md
