@@ -36,6 +36,13 @@ jobs:
       package-name: shell
       deployed-folder: .
 
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: shell
+
   deploy:
     name: Deploy To Pages
     if: needs.version.outputs.version_changed == 'true'
@@ -43,6 +50,7 @@ jobs:
       - build
       - test
       - version
+      - lint
     uses: ./.github/workflows/_deploy.yml
     with:
       package-name: shell
