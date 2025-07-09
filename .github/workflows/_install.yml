@@ -1,0 +1,49 @@
+name: Install
+on:
+  workflow_call:
+    inputs:
+      package-name: # the scripts appends the `packages/` part. eg.: shell is enough
+        required: true
+        type: string
+    outputs:
+      cache-key:
+        description: 'Cache key for node_modules'
+        value: ${{ jobs.cache-and-install.outputs.cache-key }}
+
+jobs:
+  cache-and-install:
+    runs-on: ubuntu-latest
+
+    outputs:
+      cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles('packages/${{inputs.package-name}}/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-${{inputs.package-name}}
+
+      - name: Install dependencies
+        working-directory: packages/${{ inputs.package-name }}
+        run: pnpm install
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+

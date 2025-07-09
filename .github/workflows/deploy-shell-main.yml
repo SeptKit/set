@@ -1,0 +1,39 @@
+name: Publish Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  
+jobs:
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
+
+#   build:
+#     name: Build Project
+#     needs: install
+#     uses: ./.github/workflows/_build.yml
+
+#   test:
+#     name: Run Tests
+#     needs: install
+#     uses: ./.github/workflows/_test.yml
+
+#   check-version:
+#     name: Check Package Version
+#     uses: ./.github/workflows/_check-version.yml
+
+#   publish:
+#     name: Publish to npm
+#     needs:
+#       - build
+#       - test
+#       - check-version
+#     if: needs.check-version.outputs.version_changed == 'true'
+#     uses: ./.github/workflows/_publish.yml
+#     secrets:
+#       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
