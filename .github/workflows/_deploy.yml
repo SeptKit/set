@@ -12,6 +12,9 @@ on:
         required: false
         type: string
         default: '.'
+      deployment-token:
+        required: true
+        type: string
 
 jobs:
   publish:
@@ -45,6 +48,8 @@ jobs:
         id: deploy-to-pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
-          branch: gh-pages
+          branch: main
           folder: 'packages/${{inputs.package-name}}/dist'
+          repository-name: 'SeptKit/septkit.github.io'
           target-folder: ${{ inputs.target-folder }}
+          token: ${{ inputs.deployment-token }}

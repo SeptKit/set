@@ -43,7 +43,8 @@ jobs:
         uses: actions/checkout@v3
         if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
         with:
-          ref: 'gh-pages'
+          repository: 'SeptKit/septkit.github.io'
+          ref: 'main'
 
       - name: Extract Deployed Version
         id: get_version
