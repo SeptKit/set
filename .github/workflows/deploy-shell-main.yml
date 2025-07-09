@@ -54,4 +54,5 @@ jobs:
     uses: ./.github/workflows/_deploy.yml
     with:
       package-name: shell
+    secrets:
       deployment-token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}

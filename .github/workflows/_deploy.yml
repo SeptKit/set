@@ -12,9 +12,9 @@ on:
         required: false
         type: string
         default: '.'
+    secrets:
       deployment-token:
         required: true
-        type: string
 
 jobs:
   publish:
@@ -52,4 +52,4 @@ jobs:
           folder: 'packages/${{inputs.package-name}}/dist'
           repository-name: 'SeptKit/septkit.github.io'
           target-folder: ${{ inputs.target-folder }}
-          token: ${{ inputs.deployment-token }}
+          token: ${{ secrets.deployment-token }}
