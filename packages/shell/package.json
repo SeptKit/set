@@ -1,6 +1,6 @@
 {
 	"name": "shell",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -17,6 +17,7 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
+		"ui": "1.0.0",
 		"vue": "^3.5.17"
 	},
 	"devDependencies": {
@@ -26,6 +27,7 @@
 		"@vitejs/plugin-vue": "^6.0.0",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.7.0",
+		"daisyui": "^5.0.46",
 		"jiti": "^2.4.2",
 		"jsdom": "^26.1.0",
 		"npm-run-all2": "^8.0.4",

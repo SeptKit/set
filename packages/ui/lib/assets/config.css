@@ -1,0 +1,38 @@
+@plugin "daisyui" {
+  themes: spark --default;
+}
+
+@plugin "daisyui/theme" {
+  name: 'spark';
+  default: true;
+  prefersdark: false;
+  color-scheme: 'light';
+  --color-base-100: oklch(98% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(37% 0 0);
+  --color-primary: oklch(70% 0.213 47.604);
+  --color-primary-content: oklch(97% 0.013 17.38);
+  --color-secondary: oklch(95% 0.038 75.164);
+  --color-secondary-content: oklch(66% 0.179 58.318);
+  --color-accent: oklch(60% 0.118 184.704);
+  --color-accent-content: oklch(98% 0.001 106.423);
+  --color-neutral: oklch(55% 0.013 58.071);
+  --color-neutral-content: oklch(98% 0.031 120.757);
+  --color-info: oklch(70% 0.165 254.624);
+  --color-info-content: oklch(98% 0.001 106.423);
+  --color-success: oklch(72% 0.219 149.579);
+  --color-success-content: oklch(98% 0.001 106.423);
+  --color-warning: oklch(87% 0.169 91.605);
+  --color-warning-content: oklch(98% 0.001 106.423);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(98% 0.001 106.423);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.25rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1.5px;
+  --depth: 1;
+  --noise: 1;
+}
