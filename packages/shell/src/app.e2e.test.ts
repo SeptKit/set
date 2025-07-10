@@ -8,7 +8,7 @@ test('renders the headline "SET"', async () => {
   await expect.element(screen.getByText('SET')).toBeVisible()
 })
 
-/**************/
+/******* keine UI Preview in Playwright *******/
 
 // import { describe, it, expect } from 'vitest'
 // import { mount } from '@vue/test-utils'
@@ -22,21 +22,18 @@ test('renders the headline "SET"', async () => {
 //   })
 // })
 
-/**************/
+/******* UI Preview in Playwright *******/
 
 // import { render, screen, cleanup } from '@testing-library/vue'
 // import { describe, it, afterEach, expect } from 'vitest'
 // import app from './app.vue'
 
-// afterEach(() => {
-//   cleanup() // räumt DOM nach jedem Test auf
-// })
+// // afterEach(() => {
+// //   cleanup() // räumt DOM nach jedem Test auf, müsste mit time-out erfolgen, für sichtbare UI preview
+// // })
 
 // describe('app.vue', () => {
 //   it('renders the headline "SET"', () => {
-//     // render(app)
-//     // expect(screen.getByText('SET')).toBeTruthy()
-
 //     const root = document.createElement('div')
 //     root.id = 'test-root'
 //     document.body.appendChild(root)
