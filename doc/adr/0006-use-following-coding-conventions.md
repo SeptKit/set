@@ -12,7 +12,7 @@ We want to have consistent code in the project.
 
 ## Decision
 
-We will automate the coding convenstion as much as we can.
+We will automate the coding conventions as much as we can.
 We will document the rest in the [CODESTYLE.md](../../CODESTYLE.md) file.
 
 We will follow the following coding conventions:
