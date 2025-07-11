@@ -1,17 +1,19 @@
 {
 	"name": "@septkit/shell",
-	"version": "1.0.0",
+	"version": "1",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"build": "run-p type-check \"build-only {@}\" --",
 		"preview": "vite preview",
+		"test": "echo TODO",
 		"test:unit": "vitest",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-		"format": "prettier --write src/"
+		"format": "prettier --write src/",
+		"format:check": "prettier --check src/"
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.11",

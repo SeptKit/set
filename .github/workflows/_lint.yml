@@ -1,40 +1,37 @@
-name: _install
+name: _lint
+
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       package-name: # the scripts appends the `packages/` part. eg.: shell is enough
         required: true
         type: string
-    outputs:
-      cache-key:
-        description: 'Cache key for node_modules'
-        value: ${{ jobs.cache-and-install.outputs.cache-key }}
 
 jobs:
-  cache-and-install:
+  lint:
     runs-on: ubuntu-latest
-
-    outputs:
-      cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
-
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10.10.0
           run_install: false
 
-      - name: Cache node_modules
-        id: cache-node-modules
+      - name: Restore node_modules cache
         uses: actions/cache@v3
         with:
           path: packages/${{inputs.package-name}}/node_modules
           key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
 
-      - name: Install dependencies
+      - name: Linting
+        run: pnpm lint
         working-directory: packages/${{ inputs.package-name }}
-        run: pnpm install
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+
+      - name: Format Check
+        run: pnpm format:check
+        working-directory: packages/${{ inputs.package-name }}
