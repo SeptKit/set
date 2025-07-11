@@ -8,6 +8,7 @@ automated checks for them yet.
 2. file naming: start file names with small letters
 3. tests are always next to their implementation, in the same directory
 4. test files are called `<component-name>.test.ts`
-5. we use a domain driven structure (`user`, `product`), instead of feature driven (e.g.: `views`, `stores`, etc..)
-6. prefer functional style coding
-7. prefer `function` to create functions instead of variables and arrow functions
+5. e2e tests are separated from unit tests, in the `e2e` directory, and they are called `<feature>.test.ts`
+6. we use a domain driven structure (`user`, `product`), instead of feature driven (e.g.: `views`, `stores`, etc..)
+7. prefer functional style coding
+8. prefer `function` to create functions instead of variables and arrow functions
