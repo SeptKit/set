@@ -8,8 +8,7 @@ Accepted
 
 ## Context
 
-We want to look up what whas the latest changes in a package so we can keep track of what did we do.
-
+We want to look up what what the latest changes in a package so we can keep track of what did we do.
 
 ## Decision
 

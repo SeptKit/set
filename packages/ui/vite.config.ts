@@ -1,4 +1,7 @@
+/// <reference types="vite/client" />
+
 import { fileURLToPath, URL } from 'node:url'
+import path from 'node:path'
 // VITE
 import { defineConfig } from 'vite'
 // VITE PLUGINS
@@ -13,18 +16,28 @@ export default defineConfig({
 		vue(),
 		vueDevTools(),
 		tailwindcss(),
-		dts({ rollupTypes: true })
+		dts({
+			rollupTypes: true,
+			tsconfigPath: path.resolve(__dirname, './tsconfig.app.json')
+		})
 	],
 	resolve: {
 		alias: {
-			'@': fileURLToPath(new URL('./src', import.meta.url))
+			'@': fileURLToPath(new URL('./lib', import.meta.url))
 		},
 	},
 	build: {
+		sourcemap: import.meta.env?.DEV,
 		lib: {
-			entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+			entry: fileURLToPath(new URL('./lib/index.ts', import.meta.url)),
+			fileName: (format, entryName) => {
+				if (entryName === 'src/lib/index') {
+					return `index.js`;
+				}
+				return `${entryName}.js`;
+			},
 			formats: ['es'],
-			fileName: 'index',
+			cssFileName: 'ui',
 		},
 		rollupOptions: {
 			external: ['vue'],
@@ -32,6 +45,15 @@ export default defineConfig({
 				globals: {
 					vue: 'Vue',
 				},
+				preserveModules: true,
+				preserveModulesRoot: 'lib',
+				entryFileNames: (chunkInfo) => {
+					if (chunkInfo.name.includes('node_modules')) {
+						return chunkInfo.name.replace('node_modules', 'external') + '.js';
+					}
+
+					return '[name].js';
+				}
 			},
 		},
 	},
