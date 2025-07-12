@@ -19,8 +19,8 @@
 		"//====== CHECK ======//": "",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-		"format": "prettier --write src/",
-		"format:check": "prettier --check src/"
+		"format": "prettier --write lib/",
+		"format:check": "prettier --check lib/"
 	},
 	"files": [
 		"dist"
