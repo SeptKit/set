@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@septkit/ui':
-        specifier: 1.0.0
+        specifier: 0.0.1
         version: link:../ui
       '@tailwindcss/vite':
         specifier: ^4.1.11
