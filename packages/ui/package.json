@@ -13,6 +13,7 @@
 		"copy-tailwind-config": "cp ./lib/assets/config.css ./dist/config.css",
 		"build-storybook": "storybook build",
 		"//====== TEST ======//": "",
+		"test": "echo TODO",
 		"test:unit": "vitest",
 		"test:browser": "vitest --config=vitest.browser.config.ts",
 		"//====== CHECK ======//": "",
