@@ -2,4 +2,4 @@
 /* Sourcing the UI library to apply theme on its components */
 @source "../../node_modules/@septkit/ui";
 /* Importing Tailwind and DaisyUI configuration from the UI library */
-@import 'ui/configcss';
+@import '@septkit/ui/configcss';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { Dropdown } from 'ui'
+import { Dropdown } from '@septkit/ui'
 
 const dropdown = useTemplateRef('dropdown-ref')
 
