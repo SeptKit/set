@@ -9,24 +9,16 @@ export default mergeConfig(
     test: {
       projects: [
         {
-          test: {
-            name: 'unit',
-            environment: 'jsdom',
-            include: ['**/*.unit.test.{js,ts,jsx,tsx}'],
-            exclude: [...configDefaults.exclude],
-            root: fileURLToPath(new URL('./', import.meta.url)),
-          },
-        },
-        {
           plugins: [vue()], //neccessary for vue files: github.com/vitest-dev/vitest/issues/6293
           test: {
-            name: 'e2e',
+            name: 'unit',
             browser: {
               provider: 'playwright',
               enabled: true,
+              headless: false,
               instances: [{ browser: 'chromium' }],
             },
-            include: ['**/*.e2e.test.{js,ts,jsx,tsx}'],
+            include: ['src/**/*.test.{js,ts,jsx,tsx}'],
             exclude: [...configDefaults.exclude],
             root: fileURLToPath(new URL('./', import.meta.url)),
           },
@@ -34,14 +26,14 @@ export default mergeConfig(
         {
           plugins: [vue()],
           test: {
-            name: 'e2e-headless',
+            name: 'e2e',
             browser: {
               provider: 'playwright',
               enabled: true,
-              headless: true,
+              headless: false,
               instances: [{ browser: 'chromium' }],
             },
-            include: ['**/*.e2e.test.{js,ts,jsx,tsx}'],
+            include: ['e2e/**/*.test.{js,ts,jsx,tsx}'],
             exclude: [...configDefaults.exclude],
             root: fileURLToPath(new URL('./', import.meta.url)),
           },
