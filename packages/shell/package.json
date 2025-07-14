@@ -1,6 +1,6 @@
 {
-  "name": "shell",
-  "version": "0.0.0",
+  "name": "@septkit/shell",
+  "version": "1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,12 +14,14 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+		"format:check": "prettier --check src/"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "pinia": "^3.0.3",
     "tailwindcss": "^4.1.11",
+		"@septkit/ui": "0.0.1",
     "vitest-browser-vue": "^1.0.0",
     "vue": "^3.5.17"
   },
@@ -32,6 +34,7 @@
     "@vitest/browser": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
+		"daisyui": "^5.0.46",
     "jiti": "^2.4.2",
     "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",

@@ -6,3 +6,4 @@ packages:
   - "packages/fileio"
 
 linkWorkspacePackages: true
+sharedWorkspaceLockfile: false

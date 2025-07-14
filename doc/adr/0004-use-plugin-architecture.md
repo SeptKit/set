@@ -14,7 +14,6 @@ We create a substation designer application. On the application multiple develop
 
 We will use a plugin architecture to enabled parallel work.
 
-
 ## Consequences
 
 Each team can develop their own plugins independently. This allows teams to focus on their own features without waiting for others to finish their work.

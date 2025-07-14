@@ -1,0 +1,54 @@
+name: _build
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      package-name: # the scripts appends the `packages/` part. eg.: shell is enough
+        required: true
+        type: string
+    outputs:
+      build-cache-key:
+        description: 'Cache key for build output'
+        value: ${{ jobs.build.outputs.build-cache-key }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      build-cache-key: ${{ steps.cache-build-output.outputs.cache-hit }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
+          run_install: false
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v3
+        with:
+          path: packages/${{inputs.package-name}}/node_modules
+          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
+
+      - name: Build
+        working-directory: packages/${{ inputs.package-name }}
+        run: pnpm build
+
+      - name: Extract Version
+        id: version
+        working-directory: packages/${{ inputs.package-name }}
+        run: |
+          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Cache build output
+        id: cache-build-output
+        uses: actions/cache@v3
+        with:
+          path: packages/${{inputs.package-name}}/dist
+          key: ${{ runner.os }}-build-output-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}-${{ steps.version.outputs.version }}

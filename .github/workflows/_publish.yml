@@ -1,0 +1,50 @@
+name: _publish
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      package-name: # the scripts appends the `packages/` part. eg.: shell is enough
+        required: true
+        type: string
+    secrets:
+      NPM_PUBLISH_PAT:
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@openscd'
+
+      - name: Extract Version
+        id: version
+        working-directory: packages/${{ inputs.package-name }}
+        run: |
+          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore build output cache
+        uses: actions/cache@v3
+        with:
+          path: 'packages/${{inputs.package-name}}/dist'
+          key: ${{ runner.os }}-build-output-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}-${{ steps.version.outputs.version }}
+
+      - name: Verify build output exists
+        run: ls -la packages/${{inputs.package-name}}/dist
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_PAT }}

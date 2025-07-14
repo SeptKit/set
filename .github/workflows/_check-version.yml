@@ -1,0 +1,98 @@
+name: _check-version
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+      deployed-folder:
+        description: 'The folder where the deployed package is located, relative to the repository root. Default is "."'
+        required: false
+        type: string
+        default: '.'
+    outputs:
+      version_changed:
+        description: 'Whether the deployed package version has changed'
+        value: ${{ jobs.check.outputs.version_changed }}
+
+jobs:
+  check:
+    name: Get Deployed Version
+    runs-on: ubuntu-latest
+    outputs:
+      version_changed: ${{ steps.final_output.outputs.version_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Verify Branch
+        id: verify_branch
+        run: |
+          git fetch --all
+          output=$(git branch -r | grep "origin/gh-pages" || true)
+          if [ -n "$output" ]; then
+            echo "gh_pages_branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+            echo "gh_pages_branch_exists=false" >> $GITHUB_OUTPUT 
+            echo "No gh-pages branch found, skipping version check."
+          fi
+
+      - name: Checkout Deployed App
+        uses: actions/checkout@v3
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        with:
+          repository: 'SeptKit/septkit.github.io'
+          ref: 'main'
+
+      - name: Extract Deployed Version
+        id: get_version
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        run: |
+          DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "Deployed version: $DEPLOYED_VERSION"
+          echo "deployed_version=$DEPLOYED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout Main Branch
+        uses: actions/checkout@v3
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        with:
+          ref: 'main'
+
+      - name: Extract Current Version
+        id: current_version
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        working-directory: packages/${{ inputs.package-name }}
+        run: |
+          CURRENT_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "Current version: $CURRENT_VERSION"
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare Versions
+        id: compare_versions
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        run: |
+          if [ "${{ steps.get_version.outputs.deployed_version }}" != "${{ steps.current_version.outputs.current_version }}" ]; then
+            echo "Version has changed: ${{ steps.get_version.outputs.deployed_version }} -> ${{ steps.current_version.outputs.current_version }}"
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version unchanged"
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Mergin Outputs is necessary because if there is no gh-pages, then the
+      # compare version step will nut run and otherwise
+      # the verify branch step will not set the output to true
+      - name: Mergin Outputs
+        id: final_output
+        run: |
+          verify_branch_version_changed="${{ steps.verify_branch.outputs.version_changed }}"
+          compare_versions_version_changed="${{ steps.compare_versions.outputs.version_changed }}"
+          echo "verify_branch_version_changed: $verify_branch_version_changed"
+          echo "compare_versions_version_changed: $compare_versions_version_changed"
+          if [ "$verify_branch_version_changed" == "true" ] || [ "$compare_versions_version_changed" == "true" ]; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
