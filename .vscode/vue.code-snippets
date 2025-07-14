@@ -1,0 +1,19 @@
+{
+  "Vue 3 Component Template": {
+    "prefix": "vue",
+    "body": [
+      "<template>",
+      "",
+      "</template>",
+      "",
+      "<script setup lang=\"ts\">",
+      "",
+      "</script>",
+      "",
+      "<style scoped>",
+      "",
+      "</style>"
+    ],
+    "description": "Vue 3 Component with TypeScript setup"
+  }
+}
