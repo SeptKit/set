@@ -4,8 +4,8 @@
 	"description": "",
 	"scripts": {
 		"//====== SHELL ======//": "",
-		"shell:build": "pnpm --filter @septkit/ui build",
-		"shell:dev": "pnpm --filter @septkit/ui dev",
+		"shell:build": "pnpm --filter @septkit/shell build",
+		"shell:dev": "pnpm --filter @septkit/shell dev",
 		"//====== UI ======//": "",
 		"ui:build": "pnpm --filter @septkit/ui build",
 		"ui:dev": "pnpm --filter @septkit/ui dev",
