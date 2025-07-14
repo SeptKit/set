@@ -11,8 +11,7 @@
 		"ui:dev": "pnpm --filter @septkit/ui dev",
 		"//====== DEPENDENCIES ======//": "",
 		"dependencies:build": "pnpm ui:build",
-		"//====== POST INSTALL ======//": "",
-		"postinstall": "pnpm dependencies:build"
+		"//====== POST INSTALL ======//": ""
 	},
 	"keywords": [],
 	"author": "",
