@@ -11,24 +11,46 @@ const meta = {
 	argTypes: {
 		// slots
 		default: {
-			control: 'text'
+			control: 'text',
 		},
 		// props
-		color: { control: { type: 'select', labels: { default: '' } }, options: ['default', 'neutral', 'primary', 'secondary', 'accent', 'info', 'success', 'warning', 'error'] },
-		variant: { control: { type: 'select', labels: { default: '' } }, options: ['default', 'outline', 'dash', 'soft', 'ghost', 'link'] },
-		size: { control: { type: 'select', labels: { default: '' } }, options: ['default', 'xs', 'sm', 'md', 'lg', 'xl'] },
+		color: {
+			control: { type: 'select', labels: { default: '' } },
+			options: [
+				'default',
+				'neutral',
+				'primary',
+				'secondary',
+				'accent',
+				'info',
+				'success',
+				'warning',
+				'error',
+			],
+		},
+		variant: {
+			control: { type: 'select', labels: { default: '' } },
+			options: ['default', 'outline', 'dash', 'soft', 'ghost', 'link'],
+		},
+		size: {
+			control: { type: 'select', labels: { default: '' } },
+			options: ['default', 'xs', 'sm', 'md', 'lg', 'xl'],
+		},
 		active: { control: 'boolean' },
 		disabled: { control: 'boolean' },
-		modifier: { control: { type: 'select', labels: { default: '' } }, options: ['default', 'wide', 'block', 'square', 'circle'] }
+		modifier: {
+			control: { type: 'select', labels: { default: '' } },
+			options: ['default', 'wide', 'block', 'square', 'circle'],
+		},
 	},
 } satisfies Meta<typeof Button>
 
 export default meta
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
 	args: {
-		default: 'Click me'
+		default: 'Click me',
 	},
 	render: (args) => ({
 		components: { Button },
@@ -39,6 +61,6 @@ export const Default: Story = {
 			<Button v-bind="args">
 				{{ args.default }}
 			</Button>
-		`
+		`,
 	}),
-};
+}

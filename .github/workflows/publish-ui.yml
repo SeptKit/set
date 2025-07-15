@@ -55,4 +55,4 @@ jobs:
     with:
       package-name: ui
     secrets:
-      deployment-token: ${{ secrets.NPM_PUBLISH_PAT }}
+      npm-token: ${{ secrets.NPM_PUBLISH_PAT }}

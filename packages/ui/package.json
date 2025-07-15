@@ -1,7 +1,6 @@
 {
 	"name": "@septkit/ui",
 	"version": "0.0.1",
-	"private": true,
 	"type": "module",
 	"source": "lib/index.ts",
 	"scripts": {
@@ -13,12 +12,14 @@
 		"copy-tailwind-config": "cp ./lib/assets/config.css ./dist/config.css",
 		"build-storybook": "storybook build",
 		"//====== TEST ======//": "",
+		"test": "echo TODO",
 		"test:unit": "vitest",
 		"test:browser": "vitest --config=vitest.browser.config.ts",
 		"//====== CHECK ======//": "",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-		"format": "prettier --write src/"
+		"format": "prettier --write lib/",
+		"format:check": "prettier --check lib/"
 	},
 	"files": [
 		"dist"
