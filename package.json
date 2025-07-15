@@ -3,7 +3,15 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"//====== SHELL ======//": "",
+		"shell:build": "pnpm --filter @septkit/shell build",
+		"shell:dev": "pnpm --filter @septkit/shell dev",
+		"//====== UI ======//": "",
+		"ui:build": "pnpm --filter @septkit/ui build",
+		"ui:dev": "pnpm --filter @septkit/ui dev",
+		"//====== DEPENDENCIES ======//": "",
+		"dependencies:build": "pnpm ui:build",
+		"//====== POST INSTALL ======//": ""
 	},
 	"keywords": [],
 	"author": "",
