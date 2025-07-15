@@ -12,8 +12,8 @@
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-		"format": "prettier --write src/",
-		"format:check": "prettier --check src/"
+		"format": "prettier --write src/ e2e/",
+		"format:check": "prettier --check src/ e2e/"
 	},
 	"dependencies": {
 		"@septkit/ui": "0.0.1",
