@@ -29,12 +29,6 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Restore node_modules cache
-        uses: actions/cache@v3
-        with:
-          path: packages/${{inputs.package-name}}/node_modules
-          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
-
       - name: Build
         working-directory: packages/${{ inputs.package-name }}
         run: pnpm build

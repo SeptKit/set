@@ -38,3 +38,33 @@ jobs:
         working-directory: packages/${{ inputs.package-name }}
         run: pnpm install
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
+
+      - name: Restore node_modules cache
+        if: steps.cache-node-modules.outputs.cache-hit == 'true'
+        uses: actions/cache@v3
+        with:
+          path: packages/${{inputs.package-name}}/node_modules
+          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "playwright_version=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >>  $GITHUB_OUTPUT
+
+      - name: Cache Playwright
+        uses: actions/cache@v3
+        id: cache-playwright
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version }}
+
+      - name: Install Playwright
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Restore Playwright Cache
+        if: steps.cache-playwright.outputs.cache-hit == 'true'
+        uses: actions/cache@v3
+        with:
+          path: packages/${{inputs.package-name}}/node_modules
+          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
