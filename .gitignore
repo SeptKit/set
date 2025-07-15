@@ -21,7 +21,7 @@ coverage
 .vscode
 .vscode/*
 !.vscode/SET.code-workspace
-!.vscode/code-snippets
+!.vscode/vue.code-snippets
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea

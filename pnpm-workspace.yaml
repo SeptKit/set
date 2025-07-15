@@ -7,3 +7,4 @@ packages:
 
 linkWorkspacePackages: true
 sharedWorkspaceLockfile: false
+autoInstallPeers: true
