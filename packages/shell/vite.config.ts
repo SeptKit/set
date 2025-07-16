@@ -9,6 +9,9 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // https://vite.dev/config/
 export default defineConfig({
+	server: {
+		port: 53995,
+	},
 	plugins: [
 		vue(),
 		vueDevTools(),

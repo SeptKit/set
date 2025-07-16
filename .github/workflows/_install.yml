@@ -27,7 +27,7 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Cache node_modules
+      - name: Setup node_modules Cache
         id: cache-node-modules
         uses: actions/cache@v3
         with:
@@ -36,35 +36,21 @@ jobs:
 
       - name: Install dependencies
         working-directory: packages/${{ inputs.package-name }}
-        run: pnpm install
+        run: pnpm install --filrer ${{ inputs.package-name }}
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
 
-      - name: Restore node_modules cache
-        if: steps.cache-node-modules.outputs.cache-hit == 'true'
-        uses: actions/cache@v3
-        with:
-          path: packages/${{inputs.package-name}}/node_modules
-          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
-
-      - name: Get installed Playwright version
+      - name: Get Playwright Version
         id: playwright-version
-        run: echo "playwright_version=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >>  $GITHUB_OUTPUT
+        working-directory: packages/${{ inputs.package-name }}
+        run: echo "playwright_version=$(node -e "console.log(require('./package.json').devDependencies['playwright'])")" >>  $GITHUB_OUTPUT
 
-      - name: Cache Playwright
+      - name: Setup Playwright Cache
         uses: actions/cache@v3
         id: cache-playwright
         with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version }}
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.playwright_version }}
 
       - name: Install Playwright
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
-
-      - name: Restore Playwright Cache
-        if: steps.cache-playwright.outputs.cache-hit == 'true'
-        uses: actions/cache@v3
-        with:
-          path: packages/${{inputs.package-name}}/node_modules
-          key: ${{ runner.os }}-node-modules-${{inputs.package-name}}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
