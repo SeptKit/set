@@ -1,0 +1,17 @@
+{
+	"name": "@septkit/ext-skeleton-main-area",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "http-server --cors --port 51003 .",
+		"test": "echo N/A"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.10.0",
+	"devDependencies": {
+		"http-server": "^14.1.1"
+	}
+}
