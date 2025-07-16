@@ -5,6 +5,5 @@ packages:
   - "packages/sclsdk"
   - "packages/fileio"
 
-linkWorkspacePackages: true
 sharedWorkspaceLockfile: false
 autoInstallPeers: true

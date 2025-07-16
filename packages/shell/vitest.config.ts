@@ -2,20 +2,23 @@ import { fileURLToPath } from 'node:url'
 import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
 import viteConfig from './vite.config'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 
 export default mergeConfig(
 	viteConfig,
 	defineConfig({
 		test: {
+			watch: false,
 			projects: [
 				{
-					plugins: [vue()], //neccessary for vue files: github.com/vitest-dev/vitest/issues/6293
+					resolve: viteConfig.resolve,
+					plugins: [vue(), tailwindcss()], //neccessary for vue files: github.com/vitest-dev/vitest/issues/6293
 					test: {
 						name: 'unit',
 						browser: {
 							provider: 'playwright',
 							enabled: true,
-							headless: false,
+							headless: true,
 							instances: [{ browser: 'chromium' }],
 						},
 						include: ['src/**/*.test.{js,ts,jsx,tsx}'],
@@ -24,13 +27,13 @@ export default mergeConfig(
 					},
 				},
 				{
-					plugins: [vue()],
+					plugins: [vue(), tailwindcss()], //neccessary for vue files: github.com/vitest-dev/vitest/issues/6293
 					test: {
 						name: 'e2e',
 						browser: {
 							provider: 'playwright',
 							enabled: true,
-							headless: false,
+							headless: true,
 							instances: [{ browser: 'chromium' }],
 						},
 						include: ['e2e/**/*.test.{js,ts,jsx,tsx}'],
