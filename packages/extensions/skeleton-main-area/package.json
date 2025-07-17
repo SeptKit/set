@@ -1,7 +1,21 @@
 {
-	"name": "@septkit/ext-skeleton-main-area",
+	"name": "@septkit/ext-skeleton",
 	"version": "1.0.0",
-	"description": "",
+	"description": "This is an example extension for SeptKit",
+	"contributes": {
+		"customEditors": [
+			{
+				"displayName": "Dataflow",
+				"icon": "/assets/icon.svg",
+				"fileSelectors": [
+					"SSD",
+					"ASD",
+					"SCD"
+				],
+				"entryPoint": "/editor/dataflow.js"
+			}
+		]
+	},
 	"main": "index.js",
 	"scripts": {
 		"dev": "http-server --cors --port 51003 .",

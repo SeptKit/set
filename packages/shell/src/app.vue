@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Navbar from './components/navbar/navbar.vue'
+import { useMainAreaWidgetStore } from './extension/extension-store'
 import Layout from './layout.vue'
+import MainArea from './main-area/main-area.vue'
 </script>
 
 <template>
@@ -10,7 +12,7 @@ import Layout from './layout.vue'
 		</template>
 
 		<template #activity-bar>
-			<span>ACTION</span>
+			<span></span>
 		</template>
 
 		<template #primary-sidebar>
@@ -18,7 +20,7 @@ import Layout from './layout.vue'
 		</template>
 
 		<template #main-area>
-			<span> main area </span>
+			<MainArea />
 		</template>
 
 		<template #secondary-sidebar>
