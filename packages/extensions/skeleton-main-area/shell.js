@@ -1,26 +1,11 @@
-export function init() {
-	return {
-		id: 'ext-skeleton-main-area.sprinteins',
-		label: 'Skeleton (Main Area)',
-		contributions: [
-			{
-				type: 'widget',
-				icon: 'none',
-				location: 'mainArea',
-				start,
-			},
-		],
-	}
-}
-
-function start(rootId, api) {
+export default function start(rootId, api) {
 	const root = document.getElementById(rootId)
 	if (!root) {
 		console.error({ msg: 'could not found root element', rootId })
 		return
 	}
 
-	api.activeFileName.subsribe((newFile, oldFile) => {
+	api.activeFileName.subscribe((newFile, oldFile) => {
 		console.debug({ msg: 'active file has changed', newFile, oldFile })
 		render(root, newFile)
 	})

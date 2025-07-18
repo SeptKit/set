@@ -1,3 +1,3 @@
-import { init } from './shell'
+import { default as start } from './shell'
 
-export default init
+export default start

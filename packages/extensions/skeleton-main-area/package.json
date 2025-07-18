@@ -1,18 +1,20 @@
 {
 	"name": "@septkit/ext-skeleton",
+	"displayName": "Skeleton",
 	"version": "1.0.0",
 	"description": "This is an example extension for SeptKit",
 	"contributes": {
 		"customEditors": [
 			{
-				"displayName": "Dataflow",
+				"id": "sprinteins.ext-skeleton.dataflow",
+				"displayName": "Communication",
 				"icon": "/assets/icon.svg",
 				"fileSelectors": [
 					"SSD",
 					"ASD",
 					"SCD"
 				],
-				"entryPoint": "/editor/dataflow.js"
+				"entryPoint": "/shell.js"
 			}
 		]
 	},
