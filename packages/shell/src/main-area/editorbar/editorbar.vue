@@ -17,16 +17,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { WidgetContribution } from '../../extension/extension'
+import type { Optional } from '../../x/types'
 
 const props = defineProps<{
 	widgets: WidgetContribution[]
 }>()
 
 const emit = defineEmits<{
-	change: [widgetId: string]
+	change: [widgetId: Optional<string>]
 }>()
 
-const activeWidget = ref<string>(props.widgets[0].id)
+const activeWidget = ref<Optional<string>>()
 
 function onChange() {
 	emit('change', activeWidget.value)

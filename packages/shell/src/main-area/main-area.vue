@@ -11,22 +11,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { WidgetContribution } from '../extension/extension'
 import EditorBar from './editorbar/editorbar.vue'
 import { useMainAreaWidgetStore } from '../extension/extension-store'
 import WidgetSite from '../extension/widget/widget-site.vue'
+import { onMounted } from 'vue'
+import { loadExtensions } from '../extension/extension-loader'
+import type { Optional } from '../x/types'
 
 const store = useMainAreaWidgetStore()
 
-function onWidgetChange(widgetId: string) {
+const dummyExtensionLocationList = ['http://127.0.0.1:51003/']
+
+onMounted(() => loadExtensions(dummyExtensionLocationList))
+
+function onWidgetChange(widgetId: Optional<string>) {
 	const newActiveWidget = store.widgets.find((w) => w.id === widgetId)
 	if (!newActiveWidget) {
 		console.error({ msg: 'could not activate widget', widgetId })
 		return
 	}
 
-	store.setActiveWidget(newActiveWidget)
+	store.activateWidget(newActiveWidget)
 }
 </script>
 

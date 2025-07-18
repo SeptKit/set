@@ -5,10 +5,11 @@ import type { Optional } from '../x/types'
 
 export const useExtensionStore = defineStore('extension', () => {
 	const activeExtensionId = ref<string | null>(null)
-	const extensions = ref<Extension[]>(dummyExtensionList)
+	const extensions = ref<Extension[]>([])
 
 	return {
 		extensions,
+		setExtensions,
 		activeExtensionId,
 		setActiveExtension,
 		clearActivePluginSrc,
@@ -20,6 +21,10 @@ export const useExtensionStore = defineStore('extension', () => {
 
 	function clearActivePluginSrc() {
 		activeExtensionId.value = null
+	}
+
+	function setExtensions(newExtensions: Extension[]) {
+		extensions.value = newExtensions
 	}
 })
 
@@ -44,56 +49,10 @@ export const useMainAreaWidgetStore = defineStore('mainAreaExtensions', () => {
 		get activeWidget() {
 			return activeWidget
 		},
-		setActiveWidget,
+		activateWidget,
 	}
 
-	function setActiveWidget(widget: WidgetContribution) {
+	function activateWidget(widget: WidgetContribution) {
 		activeWidget.value = widget
 	}
 })
-
-// 'Dataflow', 'SLD', 'Communication'
-const dummyExtensionList: Extension[] = [
-	{
-		id: 'sprinteins.dataflow',
-		label: 'Dataflow',
-		contributions: [
-			{
-				id: 'sprinteins.dataflow.dataflow',
-				type: 'widget',
-				label: 'Dataflow',
-				icon: '_',
-				location: 'mainArea',
-				start: () => {},
-			},
-		],
-	},
-	{
-		id: 'sprinteins.sld',
-		label: 'SLD',
-		contributions: [
-			{
-				id: 'sprinteins.sld.sld',
-				type: 'widget',
-				label: 'SLD',
-				icon: '_',
-				location: 'mainArea',
-				start: () => {},
-			},
-		],
-	},
-	{
-		id: 'sprinteins.communication',
-		label: 'Communication',
-		contributions: [
-			{
-				id: 'sprinteins.communication.communication',
-				type: 'widget',
-				label: 'Communication',
-				icon: '_',
-				location: 'mainArea',
-				start: () => {},
-			},
-		],
-	},
-]

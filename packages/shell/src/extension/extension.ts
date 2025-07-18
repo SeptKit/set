@@ -5,6 +5,7 @@ export type InitFn = () => Extension
 export type Extension = {
 	id: string
 	label: string
+	version: string
 	contributions: Contributions
 }
 
@@ -14,8 +15,10 @@ export type WidgetContribution = Contribution & {
 	type: 'widget'
 	icon: string
 	location: 'mainArea' | 'primarySidebar' | 'secondarySidebar'
-	start: (rootId: string, api: API) => void
+	startFnUrl: string // relative to package.json
 }
+
+export type StartFn = (rootId: string, api: API) => void
 
 type MenuContribution = Contribution & {
 	type: 'menubar'
