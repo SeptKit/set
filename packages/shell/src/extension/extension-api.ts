@@ -25,7 +25,11 @@ function createActiveFileNameStore() {
 	}
 
 	function subscribe(listener: Listener) {
-		setTimeout(() => listener(_activeFileName ?? '' + Math.random(), _activeFileName), 2_000)
+		setTimeout(() => sendRandomFilenName(listener), 2_000)
+	}
+	function sendRandomFilenName(listener: Listener) {
+		listener(_activeFileName ?? '' + Math.random(), _activeFileName)
+		setTimeout(() => sendRandomFilenName(listener), 2_000)
 	}
 }
 
