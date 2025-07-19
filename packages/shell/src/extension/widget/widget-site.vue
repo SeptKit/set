@@ -1,7 +1,10 @@
 <template>
 	<div>
-		<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
-		<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
+		<h1>Widget Site</h1>
+		<div>
+			<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
+			<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
+		</div>
 	</div>
 </template>
 
@@ -24,7 +27,7 @@ watch(() => props.widget, watchPluginChange)
 
 async function watchPluginChange() {
 	await reloadPluginIfNeeded()
-	setTimeout(watchPluginChange, 2_000)
+	setTimeout(watchPluginChange, 3_000)
 }
 
 async function reloadPluginIfNeeded() {
@@ -33,31 +36,45 @@ async function reloadPluginIfNeeded() {
 	}
 
 	try {
-		const url = addCachBusterToURL(props.widget.startFnUrl)
-		const response = await fetch(url, { method: 'HEAD' })
+		const response = await fetch(props.widget.startFnUrl, { method: 'HEAD' })
 		const currentETag = response.headers.get('ETag') || response.headers.get('Last-Modified')
-		console.debug({ msg: 'checking ETAG', previousETag, currentETag })
+
 		if (!currentETag || currentETag === previousETag) {
 			return
 		}
 
 		previousETag = currentETag
-		// const url = addCachBusterToURL(props.widget.startFnUrl)
-		console.debug({ msg: 'reloading plugin', startFnUrl: url })
+
+		// Note: we add a cach buster to the url everytime we need to load the modules
+		// because the browsers cache so hard that they request them from server or local disk
+		//
+		// TODO: We need to take this into consideration when we set up service
+		// workers for offline usage
+		//
+		// From MDN:
+		// > This aggressive caching ensures that a piece of JavaScript code
+		// > is never executed more than once, even if it is imported multiple times.
+		// > Future imports don't even result in HTTP requests or disk access.
+		// > If you do need to re-import and re-evaluate a module without restarting
+		// > the entire JavaScript environment, one possible trick is to use a
+		// > unique query parameter in the module specifier.
+		// > This works in non-browser runtimes that support URL specifiers too.
+		//
+		// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object
+		const url = addCachBusterToURL(props.widget.startFnUrl)
 		loadAndStartPlugin(url)
 	} catch (error) {
 		console.error('Failed to reload plugin:', error)
 	}
 }
 
-async function loadAndStartPlugin(startFnUrl?: string) {
+async function loadAndStartPlugin(startFnUrl: Optional<string>) {
 	if (!startFnUrl) {
-		console.debug({ msg: 'no startFnUrl yet' })
+		console.info({ msg: 'no startFnUrl yet' })
 		return
 	}
 
 	const startFn = await fetchWidgetStartFn(startFnUrl)
-	console.debug({ msg: 'fetched Start FN', startFn })
 	if (!startFn) {
 		return
 	}
