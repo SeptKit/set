@@ -15,21 +15,31 @@ function createAPI() {
 export type API = ReturnType<typeof createAPI>
 
 function createActiveFileNameStore() {
-	let _activeFileName: string | undefined
+	let listeners: Listener[] = []
+	let activeFileName: string | undefined
+
+	setTimeout(() => sendRandomFilenName(), 2_000)
 
 	return {
 		get value() {
-			return _activeFileName
+			return activeFileName
 		},
 		subscribe,
 	}
 
 	function subscribe(listener: Listener) {
-		setTimeout(() => sendRandomFilenName(listener), 2_000)
+		listeners.push(listener)
+
+		return function unsubscribe() {
+			listeners = listeners.filter((ln) => ln !== listener)
+		}
 	}
-	function sendRandomFilenName(listener: Listener) {
-		listener(_activeFileName ?? '' + Math.random(), _activeFileName)
-		setTimeout(() => sendRandomFilenName(listener), 2_000)
+	function sendRandomFilenName() {
+		console.log({ msg: 'notifying listeners', nr: listeners.length })
+		for (const listener of listeners) {
+			listener(activeFileName ?? '' + Math.random(), activeFileName)
+			setTimeout(() => sendRandomFilenName(), 2_000)
+		}
 	}
 }
 
