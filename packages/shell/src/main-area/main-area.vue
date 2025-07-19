@@ -20,7 +20,7 @@ import type { Optional } from '../x/types'
 
 const store = useMainAreaWidgetStore()
 
-const dummyExtensionLocationList = ['http://127.0.0.1:51003/']
+const dummyExtensionLocationList = ['http://127.0.0.1:51003/', 'http://localhost:54944/']
 
 onMounted(() => loadExtensions(dummyExtensionLocationList))
 
