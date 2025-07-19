@@ -9,6 +9,7 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 import dts from 'vite-plugin-dts'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,12 +19,20 @@ export default defineConfig({
 		tailwindcss(),
 		dts({
 			rollupTypes: true,
-			tsconfigPath: path.resolve(__dirname, './tsconfig.app.json')
-		})
+			tsconfigPath: path.resolve(__dirname, './tsconfig.app.json'),
+		}),
+		viteStaticCopy({
+			targets: [
+				{
+					src: './lib/assets/config.css',
+					dest: '',
+				},
+			],
+		}),
 	],
 	resolve: {
 		alias: {
-			'@': fileURLToPath(new URL('./lib', import.meta.url))
+			'@': fileURLToPath(new URL('./lib', import.meta.url)),
 		},
 	},
 	build: {
@@ -32,9 +41,9 @@ export default defineConfig({
 			entry: fileURLToPath(new URL('./lib/index.ts', import.meta.url)),
 			fileName: (format, entryName) => {
 				if (entryName === 'src/lib/index') {
-					return `index.js`;
+					return `index.js`
 				}
-				return `${entryName}.js`;
+				return `${entryName}.js`
 			},
 			formats: ['es'],
 			cssFileName: 'ui',
@@ -49,11 +58,11 @@ export default defineConfig({
 				preserveModulesRoot: 'lib',
 				entryFileNames: (chunkInfo) => {
 					if (chunkInfo.name.includes('node_modules')) {
-						return chunkInfo.name.replace('node_modules', 'external') + '.js';
+						return chunkInfo.name.replace('node_modules', 'external') + '.js'
 					}
 
-					return '[name].js';
-				}
+					return '[name].js'
+				},
 			},
 		},
 	},
