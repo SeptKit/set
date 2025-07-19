@@ -1,25 +1,39 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
 	<div>
-		<header>
-			<img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-			<div class="wrapper">
-				<HelloWorld msg="You did it!" />
-			</div>
-		</header>
-
-		<main>
-			<TheWelcome />
-		</main>
+		<h1>Vue Extension Widget A</h1>
+		<span>file: {{ fileName }}</span>
 	</div>
 </template>
 
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
+
+const props = defineProps<{
+	api: { [key: string]: any }
+}>()
+
+let fileName = ref('')
+let unsubscribe = () => {}
+
+onMounted(() => {
+	unsubscribe = props.api.activeFileName.subscribe((newFile, oldFile) => {
+		console.debug({ msg: 'active file has changed', newFile, oldFile })
+		fileName.value = newFile
+	})
+})
+
+onUnmounted(() => {
+	unsubscribe()
+})
+</script>
+
 <style scoped>
+/*
+	We import it here and not on the top so it is scoped and does not affect
+	the rest of the ui
+*/
+@import './assets/main.css';
+
 header {
 	line-height: 1.5;
 }
