@@ -28,8 +28,6 @@
 	height: 100vh;
 	grid-template-rows: auto 1fr;
 	grid-template-columns: 3rem 13rem 1fr 13rem;
-	/* gap: 1rem; */
-	/* @apply [&>*]:border-blue-500 [&>*]:border-2; */
 }
 
 .menubar {
