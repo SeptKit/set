@@ -16,7 +16,7 @@ import MainArea from './main-area/main-area.vue'
 		</template>
 
 		<template #primary-sidebar>
-			<span>Primary sidebar</span>
+			<span></span>
 		</template>
 
 		<template #main-area>
@@ -24,7 +24,7 @@ import MainArea from './main-area/main-area.vue'
 		</template>
 
 		<template #secondary-sidebar>
-			<span> secondary sidebar </span>
+			<span></span>
 		</template>
 
 		<h1 class="text-5xl font-bold text-center my-8 text-indigo-600 uppercase tracking-wider">

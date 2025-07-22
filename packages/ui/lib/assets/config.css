@@ -1,5 +1,7 @@
 @plugin "daisyui" {
-	themes: dark --default;
+	themes:
+		spark --default,
+		dark --prefersdark;
 }
 
 @plugin "daisyui/theme" {
@@ -37,7 +39,7 @@
 	--noise: 0;
 }
 
-/* @plugin "daisyui/theme" {
+@plugin "daisyui/theme" {
 	name: 'spark';
 	default: true;
 	prefersdark: false;
@@ -70,4 +72,4 @@
 	--border: 1.5px;
 	--depth: 1;
 	--noise: 1;
-} */
+}

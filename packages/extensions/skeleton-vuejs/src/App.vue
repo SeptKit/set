@@ -17,7 +17,6 @@ let unsubscribe = () => {}
 
 onMounted(() => {
 	unsubscribe = props.api.activeFileName.subscribe((newFile, oldFile) => {
-		console.debug({ msg: 'active file has changed', newFile, oldFile })
 		fileName.value = newFile
 	})
 })

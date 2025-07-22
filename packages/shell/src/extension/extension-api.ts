@@ -38,8 +38,8 @@ function createActiveFileNameStore() {
 		console.log({ msg: 'notifying listeners', nr: listeners.length })
 		for (const listener of listeners) {
 			listener(activeFileName ?? '' + Math.random(), activeFileName)
-			setTimeout(() => sendRandomFilenName(), 2_000)
 		}
+		setTimeout(() => sendRandomFilenName(), 2_000)
 	}
 }
 

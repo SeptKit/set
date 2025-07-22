@@ -1,6 +1,5 @@
 <template>
 	<div>
-		<h1>Widget Site</h1>
 		<div>
 			<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
 			<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
