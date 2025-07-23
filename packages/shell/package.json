@@ -20,7 +20,7 @@
 		"link:ui:restore": "rm -rf ./node_modules/@septkit/ui && pnpm install"
 	},
 	"dependencies": {
-		"@septkit/ui": "0.0.1",
+		"@septkit/ui": "0.0.2",
 		"@tailwindcss/vite": "^4.1.11",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
