@@ -8,7 +8,7 @@
 		"build": "run-p type-check \"build-only {@}\" --",
 		"preview": "vite preview",
 		"test": "vitest --project unit",
-		"test:watch": "pnpm test --watch",
+		"test:watch": "npm run test -- --watch",
 		"test:e2e": "vitest --project e2e",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",

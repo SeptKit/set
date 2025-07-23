@@ -7,6 +7,7 @@
 		"dev": "storybook dev -p 6006",
 		"//====== BUILD ======//": "",
 		"build": "run-p type-check \"build-only {@}\" -- && pnpm run copy-tailwind-config",
+		"build:watch": "vite build --watch",
 		"preview": "vite preview",
 		"build-only": "vite build",
 		"copy-tailwind-config": "cp ./lib/assets/config.css ./dist/config.css",
