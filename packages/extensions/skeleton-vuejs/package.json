@@ -1,0 +1,39 @@
+{
+	"name": "@septkit/ext-skeleton-vuejs",
+	"version": "0.0.1",
+	"type": "module",
+	"description": "This is an example extension written in Vue.JS for SeptKit Platform",
+	"contributes": {
+		"customEditors": [
+			{
+				"id": "sprinteins.ext-skeleton-vuejs.dataflow",
+				"displayName": "VueJS Skeleton",
+				"icon": "/assets/icon.svg",
+				"fileSelectors": [
+					"SSD",
+					"ASD",
+					"SCD"
+				],
+				"entryPoint": "/shell.js"
+			}
+		]
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"build:watch": "npm run build -- --watch",
+		"build:serve": "concurrently \"npm run preview\" \"npm run build:watch\"",
+		"preview": "vite preview --port 54944"
+	},
+	"dependencies": {
+		"@vitejs/plugin-vue": "^6.0.0",
+		"vite": "^7.0.0",
+		"vite-plugin-css-injected-by-js": "^3.5.2",
+		"vite-plugin-static-copy": "^3.1.1",
+		"vite-plugin-vue-devtools": "^7.7.7",
+		"vue": "^3.5.17"
+	},
+	"devDependencies": {
+		"concurrently": "^9.2.0"
+	}
+}
