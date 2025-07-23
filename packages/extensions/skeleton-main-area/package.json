@@ -20,7 +20,7 @@
 	},
 	"main": "index.js",
 	"scripts": {
-		"dev": "http-server --cors --port 51003 .",
+		"build:serve": "http-server --cors --port 51003 .",
 		"test": "echo N/A"
 	},
 	"keywords": [],
