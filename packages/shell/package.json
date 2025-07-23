@@ -15,7 +15,9 @@
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
 		"format": "prettier --write src/ e2e/",
 		"format:check": "prettier --check src/ e2e/",
-		"install:browser": "pnpm exec playwright install chromium"
+		"install:browser": "pnpm exec playwright install chromium",
+		"link:ui": "rm -rf ./node_modules/@septkit/ui && ln -s ../../../ui ./node_modules/@septkit/ui",
+		"link:ui:restore": "rm -rf ./node_modules/@septkit/ui && pnpm install"
 	},
 	"dependencies": {
 		"@septkit/ui": "0.0.1",

@@ -5,19 +5,19 @@
 		</template>
 
 		<template #activity-bar>
-			<span>ACTION</span>
+			<span></span>
 		</template>
 
 		<template #primary-sidebar>
-			<span>Primary sidebar</span>
+			<span></span>
 		</template>
 
 		<template #main-area>
-			<span> main area </span>
+			<MainArea />
 		</template>
 
 		<template #secondary-sidebar>
-			<span> secondary sidebar </span>
+			<span></span>
 		</template>
 
 		<h1 class="text-5xl font-bold text-center my-8 text-indigo-600 uppercase tracking-wider">
@@ -30,6 +30,7 @@
 import type { NavBarItem } from './components/navbar/navbar-item'
 import Navbar from './components/navbar/navbar.vue'
 import Layout from './layout.vue'
+import MainArea from './main-area/main-area.vue'
 
 const navBarItems: NavBarItem[] = [
 	{ id: 'file.open', label: 'Open', path: ['File'], action: noop },

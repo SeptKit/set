@@ -1,0 +1,33 @@
+{
+	"name": "@septkit/ext-skeleton",
+	"displayName": "Skeleton",
+	"version": "1.0.0",
+	"description": "This is an example extension for SeptKit",
+	"contributes": {
+		"customEditors": [
+			{
+				"id": "sprinteins.ext-skeleton.dataflow",
+				"displayName": "Communication",
+				"icon": "/assets/icon.svg",
+				"fileSelectors": [
+					"SSD",
+					"ASD",
+					"SCD"
+				],
+				"entryPoint": "/shell.js"
+			}
+		]
+	},
+	"main": "index.js",
+	"scripts": {
+		"build:serve": "http-server --cors --port 51003 .",
+		"test": "echo N/A"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.10.0",
+	"devDependencies": {
+		"http-server": "^14.1.1"
+	}
+}
