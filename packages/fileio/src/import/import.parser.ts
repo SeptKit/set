@@ -72,11 +72,11 @@ export function setSaxParser(
 	)
 
 	const queues = {
-		Substation: queue()
+		Substation: queue(),
 	}
-	function ensureQueue(tableName: string){
+	function ensureQueue(tableName: string) {
 		let q = queues[tableName]
-		if(!q){
+		if (!q) {
 			const newQ = queue()
 			queues[tableName] = newQ
 			q = newQ
@@ -92,9 +92,6 @@ export function setSaxParser(
 
 		const queue = ensureQueue(recordElement.tagName)
 		queue.push(recordElement)
-
-
-
 	}
 
 	parser.ontext = (text) => {
@@ -129,19 +126,20 @@ export function setSaxParser(
 	}
 
 	parser.onend = async () => {
- 	await handleEnd(databaseInstance, { ...state })
-	// 	processingQueue.push(async () => {
-	// 		await handleEnd(databaseInstance, { ...state })
-	// 		state = initialState
-	// 		console.log('Parsing complete, state reset')
-	// 	})
+		await handleEnd(databaseInstance, { ...state })
+		// 	processingQueue.push(async () => {
+		// 		await handleEnd(databaseInstance, { ...state })
+		// 		state = initialState
+		// 		console.log('Parsing complete, state reset')
+		// 	})
 
-	// 	processQueue()
-	// }
+		// 	processQueue()
+		// }
 
-	parser.onerror = handleError
+		parser.onerror = handleError
 
-	return parser
+		return parser
+	}
 }
 
 /**
@@ -428,9 +426,10 @@ function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>
 	})
 }
 
-function getParent(
-	currentParentElements: Array<{ id: string; tagName: AvailableTagName }>
-): { id: string; tagName: AvailableTagName } | null {
+function getParent(currentParentElements: Array<{ id: string; tagName: AvailableTagName }>): {
+	id: string
+	tagName: AvailableTagName
+} | null {
 	if (currentParentElements.length === 0) return null
 
 	const lastParent = currentParentElements[currentParentElements.length - 1]

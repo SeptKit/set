@@ -10,11 +10,14 @@
 	"source": "src/index.ts",
 	"scripts": {
 		"//====== BUILD ======//": "",
-		"build": "tsup",
-		"build:watch": "tsup --watch",
+		"build": "vite build",
+		"build:watch": "vite build --watch",
 		"//====== TYPES ======//": "",
 		"types": "tsc --project .",
-		"types:watch": "pnpm run types -- --watch"
+		"types:watch": "pnpm run types -- --watch",
+		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
+		"format": "prettier --write lib/",
+		"format:check": "prettier --check lib/"
 	},
 	"exports": {
 		".": "./dist/index.js"
@@ -24,11 +27,14 @@
 	"license": "ISC",
 	"dependencies": {
 		"dexie": "^4.0.11",
-		"sax": "^1.4.1"
+		"sax": "^1.4.1",
+		"vite": "^7.0.0"
 	},
 	"devDependencies": {
 		"@types/sax": "^1.2.7",
-		"tsup": "^8.5.0",
-		"typescript": "~5.8.3"
+		"oxlint": "~1.6.0",
+		"prettier": "3.5.3",
+		"typescript": "~5.8.3",
+		"vitest": "^3.2.4"
 	}
 }
