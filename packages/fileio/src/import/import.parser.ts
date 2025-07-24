@@ -71,7 +71,7 @@ export function setSaxParser(params: {
 			normalize: true, // Normalize whitespace
 			position: false, // Don't track position (performance boost)
 			xmlns: true, // Enable namespace handling
-		}
+		},
 	)
 
 	// const queues = {
@@ -137,8 +137,7 @@ export function setSaxParser(params: {
 	}
 	parser.onerror = handleError
 
-		return parser
-	}
+	return parser
 }
 
 /**
@@ -188,11 +187,11 @@ function handleOpenTag(params: {
 				databaseInstance,
 				tagName,
 				batchSize: options.batchSize,
-		  })
+			})
 		: ensureEndingQueue({
 				tagName,
 				batchSize: options.batchSize,
-		  })
+			})
 
 	console.warn(parent ? `Parent: ${parent.id} (${parent.tagName})` : 'No parent')
 	if (record.parent)
@@ -269,7 +268,7 @@ function handleText(text: string, state: State): State {
 
 	if (updatedRecordsBatch[currentTagName]) {
 		const recordIndex = updatedRecordsBatch[currentTagName].findIndex(
-			(record) => record.id === currentId
+			(record) => record.id === currentId,
 		)
 
 		if (recordIndex >= 0) {
@@ -441,7 +440,7 @@ function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>
 				? {
 						prefix: attribute.prefix,
 						uri: attribute.uri,
-				  }
+					}
 				: null
 
 		return {

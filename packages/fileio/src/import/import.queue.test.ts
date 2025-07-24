@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createAsyncQueue } from './import.queue'
-import { AsyncQueue } from './import.types'
+import { createAsyncQueue } from './async-queue/async-queue'
+import { AsyncQueue } from './async-queue/async-queue.type'
 
 describe('Async Queue', () => {
 	describe('batch sizes', () => {
@@ -13,6 +13,12 @@ describe('Async Queue', () => {
 
 		const featureTests: TestCase[] = [
 			{
+				desc: 'pushing as many elements as the batch size',
+				itemsToPush: ['A', 'B', 'C', 'D'],
+				itemsToExpect: ['A', 'B', 'C', 'D'],
+				batchSize: 4,
+			},
+			{
 				desc: 'pushing less items then the batch size',
 				itemsToPush: ['A', 'B', 'C', 'D'],
 				itemsToExpect: ['A', 'B', 'C', 'D'],
@@ -23,12 +29,6 @@ describe('Async Queue', () => {
 				itemsToPush: ['A', 'B', 'C', 'D'],
 				itemsToExpect: ['A', 'B', 'C', 'D'],
 				batchSize: 2,
-			},
-			{
-				desc: 'pushing as many elements as the batch size',
-				itemsToPush: ['A', 'B', 'C', 'D'],
-				itemsToExpect: ['A', 'B', 'C', 'D'],
-				batchSize: 4,
 			},
 		]
 

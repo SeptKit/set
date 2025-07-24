@@ -1,4 +1,5 @@
 import type { AvailableTagName, DatabaseRecord } from '@/common/common.types'
+import type { AsyncQueue } from './async-queue/async-queue.type'
 
 export type ParserOptions = {
 	batchSize: number
@@ -23,15 +24,7 @@ export type State = {
 }
 
 //====== QUEUE
-
-export type QueueResult = { value: T[]; done: boolean }
 export type Queues = Record<
 	AvailableTagName,
-	{ status: 'pending' | 'done'; instance: CreateAsyncQueue }
+	{ status: 'pending' | 'done'; instance: AsyncQueue<DatabaseRecord> }
 >
-export type ResolverFunction = (value: QueueResult) => void
-export type CreateAsyncQueue = {
-	push: (item: DatabaseRecord) => void
-	next: () => Promise<QueueResult>
-	close: () => void
-}
