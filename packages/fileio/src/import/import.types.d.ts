@@ -13,13 +13,8 @@ type ParentTagName = string
 export type NewRelationship = { parentId: string; childId: string; childTagName: string }
 
 export type State = {
-	currentId: string
-	currentTagName: '' | AvailableTagName
-	currentValue: string
+	stack: DatabaseRecord[]
 	currentParentElements: Array<{ id: string; tagName: AvailableTagName }>
-	recordsBatch: Record<string, DatabaseRecord[]>
-	relationshipsBatch: Record<ParentTagName, NewRelationship[]>
-	tablesToCreate: AvailableTagName[]
 }
 
 //====== QUEUE

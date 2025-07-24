@@ -3,7 +3,7 @@ import Dexie from 'dexie'
 import { tagNamesToSchema, DATABASE_DEFAULT_SCHEMA, TAG_NAMES } from '@/common'
 // TYPES
 import { NewRelationship } from './import.types'
-import { DatabaseRecord, DatabaseInstance, AvailableTagName } from '@/common/common.types'
+import { DatabaseRecord, DatabaseInstance } from '@/common/common.types'
 
 //====== PUBLIC FUNCTIONS ======//
 
@@ -30,9 +30,11 @@ export async function bulkAddRecords(params: {
 	tagName: string
 	records: DatabaseRecord[]
 }): Promise<void> {
-	const currentTable = params.databaseInstance.table(params.tagName)
-	await params.databaseInstance.transaction('rw', currentTable, async () => {
-		await currentTable.bulkAdd(params.records)
+	const { databaseInstance, tagName, records } = params
+
+	const currentTable = databaseInstance.table(tagName)
+	await databaseInstance.transaction('rw', currentTable, async () => {
+		await currentTable.bulkAdd(records)
 	})
 }
 
@@ -41,11 +43,13 @@ export async function bulkUpdateRelationships(params: {
 	parentTagName: string
 	relationshipRecords: NewRelationship[]
 }) {
-	const currentTable = params.databaseInstance.table(params.parentTagName)
+	const { databaseInstance, parentTagName, relationshipRecords } = params
 
-	const parentIds = params.relationshipRecords.map((child) => child.parentId)
+	const currentTable = databaseInstance.table(parentTagName)
 
-	await params.databaseInstance.transaction('rw', currentTable, async () => {
+	const parentIds = relationshipRecords.map((child) => child.parentId)
+
+	await databaseInstance.transaction('rw', currentTable, async () => {
 		const recordsToUpdate = await currentTable.bulkGet(parentIds)
 
 		const recordsFormattedForBulkUpdate = recordsToUpdate.map((record, index) => {
@@ -55,8 +59,8 @@ export async function bulkUpdateRelationships(params: {
 					children: [
 						...record.children,
 						{
-							id: params.relationshipRecords[index].childId,
-							tagName: params.relationshipRecords[index].childTagName,
+							id: relationshipRecords[index].childId,
+							tagName: relationshipRecords[index].childTagName,
 						},
 					],
 				},
