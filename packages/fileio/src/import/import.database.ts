@@ -86,15 +86,21 @@ export async function bulkCreateTables(params: {
 
 	const databaseInstanceCurrentVersion = databaseInstance.verno
 
-	const previousSchema = databaseInstance.tables.reduce((acc, table) => {
-		acc[table.name] = DATABASE_DEFAULT_SCHEMA
-		return acc
-	}, {} as Record<string, string>)
+	const previousSchema = databaseInstance.tables.reduce(
+		(acc, table) => {
+			acc[table.name] = DATABASE_DEFAULT_SCHEMA
+			return acc
+		},
+		{} as Record<string, string>,
+	)
 
-	const additionalSchema = tagNames.reduce((acc, tagName) => {
-		acc[tagName] = DATABASE_DEFAULT_SCHEMA
-		return acc
-	}, {} as Record<string, string>)
+	const additionalSchema = tagNames.reduce(
+		(acc, tagName) => {
+			acc[tagName] = DATABASE_DEFAULT_SCHEMA
+			return acc
+		},
+		{} as Record<string, string>,
+	)
 
 	const newSchema = {
 		...previousSchema,

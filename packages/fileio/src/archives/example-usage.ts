@@ -81,7 +81,7 @@ async function findSpecificRecords(
 	dbName: string,
 	tableName: string,
 	attributeName: string,
-	value: string
+	value: string,
 ): Promise<any[]> {
 	try {
 		const results = await queryImportedData(dbName, tableName, async (table) => {
@@ -90,7 +90,7 @@ async function findSpecificRecords(
 		})
 
 		console.log(
-			`Found ${results.length} records in table ${tableName} where ${attributeName} = ${value}`
+			`Found ${results.length} records in table ${tableName} where ${attributeName} = ${value}`,
 		)
 		return results
 	} catch (error) {

@@ -47,7 +47,7 @@ export function resolveCurrentBatchChildrenRelationships(params: {
 
 		if (children.length > 0) {
 			const parentIndex = updatedParentRecordsBatch.findIndex(
-				(record) => record.id === currentParentRecord.id
+				(record) => record.id === currentParentRecord.id,
 			)
 
 			if (parentIndex >= 0) {
@@ -70,7 +70,7 @@ export function resolveCurrentBatchChildrenRelationships(params: {
 //====== PRIVATE FUNCTIONS ======//
 
 function getPendingChildrenRelationshipsPerParent(
-	parentTagName: AvailableTagName
+	parentTagName: AvailableTagName,
 ): NewRelationship[] {
 	return pendingChildrenRelationshipsPerParent[parentTagName] || []
 }
@@ -85,6 +85,6 @@ function removeProcessedChildrenRelationships(params: {
 	const parentRelationships = getPendingChildrenRelationshipsPerParent(tagName)
 
 	pendingChildrenRelationshipsPerParent[tagName] = parentRelationships.filter(
-		(relationship) => !processedChildrenIds.includes(relationship.childId)
+		(relationship) => !processedChildrenIds.includes(relationship.childId),
 	)
 }

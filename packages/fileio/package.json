@@ -18,8 +18,8 @@
 		"test": "vitest",
 		"test:watch": "vitest --watch",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-		"format": "prettier --write lib/",
-		"format:check": "prettier --check lib/"
+		"format": "prettier --write src/",
+		"format:check": "prettier --check src/"
 	},
 	"exports": {
 		".": "./dist/index.js"

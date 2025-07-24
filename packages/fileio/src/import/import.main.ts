@@ -75,7 +75,7 @@ async function createChunks(
 	xmlParser: sax.SAXParser,
 	textDecoder: TextDecoder,
 	buffer: Uint8Array,
-	chunkSize: number
+	chunkSize: number,
 ): Promise<void> {
 	const { done, value } = await reader.read()
 
