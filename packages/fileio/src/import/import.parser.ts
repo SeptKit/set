@@ -45,7 +45,7 @@ export function setSaxParser(params: {
 			normalize: true, // Normalize whitespace
 			position: false, // Don't track position (performance boost)
 			xmlns: true, // Enable namespace handling
-		}
+		},
 	)
 
 	parser.onopentag = (node: sax.QualifiedTag) => {
@@ -163,11 +163,11 @@ function handleCloseTag(params: {
 					databaseInstance,
 					tagName,
 					batchSize: options.batchSize,
-			  })
+				})
 			: ensureEndingQueue({
 					tagName,
 					batchSize: options.batchSize,
-			  })
+				})
 
 		queue.push(currentRecord)
 	}
@@ -215,7 +215,7 @@ function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>
 				? {
 						prefix: attribute.prefix,
 						uri: attribute.uri,
-				  }
+					}
 				: null
 
 		return {
@@ -226,9 +226,10 @@ function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>
 	})
 }
 
-function getParent(
-	currentParentElements: Array<{ id: string; tagName: AvailableTagName }>
-): { id: string; tagName: AvailableTagName } | null {
+function getParent(currentParentElements: Array<{ id: string; tagName: AvailableTagName }>): {
+	id: string
+	tagName: AvailableTagName
+} | null {
 	if (currentParentElements.length === 0) return null
 
 	const lastParent = currentParentElements[currentParentElements.length - 1]

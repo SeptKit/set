@@ -34,7 +34,7 @@ async function rebuildXmlFromIndexedDB(params: {
 		const emptyXmlDocument = document.implementation.createDocument(
 			'http://www.iec.ch/61850/2003/SCL',
 			null,
-			null
+			null,
 		)
 
 		const sclElement = (await params.databaseInstance.table('SCL').toArray())?.[0]
@@ -65,14 +65,17 @@ async function recursivelyBuildXmlTree(params: {
 }) {
 	if (!params.rawElement.children) return
 
-	const childrenPerTagNames = params.rawElement.children.reduce((acc, child) => {
-		acc[child.tagName] = [...(acc[child.tagName] || []), child.id]
-		return acc
-	}, {} as Record<Partial<AvailableTagName>, string[]>)
+	const childrenPerTagNames = params.rawElement.children.reduce(
+		(acc, child) => {
+			acc[child.tagName] = [...(acc[child.tagName] || []), child.id]
+			return acc
+		},
+		{} as Record<Partial<AvailableTagName>, string[]>,
+	)
 
 	const childrenPerTagNamesEntries = Object.entries(childrenPerTagNames) as [
 		Partial<AvailableTagName>,
-		string[]
+		string[],
 	][]
 
 	const childrenPromises = childrenPerTagNamesEntries.map(async ([tagName, children]) => {
@@ -117,7 +120,7 @@ function createElementWithAttributesAndText(params: {
 				element.setAttributeNS(
 					attribute.namespace.uri,
 					`${attribute.namespace.prefix}:${attribute.name}`,
-					attribute.value
+					attribute.value,
 				)
 			else element.setAttribute(attribute.name, String(attribute.value))
 		}

@@ -5,7 +5,7 @@ export function isSaxQualifiedTag(node: sax.Tag | sax.QualifiedTag): node is sax
 }
 
 export function isSaxQualifiedAttribute(
-	attribute: string | sax.QualifiedAttribute | undefined
+	attribute: string | sax.QualifiedAttribute | undefined,
 ): attribute is sax.QualifiedAttribute {
 	return (
 		attribute !== undefined &&
