@@ -45,26 +45,27 @@ export async function importXmlFiles({
 }
 
 async function importFile(params: { file: File; options: ImportOptions }) {
+	const { file, options } = params
 	try {
-		const databaseName = getDatabaseName(params.file)
-		console.log(`Creating database: ${databaseName}`)
+		const databaseName = getDatabaseName(file)
+
 		const databaseInstance = initializeDatabaseInstance(databaseName)
 
-		if (params.options.useBrowserApi) {
-			const reader = params.file.stream().getReader()
-			const xmlParser = setSaxParser(databaseInstance)
+		if (options.useBrowserApi) {
+			const reader = file.stream().getReader()
+			const xmlParser = setSaxParser({
+				databaseInstance,
+				options: { batchSize: options.batchSize },
+			})
 
 			const textDecoder = new TextDecoder()
 			const buffer = new Uint8Array(0)
-			console.log(`Starting import for file: ${params.file.name}`)
-			await createChunks(reader, xmlParser, textDecoder, buffer, params.options.chunkSize)
-
-			console.log(`Import completed for file: ${params.file.name}`)
+			await createChunks(reader, xmlParser, textDecoder, buffer, options.chunkSize)
 		}
 
 		return databaseName
 	} catch (error) {
-		console.error(`Error importing file ${params.file.name}:`, error)
+		console.error(`Error importing file ${file.name}:`, error)
 		throw error
 	}
 }
@@ -78,7 +79,6 @@ async function createChunks(
 ): Promise<void> {
 	const { done, value } = await reader.read()
 
-	console.log(`Read chunk of size: ${value ? value.length : 0}`)
 	if (done) {
 		// If there's any remaining data in the buffer, send it
 		if (buffer.length > 0) {
@@ -87,7 +87,6 @@ async function createChunks(
 		}
 
 		xmlParser.close()
-		console.log('All chunks processed, ending parser.')
 		return
 	}
 
@@ -108,7 +107,6 @@ async function createChunks(
 
 		const chunk = textDecoder.decode(chunkBuffer, { stream: true })
 		xmlParser.write(chunk)
-		console.log('Processed chunk of size:', chunkBuffer.length)
 	}
 
 	// Continue pumping

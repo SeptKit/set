@@ -25,32 +25,7 @@ export const useFileStore = defineStore('file', () => {
 			const databaseNames = await importXmlFiles({ files: filesArray })
 			currentActiveFileDatabaseName.value = databaseNames[0]
 
-			// const file = files?.[0]
-			// if (!file) {
-			// 	console.error('No file selected')
-			// 	return
-			// }
-			// try {
-			// 	await importXmlFile(file, {
-			// 		onProgress: (progress) => {
-			// 			console.log(`Processing ${progress.fileName}: ${progress.percentComplete}% complete`)
-			// 			console.log(`Processed ${progress.bytesProcessed} bytes of ${progress.totalBytes} total`)
-			// 			console.log(`Elements processed: ${progress.elementsProcessed}`)
-			// 			console.log(`Tables created: ${progress.tablesCreated.join(', ')}`)
-			// 		},
-			// 		onComplete: (result) => {
-			// 			console.log(`Import of ${result.fileName} completed successfully!`)
-			// 			console.log(`Stats: ${result.stats.elementsProcessed} elements processed`)
-			// 			console.log(`Tables created: ${result.stats.tablesCreated.join(', ')}`)
-			// 			console.log(`Duration: ${result.stats.duration}ms`)
-			// 		},
-			// 		onError: (error) => {
-			// 			console.error(`Error: ${error.message}`)
-			// 		},
-			// 	})
-			// } catch (error) {
-			// 	console.error('Import failed:', error)
-			// }
+			if (databaseNames.length) alert(`Files imported successfully: ${databaseNames.join(', ')}`)
 		})
 
 		return open()
@@ -58,8 +33,6 @@ export const useFileStore = defineStore('file', () => {
 
 	async function saveFile() {
 		try {
-			console.log('Saving file:', currentActiveFileDatabaseName.value)
-
 			// Check if database name is valid
 			if (!currentActiveFileDatabaseName.value) {
 				console.error('No active file to save - please open a file first')

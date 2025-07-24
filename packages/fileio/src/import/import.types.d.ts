@@ -1,10 +1,12 @@
-import type { AvailableTagName } from '@/common/common.types'
-import type { createAsyncQueue } from './import.queue'
+import type { AvailableTagName, DatabaseRecord } from '@/common/common.types'
 
-export type ImportOptions = {
+export type ParserOptions = {
+	batchSize: number
+}
+
+export type ImportOptions = ParserOptions & {
 	useBrowserApi: boolean
 	chunkSize: number
-	batchSize: number
 }
 
 type ParentTagName = string
@@ -22,6 +24,15 @@ export type State = {
 
 //====== QUEUE
 
-export type QueueResult = { value: T | undefined; done: boolean }
+export type Queues = Record<
+	AvailableTagName,
+	{ status: 'pending' | 'done'; instance: CreateAsyncQueue }
+>
+
+export type QueueResult = { value: DatabaseRecord[]; done: boolean }
 export type ResolverFunction = (value: QueueResult) => void
-export type AsyncQueue<T> = ReturnType<typeof createAsyncQueue<T>>
+export type CreateAsyncQueue = {
+	push: (item: DatabaseRecord) => void
+	next: () => Promise<QueueResult>
+	close: () => void
+}

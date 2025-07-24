@@ -30,7 +30,6 @@ export async function bulkAddRecords(params: {
 	tagName: string
 	records: DatabaseRecord[]
 }): Promise<void> {
-	console.log(`Adding ${params.records.length} records to table: ${params.tagName}`)
 	const currentTable = params.databaseInstance.table(params.tagName)
 	await params.databaseInstance.transaction('rw', currentTable, async () => {
 		await currentTable.bulkAdd(params.records)
@@ -73,15 +72,15 @@ export async function bulkUpdateRelationships(params: {
  * @param databaseInstance Dexie database instance
  * @param tagNames Array of table names to create
  */
-export async function bulkCreateTables(
-	databaseInstance: DatabaseInstance,
-	tagNames: AvailableTagName[]
-) {
+export async function bulkCreateTables(params: {
+	databaseInstance: DatabaseInstance
+	tagNames: string[]
+}) {
+	const { databaseInstance, tagNames } = params
+
 	databaseInstance.close()
 
-	console.log('current version:', databaseInstance.verno)
 	const databaseInstanceCurrentVersion = databaseInstance.verno
-	console.log(`Updating database schema to version ${databaseInstanceCurrentVersion + 1}`)
 
 	const previousSchema = databaseInstance.tables.reduce((acc, table) => {
 		acc[table.name] = DATABASE_DEFAULT_SCHEMA

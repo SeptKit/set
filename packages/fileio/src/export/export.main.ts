@@ -3,6 +3,8 @@ import Dexie from 'dexie'
 import { tagNamesToSchema } from '@/common'
 // GUARDS
 import { isQualifiedAttribute } from '@/common/common.guards'
+// FORMATTER
+import { formatXml } from './export.formatter'
 // TYPES
 import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/common.types'
 
@@ -10,17 +12,8 @@ import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/com
 
 export async function exportFile(params: { databaseName: string }) {
 	const databaseInstance = new Dexie(params.databaseName) as DatabaseInstance
-	// const tableNames = Object.keys(databaseInstance._allTables)
-	// const schema = tagNamesToSchema(tableNames)
-	// console.log(schema)
-	// const version = databaseInstance.verno
-	// console.log(`Exporting database: ${databaseInstance.name} with version: ${version}`)
-	// databaseInstance.version(version).stores(schema)
 	await databaseInstance.open()
 
-	console.log(databaseInstance)
-
-	console.log(`Exporting database: ${databaseInstance.name}`)
 	const xmlDocument = await rebuildXmlFromIndexedDB({
 		databaseInstance: databaseInstance,
 		useBrowserApi: true,
@@ -54,7 +47,6 @@ async function rebuildXmlFromIndexedDB(params: {
 
 		emptyXmlDocument.appendChild(rootElement)
 
-		console.log('Rebuilding XML tree structure from IndexedDB...')
 		// Recursively build the tree structure
 		return await recursivelyBuildXmlTree({
 			databaseInstance: params.databaseInstance,
@@ -76,14 +68,15 @@ async function recursivelyBuildXmlTree(params: {
 	const childrenPerTagNames = params.rawElement.children.reduce((acc, child) => {
 		acc[child.tagName] = [...(acc[child.tagName] || []), child.id]
 		return acc
-	}, {} as Record<AvailableTagName, string[]>)
+	}, {} as Record<Partial<AvailableTagName>, string[]>)
 
 	const childrenPerTagNamesEntries = Object.entries(childrenPerTagNames) as [
-		AvailableTagName,
+		Partial<AvailableTagName>,
 		string[]
 	][]
+
 	const childrenPromises = childrenPerTagNamesEntries.map(async ([tagName, children]) => {
-		const currentTable = params.databaseInstance[tagName]
+		const currentTable = params.databaseInstance.table(tagName)
 		const currentChildrenRecord = await currentTable.bulkGet(children)
 
 		for (const child of currentChildrenRecord) {
@@ -137,8 +130,9 @@ function createElementWithAttributesAndText(params: {
 export function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename: string }) {
 	const serializer = new XMLSerializer()
 	const xmlString = serializer.serializeToString(params.xmlDocument)
+	const formattedXmlString = formatXml(xmlString)
 
-	const blob = new Blob([xmlString], { type: 'application/xml' })
+	const blob = new Blob([formattedXmlString], { type: 'application/xml' })
 	const url = URL.createObjectURL(blob)
 
 	const a = document.createElement('a')

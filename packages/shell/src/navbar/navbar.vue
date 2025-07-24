@@ -19,7 +19,6 @@ async function handleFileOpen() {
 }
 
 async function handleFileSave() {
-	console.log('Saving file...')
 	await fileStore.saveFile()
 	dropdownOpen.value?.close()
 }
