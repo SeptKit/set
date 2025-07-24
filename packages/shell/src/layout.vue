@@ -37,17 +37,17 @@
 
 .activity-bar {
 	padding: 0.5rem;
-	border-right: 1px solid var(--color-neutral);
+	border-right: 1px solid var(--border-color);
 }
 
 .primary-sidebar {
 	padding: 1rem;
-	border-right: 1px solid var(--color-neutral);
+	border-right: 1px solid var(--border-color);
 }
 
 .secondary-sidebar {
 	padding: 1rem;
-	border-left: 1px solid var(--color-neutral);
+	border-left: 1px solid var(--border-color);
 }
 
 .main-area {

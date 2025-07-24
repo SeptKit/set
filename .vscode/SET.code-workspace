@@ -1,14 +1,17 @@
 {
-  "folders": [
-    {
-      "path": ".."
-    }
-  ],
-  "settings": {
-    "oxc.enable": true,
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnPaste": true,
-    "cSpell.words": ["configcss", "septkit"]
-  }
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"oxc.enable": true,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnPaste": true,
+		"cSpell.words": ["configcss", "Dexie", "onclosetag", "onopentag", "ontext", "septkit"],
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		}
+	}
 }
