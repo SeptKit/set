@@ -35,7 +35,6 @@ function createActiveFileNameStore() {
 		}
 	}
 	function sendRandomFilenName() {
-		console.log({ msg: 'notifying listeners', nr: listeners.length })
 		for (const listener of listeners) {
 			listener(activeFileName ?? '' + Math.random(), activeFileName)
 		}

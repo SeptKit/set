@@ -1,3 +1,35 @@
+<template>
+	<details
+		data-testid="dropdown-wrapper"
+		ref="details-ref"
+		class="dropdown"
+		:open="isOpen"
+		@toggle="dropdownHandler"
+	>
+		<summary
+			data-testid="dropdown-trigger"
+			@click.stop="toggleDropdown"
+			class="btn"
+			:class="[
+				colorStyle,
+				variantStyle,
+				sizeStyle,
+				modifierStyle,
+				{ 'btn-active': active, 'btn-disabled': disabled },
+			]"
+		>
+			<slot name="label"></slot>
+		</summary>
+		<ul
+			data-testid="dropdown-menu"
+			v-on-click-outside.bubble="closeDropdown"
+			class="menu dropdown-content bg-base-100 z-1 w-52 p-2 shadow-sm"
+		>
+			<slot name="items"></slot>
+		</ul>
+	</details>
+</template>
+
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
@@ -91,6 +123,7 @@ function closeDropdown() {
 }
 
 function openDropdown() {
+	console.debug({ level: 'debug', msg: 'opening dropdown' })
 	isOpen.value = true
 	emit('open')
 }
@@ -99,6 +132,7 @@ function openDropdown() {
 // `isOpen` value to minizmie the places where change happens to it
 // this is needed to make sure we emit the right open and close events
 function toggleDropdown() {
+	console.debug({ level: 'debug', msg: 'toggle dropdown' })
 	if (!isOpen.value) {
 		openDropdown()
 	} else {
@@ -116,35 +150,3 @@ defineExpose({
 	id: props.id,
 })
 </script>
-
-<template>
-	<details
-		data-testid="dropdown-wrapper"
-		ref="details-ref"
-		class="dropdown"
-		:open="isOpen"
-		@toggle="dropdownHandler"
-	>
-		<summary
-			data-testid="dropdown-trigger"
-			@click.stop="toggleDropdown"
-			class="btn"
-			:class="[
-				colorStyle,
-				variantStyle,
-				sizeStyle,
-				modifierStyle,
-				{ 'btn-active': active, 'btn-disabled': disabled },
-			]"
-		>
-			<slot name="label"></slot>
-		</summary>
-		<ul
-			data-testid="dropdown-menu"
-			v-on-click-outside.bubble="closeDropdown"
-			class="menu dropdown-content bg-base-100 z-1 w-52 p-2 shadow-sm"
-		>
-			<slot name="items"></slot>
-		</ul>
-	</details>
-</template>

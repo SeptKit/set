@@ -19,6 +19,16 @@ export const useFileStore = defineStore('file', () => {
 		localStorage,
 	)
 
+	return {
+		// state
+		currentActiveFileDatabaseName,
+		currentImportedDatabaseNames,
+		// actions
+		openFiles,
+		saveFile,
+		importFile,
+	}
+
 	async function openFiles() {
 		const { open, onChange } = useFileDialog({
 			accept: 'asd',
@@ -70,15 +80,5 @@ export const useFileStore = defineStore('file', () => {
 		})
 
 		return open()
-	}
-
-	return {
-		// state
-		currentActiveFileDatabaseName,
-		currentImportedDatabaseNames,
-		// actions
-		openFiles,
-		saveFile,
-		importFile,
 	}
 })
