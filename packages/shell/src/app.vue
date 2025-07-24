@@ -43,8 +43,8 @@ const fileStore = useFileStore()
 
 const navBarItems: NavBarItem[] = [
 	{ id: 'file.open', label: 'Open', path: ['File'], action: fileStore.openFiles },
-	{ id: 'file.save', label: 'Save', path: ['File'], action: fileStore.saveFile() },
-	{ id: 'import.function', label: 'Function', path: ['Import'], action: fileStore.importFile() },
+	{ id: 'file.save', label: 'Save', path: ['File'], action: fileStore.saveFile },
+	{ id: 'import.function', label: 'Function', path: ['Import'], action: fileStore.importFile },
 ]
 
 //====== FUNCTIONS ======//
