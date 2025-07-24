@@ -1,15 +1,23 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 // VUEUSE
-import { useFileDialog } from '@vueuse/core'
+import { useFileDialog, useStorage } from '@vueuse/core'
 // FILEIO
 import { importXmlFiles, exportFile } from '@septkit/fileio'
 
 export const useFileStore = defineStore('file', () => {
 	//====== STATE ======//
 
-	const currentActiveFileDatabaseName = ref('')
-	const currentImportedDatabaseNames = ref<string[]>([])
+	const currentActiveFileDatabaseName = useStorage<string>(
+		'currentActiveFileDatabaseName',
+		'',
+		localStorage,
+	)
+	const currentImportedDatabaseNames = useStorage<string[]>(
+		'currentImportedDatabaseNames',
+		[],
+		localStorage,
+	)
 
 	async function openFiles() {
 		const { open, onChange } = useFileDialog({
@@ -33,10 +41,8 @@ export const useFileStore = defineStore('file', () => {
 
 	async function saveFile() {
 		try {
-			// Check if database name is valid
 			if (!currentActiveFileDatabaseName.value) {
-				console.error('No active file to save - please open a file first')
-				return false
+				throw new Error('No active file to save - please open a file first')
 			}
 
 			return await exportFile({
@@ -44,7 +50,7 @@ export const useFileStore = defineStore('file', () => {
 			})
 		} catch (error) {
 			console.error('Error saving file:', error)
-			return false
+			throw error
 		}
 	}
 
@@ -60,7 +66,7 @@ export const useFileStore = defineStore('file', () => {
 
 			const filesArray = Array.from(files)
 			const databaseNames = await importXmlFiles({ files: filesArray })
-			currentImportedDatabaseNames.value = databaseNames
+			currentImportedDatabaseNames.value = [...currentImportedDatabaseNames.value, ...databaseNames]
 		})
 
 		return open()
