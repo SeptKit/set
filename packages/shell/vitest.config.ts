@@ -24,6 +24,7 @@ export default mergeConfig(
 						include: ['src/**/*.test.{js,ts,jsx,tsx}'],
 						exclude: [...configDefaults.exclude],
 						root: fileURLToPath(new URL('./', import.meta.url)),
+						testTimeout: 5_000,
 					},
 				},
 				{
