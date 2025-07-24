@@ -30,4 +30,14 @@ export default defineConfig({
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
 		},
 	},
+	build: {
+		lib: {
+			entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+			formats: ['es'],
+			fileName: () => `shell.js`,
+		},
+	},
+	define: {
+		'process.env': process.env,
+	},
 })
