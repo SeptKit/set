@@ -1,10 +1,9 @@
 packages:
-  - "packages/plugins/*"
-  - "packages/shell"
-  - "packages/ui"
-  - "packages/sclsdk"
-  - "packages/fileio"
+  - 'packages/extensions/*'
+  - 'packages/shell'
+  - 'packages/ui'
+  - 'packages/sclsdk'
+  - 'packages/fileio'
 
-linkWorkspacePackages: true
 sharedWorkspaceLockfile: false
 autoInstallPeers: true
