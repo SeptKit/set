@@ -1,14 +1,7 @@
-<script setup lang="ts">
-import Navbar from './components/navbar/navbar.vue'
-import { useMainAreaWidgetStore } from './extension/extension-store'
-import Layout from './layout.vue'
-import MainArea from './main-area/main-area.vue'
-</script>
-
 <template>
 	<Layout>
 		<template #menubar>
-			<Navbar />
+			<Navbar :items="navBarItems" />
 		</template>
 
 		<template #activity-bar>
@@ -32,6 +25,20 @@ import MainArea from './main-area/main-area.vue'
 		</h1>
 	</Layout>
 </template>
+
+<script setup lang="ts">
+import type { NavBarItem } from './components/navbar/navbar-item'
+import Navbar from './components/navbar/navbar.vue'
+import Layout from './layout.vue'
+import MainArea from './main-area/main-area.vue'
+
+const navBarItems: NavBarItem[] = [
+	{ id: 'file.open', label: 'Open', path: ['File'], action: noop },
+	{ id: 'file.save', label: 'Save', path: ['File'], action: noop },
+	{ id: 'import.function', label: 'Function', path: ['Import'], action: noop },
+]
+function noop() {}
+</script>
 
 <style>
 @reference "@/assets/main.css";
