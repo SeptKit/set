@@ -4,10 +4,27 @@
 	"description": "template for creating extensions",
 	"private": true,
 	"type": "module",
+	"contributes": {
+		"customEditors": [
+			{
+				"id": "sprinteins.__template__.dataflow",
+				"displayName": "__TEMPLATE__",
+				"icon": "/assets/icon.svg",
+				"fileSelectors": [
+					"SSD",
+					"ASD",
+					"SCD"
+				],
+				"entryPoint": "/shell.js"
+			}
+		]
+	},
 	"scripts": {
 		"dev": "vite",
 		"build": "run-p type-check \"build-only {@}\" --",
-		"preview": "vite preview",
+		"build:watch": "npm run build -- --watch",
+		"build:serve": "concurrently \"npm run preview\" \"npm run build:watch\"",
+		"preview": "vite preview --port 54945",
 		"test": "vitest --project unit",
 		"test:watch": "pnpm test --watch",
 		"build-only": "vite build",
@@ -45,6 +62,7 @@
 		"vite": "^7.0.0",
 		"vite-plugin-vue-devtools": "^7.7.7",
 		"vitest": "^3.2.4",
-		"vue-tsc": "^2.2.10"
+		"vue-tsc": "^2.2.10",
+		"concurrently": "^9.2.0"
 	}
 }

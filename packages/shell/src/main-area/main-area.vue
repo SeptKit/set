@@ -4,7 +4,7 @@
 			<!-- <span>Views</span> -->
 			<EditorBar :widgets="store.widgets" @change="onWidgetChange" />
 		</div>
-		<div clas="content">
+		<div class="content">
 			<WidgetSite :widget="store.activeWidget" />
 		</div>
 	</div>
@@ -21,8 +21,9 @@ import type { Optional } from '../x/types'
 const store = useMainAreaWidgetStore()
 
 const dummyExtensionLocationList = [
-	// 'http://127.0.0.1:51003/',
-	// 'http://localhost:54944/',
+	'http://127.0.0.1:51003/',
+	'http://localhost:54944/',
+	'http://localhost:54945/', //__TEMPLATE__
 ]
 
 onMounted(() => loadExtensions(dummyExtensionLocationList))

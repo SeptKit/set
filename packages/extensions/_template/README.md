@@ -2,7 +2,11 @@
 
 This is a template for making SET Extensions.
 
-# Creating an new Extension
+# Starting the Template
+
+pnpm build:serve
+
+# Creating a new Extension
 
 -Copy the `_template` folder
 -Change `__Template__` in following files:
@@ -11,3 +15,7 @@ This is a template for making SET Extensions.
 - app.test.ts
 - package.json
 - index.html
+
+-Register the new Extension in:
+
+-main-area.vue -> dummyExtensionLocationList
