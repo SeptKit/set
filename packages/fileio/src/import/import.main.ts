@@ -14,17 +14,6 @@ const DEFAULT_IMPORT_OPTIONS: ImportOptions = {
 	batchSize: 2000,
 }
 
-/**
- * Validates if a file is supported for import
- */
-export function isFileSupported(file: File): boolean {
-	return SUPPORTED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext))
-}
-
-export function getDatabaseName(file: File): string {
-	return file.name.replace(/\.[^.]+$/, '')
-}
-
 export async function importXmlFiles({
 	files,
 	options = DEFAULT_IMPORT_OPTIONS,
@@ -36,12 +25,37 @@ export async function importXmlFiles({
 	if (files.length === 0) throw new Error('No files provided for import.')
 
 	for (const file of files) {
-		if (!isFileSupported(file)) throw new Error(`Unsupported file type: ${file.name}`)
+		if (!isFileSupported(file)) {
+			console.error(`Unsupported file type: ${file.name}`)
+			continue
+		}
 
+		const t1 = performance.now()
 		const databaseName = await importFile({ file, options })
+		const t2 = performance.now()
 		databaseNames.push(databaseName)
+
+		const importTimeMS = truncateDecimals(t2 - t1, 4)
+		const fileSizeMB = truncateDecimals(file.size / Math.pow(1042, 2), 4)
+		// console.info({
+		// 	msg: 'file import performance',
+		// 	fileSizeMB,
+		// 	importTimeMS,
+		// 	file: file.name,
+		// })
 	}
 	return databaseNames
+}
+
+/**
+ * Validates if a file is supported for import
+ */
+export function isFileSupported(file: File): boolean {
+	return SUPPORTED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext))
+}
+
+export function getDatabaseName(file: File): string {
+	return file.name.replace(/\.[^.]+$/, '')
 }
 
 async function importFile(params: { file: File; options: ImportOptions }) {
@@ -50,6 +64,14 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 		const databaseName = getDatabaseName(file)
 
 		const databaseInstance = initializeDatabaseInstance(databaseName)
+
+		// console.debug({
+		// 	level: 'debug',
+		// 	msg: 'importFile',
+		// 	databaseName,
+		// 	databaseInstance,
+		// 	userBrowserAPI: options.useBrowserApi,
+		// })
 
 		if (options.useBrowserApi) {
 			const reader = file.stream().getReader()
@@ -111,4 +133,12 @@ async function createChunks(
 
 	// Continue pumping
 	return await createChunks(reader, xmlParser, textDecoder, newBuffer, chunkSize)
+}
+
+function truncateDecimals(number: number, digits: number) {
+	var multiplier = Math.pow(10, digits),
+		adjustedNum = number * multiplier,
+		truncatedNum = Math[adjustedNum < 0 ? 'ceil' : 'floor'](adjustedNum)
+
+	return truncatedNum / multiplier
 }

@@ -106,7 +106,6 @@ export async function bulkCreateTables(params: {
 		...previousSchema,
 		...additionalSchema,
 	}
-
 	databaseInstance.version(databaseInstanceCurrentVersion + 1).stores(newSchema)
 	databaseInstance.open()
 }
