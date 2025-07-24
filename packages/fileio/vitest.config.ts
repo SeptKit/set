@@ -1,14 +1,31 @@
 import { fileURLToPath } from 'node:url'
-import { mergeConfig, defineConfig, configDefaults } from 'vitest/config.js'
+import { mergeConfig, defineConfig, configDefaults } from 'vitest/config'
 import viteConfig from './vite.config'
 
 export default mergeConfig(
 	viteConfig,
 	defineConfig({
 		test: {
-			environment: 'jsdom',
-			exclude: [...configDefaults.exclude, 'e2e/**'],
-			root: fileURLToPath(new URL('./', import.meta.url)),
+			watch: false,
+			testTimeout: 5_000,
+			projects: [
+				{
+					resolve: viteConfig.resolve,
+					plugins: [],
+					test: {
+						name: 'unit',
+						browser: {
+							provider: 'playwright',
+							enabled: true,
+							headless: true,
+							instances: [{ browser: 'chromium' }],
+						},
+						include: ['src/**/*.test.{js,ts,jsx,tsx}'],
+						exclude: [...configDefaults.exclude],
+						root: fileURLToPath(new URL('./', import.meta.url)),
+					},
+				},
+			],
 		},
 	}),
 )

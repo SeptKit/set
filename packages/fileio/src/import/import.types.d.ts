@@ -22,6 +22,6 @@ export type State = {
 
 //====== QUEUE
 
-export type QueueResult = { value: T | undefined; done: boolean }
+export type QueueResult = { value: T[]; done: boolean }
 export type ResolverFunction = (value: QueueResult) => void
 export type AsyncQueue<T> = ReturnType<typeof createAsyncQueue<T>>

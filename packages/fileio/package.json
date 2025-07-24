@@ -15,6 +15,8 @@
 		"//====== TYPES ======//": "",
 		"types": "tsc --project .",
 		"types:watch": "pnpm run types -- --watch",
+		"test": "vitest",
+		"test:watch": "vitest --watch",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
 		"format": "prettier --write lib/",
 		"format:check": "prettier --check lib/"
@@ -32,7 +34,9 @@
 	},
 	"devDependencies": {
 		"@types/sax": "^1.2.7",
+		"@vitest/browser": "^3.2.4",
 		"oxlint": "~1.6.0",
+		"playwright": "^1.53.2",
 		"prettier": "3.5.3",
 		"typescript": "~5.8.3",
 		"vitest": "^3.2.4"
