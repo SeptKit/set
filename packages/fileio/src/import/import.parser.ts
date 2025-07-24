@@ -1,18 +1,19 @@
 // XML PARSER
 import * as sax from 'sax'
-// DATABASE
-import { bulkAddRecords, bulkUpdateRelationships, bulkCreateTables } from './import.database'
+// CONSTANTS
+import { TAG_NAMES } from '@/common'
+// QUEUE
+import { ensureQueue, ensureEndingQueue, closeAllQueues } from './import.queue'
+// RELATIONSHIPS
+import { registerPendingChildrenRelationship } from './import.relationships'
 // GUARDS
 import { isSaxQualifiedTag } from './import.guards'
-// CONSTANTS
-import { TAG_NAMES } from '@/common/common.constant'
 // TYPES
-import { State, NewRelationship, AsyncQueue } from './import.types'
+import { State, ParserOptions } from './import.types'
 import {
 	DatabaseRecord,
 	DatabaseInstance,
 	AvailableTagName,
-	Relationship,
 	Namespace,
 } from '@/common/common.types'
 
@@ -23,10 +24,12 @@ import {
  * @param databaseInstance Dexie database instance
  * @returns SAX parser instance
  */
-export function setSaxParser(
-	databaseInstance: DatabaseInstance,
-	queue: AsyncQueue<DatabaseRecord>
-) {
+export function setSaxParser(params: {
+	databaseInstance: DatabaseInstance
+	options: ParserOptions
+}) {
+	const { databaseInstance, options } = params
+
 	const initialState: State = {
 		currentId: '',
 		currentTagName: '',
@@ -71,35 +74,31 @@ export function setSaxParser(
 		}
 	)
 
-	const queues = {
-		Substation: queue(),
-	}
-	function ensureQueue(tableName: string) {
-		let q = queues[tableName]
-		if (!q) {
-			const newQ = queue()
-			queues[tableName] = newQ
-			q = newQ
-		}
+	// const queues = {
+	// 	Substation: queue()
+	// }
+	// function ensureQueue(tableName: string){
+	// 	let q = queues[tableName]
+	// 	if(!q){
+	// 		const newQ = queue()
+	// 		queues[tableName] = newQ
+	// 		q = newQ
+	// 	}
 
-		return q
-	}
+	// 	return q
+	// }
 
 	// Instead of modifying state directly, each handler returns a new state
 	parser.onopentag = (node: sax.QualifiedTag) => {
-		// state = handleOpenTag({ node, state: { ...state }, queue })
-		recordElement = handleOpenTag({ node, state: { ...state }, queue })
-
-		const queue = ensureQueue(recordElement.tagName)
-		queue.push(recordElement)
+		state = handleOpenTag({ node, state, databaseInstance, options })
 	}
 
 	parser.ontext = (text) => {
 		state = handleText(text, { ...state })
 	}
 
-	parser.onclosetag = async (tagName: AvailableTagName) => {
-		state = await handleCloseTag(tagName, databaseInstance, { ...state })
+	parser.onclosetag = (tagName: AvailableTagName) => {
+		state = handleCloseTag({ tagName, state })
 		//const currentState = { ...state } // Capture current state for logging
 
 		// console.log(
@@ -125,8 +124,8 @@ export function setSaxParser(
 		// processQueue()
 	}
 
-	parser.onend = async () => {
-		await handleEnd(databaseInstance, { ...state })
+	parser.onend = () => {
+		handleEnd(databaseInstance)
 		// 	processingQueue.push(async () => {
 		// 		await handleEnd(databaseInstance, { ...state })
 		// 		state = initialState
@@ -135,8 +134,8 @@ export function setSaxParser(
 
 		// 	processQueue()
 		// }
-
-		parser.onerror = handleError
+	}
+	parser.onerror = handleError
 
 		return parser
 	}
@@ -162,18 +161,16 @@ export function setSaxParser(
 function handleOpenTag(params: {
 	node: sax.QualifiedTag
 	state: State
-	queue: AsyncQueue<DatabaseRecord>
-}): State {
-	const { node, state, queue } = params
+	databaseInstance: DatabaseInstance
+	options: ParserOptions
+}) {
+	const { node, state, databaseInstance, options } = params
 
 	const recordId = crypto.randomUUID()
 	const tagName = getElementLocalName(node)
-	console.log(tagName)
 	const namespace = getElementNamespace(node)
 	const attributes = getElementAttributes(node.attributes)
 	const parent = getParent(state.currentParentElements)
-
-	console.log(node)
 
 	const record: DatabaseRecord = {
 		id: recordId,
@@ -185,51 +182,73 @@ function handleOpenTag(params: {
 		children: [],
 	}
 
+	console.log(`Opening tag: ${tagName}, id: ${recordId}, parent:`, parent)
+	const queue = TAG_NAMES.includes(tagName)
+		? ensureQueue({
+				databaseInstance,
+				tagName,
+				batchSize: options.batchSize,
+		  })
+		: ensureEndingQueue({
+				tagName,
+				batchSize: options.batchSize,
+		  })
+
+	console.warn(parent ? `Parent: ${parent.id} (${parent.tagName})` : 'No parent')
+	if (record.parent)
+		registerPendingChildrenRelationship({
+			parent: record.parent,
+			child: { id: record.id, tagName: record.tagName },
+		})
+
+	queue.push(record)
+
 	// Create new recordsBatch with the new record
-	const updatedRelationshipsBatch = { ...state.relationshipsBatch }
-	//////
-	const { updatedRecordsBatch, newChildRelationship } = handleChildRelationships({
-		child: {
-			id: record.id,
-			tagName: record.tagName,
-		},
-		parent,
-		recordsBatch: state.recordsBatch,
-	})
+	// const updatedRelationshipsBatch = { ...state.relationshipsBatch }
+	// //////
+	// const { updatedRecordsBatch, newChildRelationship } = handleChildRelationships({
+	// 	child: {
+	// 		id: record.id,
+	// 		tagName: record.tagName,
+	// 	},
+	// 	parent,
+	// 	recordsBatch: state.recordsBatch,
+	// })
 
-	console.error('newChildRelationship', newChildRelationship)
+	// console.error('newChildRelationship', newChildRelationship)
 
-	if (newChildRelationship && parent) {
-		if (!updatedRelationshipsBatch[parent.tagName]) {
-			updatedRelationshipsBatch[parent.tagName] = []
-		}
+	// if (newChildRelationship && parent) {
+	// 	if (!updatedRelationshipsBatch[parent.tagName]) {
+	// 		updatedRelationshipsBatch[parent.tagName] = []
+	// 	}
 
-		updatedRelationshipsBatch[parent.tagName] = [
-			...updatedRelationshipsBatch[parent.tagName],
-			newChildRelationship,
-		]
-	}
-	//////
+	// 	updatedRelationshipsBatch[parent.tagName] = [
+	// 		...updatedRelationshipsBatch[parent.tagName],
+	// 		newChildRelationship,
+	// 	]
+	// }
+	// //////
 
-	if (!updatedRecordsBatch[tagName]) {
-		updatedRecordsBatch[tagName] = []
-	}
-	updatedRecordsBatch[tagName] = [...updatedRecordsBatch[tagName], record]
+	// if (!updatedRecordsBatch[tagName]) {
+	// 	updatedRecordsBatch[tagName] = []
+	// }
+	// updatedRecordsBatch[tagName] = [...updatedRecordsBatch[tagName], record]
 
-	// Create new parentElements array with the new id
+	// // Create new parentElements array with the new id
 	const updatedParentElements = [...state.currentParentElements, { id: recordId, tagName }]
 
 	// Return a new state object
 	return {
-		currentId: recordId,
-		currentTagName: tagName,
-		currentValue: '',
+		// 	currentId: recordId,
+		// 	currentTagName: tagName,
+		// 	currentValue: '',
+		...state,
 		currentParentElements: updatedParentElements,
-		recordsBatch: updatedRecordsBatch,
-		relationshipsBatch: state.relationshipsBatch,
-		tablesToCreate: TAG_NAMES.includes(tagName)
-			? state.tablesToCreate
-			: [...state.tablesToCreate, tagName],
+		// 	//recordsBatch: updatedRecordsBatch,
+		// 	//relationshipsBatch: state.relationshipsBatch,
+		// 	// tablesToCreate: TAG_NAMES.includes(tagName)
+		// 	// 	? state.tablesToCreate
+		// 	// 	: [...state.tablesToCreate, tagName],
 	}
 }
 
@@ -281,70 +300,77 @@ function handleText(text: string, state: State): State {
  * @param state Current state
  * @returns Updated state
  */
-async function handleCloseTag(
-	tagName: AvailableTagName,
-	databaseInstance: DatabaseInstance,
+function handleCloseTag(params: {
+	tagName: AvailableTagName
+	// databaseInstance: DatabaseInstance,
 	state: State
-): Promise<State> {
-	const BATCH_SIZE = 2000
+}): State {
+	const { state } = params
+	//const BATCH_SIZE = 2000
 
 	// Create new parentElements by removing the last element
-	const updatedRecordsBatch = { ...state.recordsBatch }
-	const updatedParentElements = [...state.currentParentElements]
-	const updatedRelationshipsBatch = { ...state.relationshipsBatch }
-	console.log(`Closing tag: ${tagName}, state:`, {
-		parentElements: updatedParentElements.map((p) => `${p.tagName}:${p.id}`),
-		current: state.currentTagName,
-	})
-	const currentElement = updatedParentElements.pop()
-	const parentElement = updatedParentElements[updatedParentElements.length - 1]
-	console.log('current parent elements after pop:', updatedParentElements)
-	// Create a new recordsBatch
-	// const updatedRecordsBatch = { ...state.recordsBatch }
-	if (!currentElement || !parentElement)
-		return {
-			...state,
-			currentParentElements: updatedParentElements,
-		}
+	//const updatedRecordsBatch = { ...state.recordsBatch }
+	const currentParentElementsWithoutCurrentClosedOne = state.currentParentElements.slice(0, -1)
+	// const updatedRelationshipsBatch = { ...state.relationshipsBatch }
+	// console.log(`Closing tag: ${tagName}, state:`, {
+	// 	parentElements: updatedParentElements.map((p) => `${p.tagName}:${p.id}`),
+	// 	current: state.currentTagName,
+	// })
+	// const currentElement = updatedParentElements.pop()
+	// //const parentElement = updatedParentElements[updatedParentElements.length - 1]
+	// console.log('current parent elements after pop:', updatedParentElements)
+	// // Create a new recordsBatch
+	// // const updatedRecordsBatch = { ...state.recordsBatch }
+	// if (!currentElement || !parentElement)
+	// 	return {
+	// 		...state,
+	// 		currentParentElements: updatedParentElements,
+	// 	}
 
-	const shouldAddRecords =
-		updatedRecordsBatch[tagName] &&
-		updatedRecordsBatch[tagName].length >= BATCH_SIZE &&
-		!state.tablesToCreate.includes(tagName)
+	// const shouldAddRecords =
+	// 	updatedRecordsBatch[tagName] &&
+	// 	updatedRecordsBatch[tagName].length >= BATCH_SIZE &&
+	// 	!state.tablesToCreate.includes(tagName)
 
-	if (shouldAddRecords) {
-		await bulkAddRecords({
-			databaseInstance,
-			tagName,
-			records: updatedRecordsBatch[tagName],
-		})
+	// if (shouldAddRecords) {
+	// 	await bulkAddRecords({
+	// 		databaseInstance,
+	// 		tagName,
+	// 		records: updatedRecordsBatch[tagName],
+	// 	})
 
-		// Reset the records for this tag
-		updatedRecordsBatch[tagName] = []
-	}
+	// 	// Reset the records for this tag
+	// 	updatedRecordsBatch[tagName] = []
+	// }
 
-	const shouldUpdateRelationships =
-		updatedRelationshipsBatch[parentElement.tagName] &&
-		updatedRelationshipsBatch[parentElement.tagName].length >= BATCH_SIZE &&
-		!state.tablesToCreate.includes(parentElement.tagName)
+	// const shouldUpdateRelationships =
+	// 	updatedRelationshipsBatch[parentElement.tagName] &&
+	// 	updatedRelationshipsBatch[parentElement.tagName].length >= BATCH_SIZE &&
+	// 	!state.tablesToCreate.includes(parentElement.tagName)
 
-	if (shouldUpdateRelationships) {
-		await bulkUpdateRelationships({
-			databaseInstance,
-			parentTagName: parentElement.tagName,
-			relationshipRecords: updatedRelationshipsBatch[parentElement.tagName],
-		})
+	// if (shouldUpdateRelationships) {
+	// 	await bulkUpdateRelationships({
+	// 		databaseInstance,
+	// 		parentTagName: parentElement.tagName,
+	// 		relationshipRecords: updatedRelationshipsBatch[parentElement.tagName],
+	// 	})
 
-		// Reset the records for this tag
-		updatedRelationshipsBatch[parentElement.tagName] = []
-	}
+	// 	// Reset the records for this tag
+	// 	updatedRelationshipsBatch[parentElement.tagName] = []
+	// }
 
 	// Return a new state object
+	console.warn(`Closing tag: ${params.tagName}, currentParentElements:`, {
+		currentParentElements: currentParentElementsWithoutCurrentClosedOne.map((p) => ({
+			id: p.id.slice(0, 8),
+			tagName: p.tagName,
+		})),
+	})
 	return {
 		...state,
-		currentParentElements: updatedParentElements,
-		recordsBatch: updatedRecordsBatch,
-		relationshipsBatch: updatedRelationshipsBatch,
+		currentParentElements: currentParentElementsWithoutCurrentClosedOne,
+		// recordsBatch: updatedRecordsBatch,
+		// relationshipsBatch: updatedRelationshipsBatch,
 	}
 }
 
@@ -353,35 +379,35 @@ async function handleCloseTag(
  * @param databaseInstance Dexie database instance
  * @param state Current state
  */
-async function handleEnd(databaseInstance: DatabaseInstance, state: State): Promise<void> {
+function handleEnd(databaseInstance: DatabaseInstance) {
 	console.log('Parsing completed. Processing remaining records...')
-
-	await bulkCreateTables(databaseInstance, state.tablesToCreate)
+	closeAllQueues({ databaseInstance })
+	//await bulkCreateTables(databaseInstance, state.tablesToCreate)
 
 	// Process any remaining records in the batch
-	const batchPromises = Object.entries(state.recordsBatch)
-		.filter(([_, records]) => records.length > 0)
-		.map(([tagName, records]) =>
-			bulkAddRecords({
-				databaseInstance,
-				tagName,
-				records,
-			})
-		)
+	// const batchPromises = Object.entries(state.recordsBatch)
+	// 	.filter(([_, records]) => records.length > 0)
+	// 	.map(([tagName, records]) =>
+	// 		bulkAddRecords({
+	// 			databaseInstance,
+	// 			tagName,
+	// 			records,
+	// 		})
+	// 	)
 
-	await Promise.all(batchPromises)
+	// await Promise.all(batchPromises)
 
-	// Process any remaining relationships in the batch
-	const relationshipPromises = Object.entries(state.relationshipsBatch)
-		.filter(([_, relationships]) => relationships.length > 0)
-		.map(([parentTagName, relationships]) =>
-			bulkUpdateRelationships({
-				databaseInstance,
-				parentTagName,
-				relationshipRecords: relationships,
-			})
-		)
-	await Promise.all(relationshipPromises)
+	// // Process any remaining relationships in the batch
+	// const relationshipPromises = Object.entries(state.relationshipsBatch)
+	// 	.filter(([_, relationships]) => relationships.length > 0)
+	// 	.map(([parentTagName, relationships]) =>
+	// 		bulkUpdateRelationships({
+	// 			databaseInstance,
+	// 			parentTagName,
+	// 			relationshipRecords: relationships,
+	// 		})
+	// 	)
+	// await Promise.all(relationshipPromises)
 }
 
 /**

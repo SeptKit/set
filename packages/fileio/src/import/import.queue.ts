@@ -1,49 +1,135 @@
+// DATABASES
+import { bulkAddRecords, bulkCreateTables } from './import.database'
+// RELATIONSHIPS
+import { resolveCurrentBatchChildrenRelationships } from './import.relationships'
 // TYPES
-import type { QueueResult, ResolverFunction, AsyncQueue } from './import.types'
-import type { DatabaseInstance } from '@/common'
+import type { QueueResult, ResolverFunction, CreateAsyncQueue, Queues } from './import.types'
+import type { AvailableTagName, DatabaseInstance, DatabaseRecord } from '@/common'
 
-export function createAsyncQueue<T>(params: { batchSize: number }) {
-	let queue: T[] = []
+//====== STATE MANAGEMENT ======//
+
+const queues: Partial<Queues> = {}
+const endingQueues: Partial<Queues> = {}
+const queuesObservable = createQueuesObservable(queues)
+
+//====== PUBLIC FUNCTIONS ======//
+
+export function ensureQueue(params: {
+	databaseInstance: DatabaseInstance
+	tagName: AvailableTagName
+	batchSize: number
+}): CreateAsyncQueue {
+	const { databaseInstance, tagName, batchSize } = params
+	let queue = queues[tagName]?.instance
+
+	if (!queue) {
+		const newQueue = createAsyncQueue({ batchSize })
+		queues[tagName] = { status: 'pending', instance: newQueue }
+
+		// event loop deferral
+		queueMicrotask(() => {
+			consumeQueueAndSaveToDatabase({
+				databaseInstance,
+				tagName,
+				queue: newQueue,
+			}).catch((error) => {
+				console.error(`Consumer error for ${tagName}:`, error)
+			})
+		})
+
+		return newQueue
+	}
+
+	return queue
+}
+
+export function ensureEndingQueue(params: {
+	tagName: AvailableTagName
+	batchSize: number
+}): CreateAsyncQueue {
+	const { tagName, batchSize } = params
+	let queue = endingQueues[tagName]?.instance
+
+	if (!queue) {
+		const newQueue = createAsyncQueue({ batchSize })
+		endingQueues[tagName] = { status: 'pending', instance: newQueue }
+		return newQueue
+	}
+
+	return queue
+}
+
+export function closeAllQueues(params: { databaseInstance: DatabaseInstance }) {
+	const { databaseInstance } = params
+
+	for (const queue of Object.values(queues)) queue.instance.close()
+
+	const unsubscribe = queuesObservable.subscribe(async () => {
+		await bulkCreateTables({
+			databaseInstance: databaseInstance,
+			tagNames: Object.keys(queues),
+		})
+
+		const endingQueuesEntries = Object.entries(endingQueues) as [
+			AvailableTagName,
+			{ instance: CreateAsyncQueue }
+		][]
+
+		for (const [tagName, { instance: queue }] of endingQueuesEntries) {
+			queue.close()
+			queueMicrotask(() => {
+				consumeQueueAndSaveToDatabase({
+					databaseInstance,
+					tagName,
+					queue,
+				}).catch((error) => {
+					console.error(`Consumer error for ${tagName}:`, error)
+				})
+			})
+		}
+
+		unsubscribe()
+	})
+}
+
+//====== PRIVATE FUNCTIONS ======//
+
+function createAsyncQueue(params: { batchSize: number }): CreateAsyncQueue {
+	const { batchSize } = params
+	let queue: DatabaseRecord[] = []
 	let closed = false
-	let nextResolve: ResolverFunction
+	let nextResolve: ResolverFunction | undefined = undefined
 
 	return { push, next, close }
 
 	// When a consumer wants data but none is available,
-	// their "resolver" gets added to the waiting list
+	// a "resolver" is created and stored.
+	// When data is pushed, the resolver is called with the data.
 	async function next(): Promise<QueueResult> {
 		const closedWithoutData = queue.length === 0 && closed
-		if (closedWithoutData) {
-			return Promise.resolve({ value: [], done: true })
-		}
+		if (closedWithoutData) return Promise.resolve({ value: [], done: true })
 
 		const closedButHasData = closed && queue.length > 0
-		if (closedButHasData) {
-			const elements = queue.splice(0, params.batchSize)
-			return Promise.resolve({ value: elements, done: false })
-		}
+		const isDataAvailable = queue.length >= batchSize
 
-		const isDataAvailable = queue.length >= params.batchSize
-		if (isDataAvailable) {
-			const elements = queue.splice(0, params.batchSize)
-			return Promise.resolve({ value: elements, done: false })
+		if (closedButHasData || isDataAvailable) {
+			const elementsBatch = queue.splice(0, batchSize)
+			return Promise.resolve({ value: elementsBatch, done: false })
 		}
 
 		const { resolve, promise } = Promise.withResolvers<QueueResult>()
-
 		nextResolve = resolve
-
 		return promise
 	}
 
 	// When a producer adds data, they check if any consumers are waiting
-	function push(item: T) {
-		const isBatchReached = queue.length > params.batchSize
-		if (isBatchReached) {
-			if (nextResolve) {
-				const elements = queue.splice(0, params.batchSize)
-				nextResolve({ value: elements, done: false })
-			}
+	function push(item: DatabaseRecord) {
+		const isBatchReached = queue.length >= batchSize
+
+		if (isBatchReached && nextResolve) {
+			const elementsBatch = queue.splice(0, batchSize)
+			nextResolve({ value: elementsBatch, done: false })
+			nextResolve = undefined
 		}
 
 		queue.push(item)
@@ -52,101 +138,63 @@ export function createAsyncQueue<T>(params: { batchSize: number }) {
 	function close(): void {
 		closed = true
 		if (nextResolve) {
-			nextResolve({ value: queue, done: true })
+			const elementsBatch = queue.splice(0, batchSize)
+			nextResolve({ value: elementsBatch, done: false })
+			nextResolve = undefined
 		}
 	}
 }
 
-async function consumeQueueAndSaveToDatabase<T>(params: {
-	queue: AsyncQueue<T>
+function createQueuesObservable(queues: Partial<Queues>) {
+	const listeners = new Set<() => void>()
+
+	function subscribe(listener: () => void) {
+		listeners.add(listener)
+		// Return an unsubscribe function
+		return () => listeners.delete(listener)
+	}
+
+	function notify() {
+		for (const listener of listeners) {
+			listener()
+		}
+	}
+
+	function isAllDone() {
+		return Object.values(queues).every((queue) => queue.status === 'done')
+	}
+
+	return { subscribe, notify, isAllDone }
+}
+
+async function consumeQueueAndSaveToDatabase(params: {
 	databaseInstance: DatabaseInstance
-	batchSize: number
+	tagName: AvailableTagName
+	queue: CreateAsyncQueue
 }) {
-	const batchers = {} // {tagName: []}
-	const BATCH_SIZE = 2000
+	const { databaseInstance, tagName, queue } = params
 
 	while (true) {
-		const { value: element, done } = await params.queue.next()
+		const { value: elementsBatch, done } = await queue.next()
 
-		if (done) {
+		if (done && queues[tagName]) {
+			queues[tagName].status = 'done'
+			if (queuesObservable.isAllDone()) queuesObservable.notify()
 			break
 		}
 
-		// Add element to batch
-		// batchers[element.tagName] = batchers[element.tagName] || []
-		// batchers[element.tagName].push(element)
+		if (elementsBatch.length === 0) continue
 
-		// if (batchers[element.tagName].length >= BATCH_SIZE) {
-		// 	const table = db.table(element.tagName)
-		// 	await table.bulkAdd(batchers[element.tagName])
-		// 	batchers[element.tagName] = []
-		// }
-	}
+		const elementsBatchWithResolvedRelationships = resolveCurrentBatchChildrenRelationships({
+			parentRecordsBatch: elementsBatch,
+			// within the same batch, all records have the same tagName
+			parentTagName: elementsBatch[0].tagName,
+		})
 
-	// After finishing, flush all
-	for (const [tag, batch] of Object.entries(batchers)) {
-		if (batch.length) {
-			await db.table(tag).bulkAdd(batch)
-		}
-	}
-}
-
-function handleChildRelationships(params: {
-	child: Relationship
-	parent: Relationship | null
-	recordsBatch: Record<AvailableTagName, DatabaseRecord[]>
-}): {
-	updatedRecordsBatch: Record<AvailableTagName, DatabaseRecord[]>
-	newChildRelationship: NewRelationship | null
-} {
-	console.log('Handling child relationships:', params)
-	const updatedRecordsBatch = { ...params.recordsBatch }
-
-	const { child, parent } = params
-	if (!parent)
-		return {
-			updatedRecordsBatch,
-			newChildRelationship: null,
-		}
-
-	// Try to find the parent in the current batch
-	let parentUpdated = false
-
-	// Check each tag type to find the parent
-	const recordsBatchEntries = Object.entries(updatedRecordsBatch) as [
-		AvailableTagName,
-		DatabaseRecord[]
-	][]
-	for (const [parentTagName, records] of recordsBatchEntries) {
-		const parentIndex = records.findIndex((record) => record.id === parent.id)
-
-		if (parentIndex >= 0) {
-			// Parent found in batch - update directly
-			if (!updatedRecordsBatch[parentTagName][parentIndex].children)
-				updatedRecordsBatch[parentTagName][parentIndex].children = []
-
-			updatedRecordsBatch[parentTagName][parentIndex].children.push({
-				id: child.id,
-				tagName: child.tagName,
-			})
-
-			parentUpdated = true
-			break
-		}
-	}
-
-	// If parent not found in batch, it must be in the database already
-
-	const newChildRelationship = parentUpdated
-		? null
-		: {
-				parentId: parent.id,
-				childId: child.id,
-				childTagName: child.tagName,
-		  }
-
-	return {
-		updatedRecordsBatch,
-		newChildRelationship,
+		await bulkAddRecords({
+			databaseInstance,
+			tagName,
+			records: elementsBatchWithResolvedRelationships,
+		})
 	}
 }
