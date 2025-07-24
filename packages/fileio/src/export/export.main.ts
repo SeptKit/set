@@ -111,29 +111,42 @@ async function recursivelyBuildXmlTree(params: {
 function createElementWithAttributesAndText(params: {
 	document: XMLDocument
 	record: DatabaseRecord
-}): HTMLElement {
-	const element = params.document.createElement(params.record.tagName)
+}): Element {
+	const { document, record } = params
+	let element: Element
 
-	if (params.record.attributes)
-		for (const attribute of params.record.attributes) {
+	if (record.namespace) {
+		addNamespaceToRootElementIfNeeded({
+			document,
+			namespace: record.namespace,
+		})
+		element = document.createElement(`${record.namespace.prefix}:${record.tagName}`)
+	} else element = document.createElement(record.tagName)
+
+	if (record.attributes)
+		for (const attribute of record.attributes) {
 			if (isQualifiedAttribute(attribute))
-				element.setAttributeNS(
-					attribute.namespace.uri,
-					`${attribute.namespace.prefix}:${attribute.name}`,
-					attribute.value,
-				)
-			else element.setAttribute(attribute.name, String(attribute.value))
+				addNamespaceToRootElementIfNeeded({
+					document,
+					namespace: attribute.namespace,
+				})
+
+			element.setAttribute(attribute.name, String(attribute.value))
 		}
 
-	if (params.record.value) element.textContent = params.record.value.trim()
+	if (record.value) element.textContent = record.value.trim()
 
 	return element
 }
 
-export function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename: string }) {
+function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename: string }) {
 	const serializer = new XMLSerializer()
 	const xmlString = serializer.serializeToString(params.xmlDocument)
-	const formattedXmlString = formatXml(xmlString)
+
+	const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+	const xmlWithDeclaration = xmlDeclaration + xmlString
+
+	const formattedXmlString = formatXml(xmlWithDeclaration)
 
 	const blob = new Blob([formattedXmlString], { type: 'application/xml' })
 	const url = URL.createObjectURL(blob)
@@ -147,4 +160,21 @@ export function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename
 		document.body.removeChild(a)
 		URL.revokeObjectURL(url)
 	}, 0)
+}
+
+function addNamespaceToRootElementIfNeeded(params: {
+	document: XMLDocument
+	namespace: { prefix: string; uri: string }
+}) {
+	const { document, namespace } = params
+	const rootElement = document.documentElement
+	if (!rootElement) return
+
+	const isDefaultNamespace =
+		namespace.prefix === 'xmlns' && namespace.uri === 'http://www.w3.org/2000/xmlns/'
+
+	const hasNamespace = rootElement.getAttribute(`xmlns:${namespace.prefix}`) !== null
+
+	if (!hasNamespace && !isDefaultNamespace)
+		rootElement.setAttribute(`xmlns:${namespace.prefix}`, namespace.uri)
 }

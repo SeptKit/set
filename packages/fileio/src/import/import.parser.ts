@@ -15,6 +15,8 @@ import {
 	DatabaseInstance,
 	AvailableTagName,
 	Namespace,
+	Attribute,
+	QualifiedAttribute,
 } from '@/common/common.types'
 
 //====== PUBLIC FUNCTIONS ======//
@@ -56,8 +58,8 @@ export function setSaxParser(params: {
 		state = handleText({ text, state: { ...state } })
 	}
 
-	parser.onclosetag = (tagName: AvailableTagName) => {
-		state = handleCloseTag({ tagName, state: { ...state }, databaseInstance, options })
+	parser.onclosetag = () => {
+		state = handleCloseTag({ state: { ...state }, databaseInstance, options })
 	}
 
 	parser.onend = () => {
@@ -130,12 +132,11 @@ function handleText(params: { text: string; state: State }): State {
  * @returns Updated state
  */
 function handleCloseTag(params: {
-	tagName: AvailableTagName
 	state: State
 	databaseInstance: DatabaseInstance
 	options: ParserOptions
 }): State {
-	const { tagName, state, databaseInstance, options } = params
+	const { state, databaseInstance, options } = params
 	const updatedState = { ...state }
 
 	const currentRecord = updatedState.stack.pop()
@@ -158,14 +159,14 @@ function handleCloseTag(params: {
 			})
 
 		const initialDatabaseTablesList = TAG_NAMES
-		const queue = initialDatabaseTablesList.includes(tagName)
+		const queue = initialDatabaseTablesList.includes(currentRecord.tagName)
 			? ensureQueue({
 					databaseInstance,
-					tagName,
+					tagName: currentRecord.tagName,
 					batchSize: options.batchSize,
 				})
 			: ensureEndingQueue({
-					tagName,
+					tagName: currentRecord.tagName,
 					batchSize: options.batchSize,
 				})
 
@@ -208,7 +209,9 @@ function getElementNamespace(element: sax.Tag | sax.QualifiedTag): Namespace | n
 	return null
 }
 
-function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>) {
+function getElementAttributes(
+	attributes: Record<string, sax.QualifiedAttribute>,
+): (Attribute | QualifiedAttribute)[] {
 	return Object.values(attributes).map((attribute) => {
 		const namespace =
 			!!attribute.prefix && !!attribute.uri
@@ -221,7 +224,7 @@ function getElementAttributes(attributes: Record<string, sax.QualifiedAttribute>
 		return {
 			name: attribute.name,
 			value: attribute.value,
-			...namespace,
+			namespace,
 		}
 	})
 }

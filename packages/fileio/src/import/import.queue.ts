@@ -36,6 +36,7 @@ export function ensureQueue(params: {
 				queue: newQueue,
 			}).catch((error) => {
 				console.error(`Consumer error for ${tagName}:`, error)
+				throw error
 			})
 		})
 
@@ -88,6 +89,7 @@ export function closeAllQueues(params: { databaseInstance: DatabaseInstance }) {
 					queue,
 				}).catch((error) => {
 					console.error(`Consumer error for ${tagName}:`, error)
+					throw error
 				})
 			})
 		}
