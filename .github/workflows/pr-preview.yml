@@ -1,0 +1,76 @@
+name: Deploy PR preview
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+    paths:
+      - 'packages/shell/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # install:
+  #   name: Install Dependencies
+  #   uses: ./.github/workflows/_install.yml
+  #   with:
+  #     package-name: shell
+
+  # test:
+  #   name: Run Tests
+  #   needs: install
+  #   uses: ./.github/workflows/_test.yml
+  #   with:
+  #     package-name: shell
+
+  # lint:
+  #   name: Lint Code
+  #   needs: install
+  #   uses: ./.github/workflows/_lint.yml
+  #   with:
+  #     package-name: shell
+
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install Dependencies
+        working-directory: ./packages/ui
+        run: npm ci
+
+      - name: Build app
+        working-directory: ./packages/ui
+        if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
+        run: npm run-script build
+
+      - name: Deploy shell as preview
+        uses: rossjrw/pr-preview-action@v1
+        id: preview-step
+        with:
+          source-dir: packages/shell/dist
+          deploy-repository: 'SeptKit/septkit.github.io'
+          pages-base-url: 'https://septkit.github.io/'
+          token: ${{ secrets.deployment-token }}
+          umbrella-dir: pr-preview
+          preview-branch: main
+
+      - if: steps.preview-step.outputs.deployment-action == "deploy"
+        run: echo "Preview visible at ${{ steps.preview-step.outputs.preview-url }}"
