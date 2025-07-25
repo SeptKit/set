@@ -11,7 +11,8 @@
 		"ui:dev": "pnpm --filter @septkit/ui dev",
 		"//====== DEPENDENCIES ======//": "",
 		"dependencies:build": "pnpm ui:build",
-		"//====== POST INSTALL ======//": ""
+		"//====== POST INSTALL ======//": "",
+		"install:browser": "pnpm exec playwright install chromium"
 	},
 	"keywords": [],
 	"author": "",
