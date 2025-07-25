@@ -56,6 +56,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts --frozen-lockfile
 
+      - name: Build fileio
+        working-directory: ./packages/fileio
+        run: pnpm build
+
       - name: Build app
         working-directory: ./packages/shell
         if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
