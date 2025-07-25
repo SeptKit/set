@@ -17,7 +17,7 @@ export function formatXml(xmlString: string) {
 			// Opening tag (not self-closing, not closing)
 			if (
 				/^<[\w:-]+[^>]*>/.test(node) && // opening tag
-				!/\/>$/.test(node) && // not self-closing
+				!node.endsWith('/>') && // not self-closing
 				!/^<\/[\w:-]+>/.test(node) // not closing tag
 			)
 				pad++
