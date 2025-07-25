@@ -6,14 +6,16 @@ describe('Import', () => {
 		type TestCase = {
 			desc: string
 			fileContent: string
-			elementCounts: { [tableName: string]: number }
+			expectedFileName: string
+			expectedElementCounts: { [tableName: string]: number }
 		}
 
 		const featureTests: TestCase[] = [
 			{
 				desc: 'first test',
 				fileContent: '<SCL><IED name="just the one"></IED></SCL>',
-				elementCounts: {
+				expectedFileName: 'test',
+				expectedElementCounts: {
 					IED: 1,
 				},
 			},
@@ -29,15 +31,18 @@ describe('Import', () => {
 				})
 
 				// Act
-				await importXmlFiles({ files: [file] })
-				await new Promise((r) => setTimeout(r, 1_000))
+				const fileNames = await importXmlFiles({ files: [file] })
+				// Note: The timeout is needed beause sometimes `importXmlFiles``
+				// return too early
+				await new Promise((r) => setTimeout(r, 1_00))
 
 				// Assert
-				// await new Promise((r) => setTimeout(r, 100_000))
+
+				expect(fileNames).toContain(tc.expectedFileName)
+
 				const db = await openDatabase('test')
-				// await new Promise((r) => setTimeout(r, 100_000))
-				for (const tableName of Object.keys(tc.elementCounts)) {
-					const expectedCount = tc.elementCounts[tableName]
+				for (const tableName of Object.keys(tc.expectedElementCounts)) {
+					const expectedCount = tc.expectedElementCounts[tableName]
 					const nrOfElements = await getElementCountOfTable(db, tableName)
 					expect(nrOfElements).toEqual(expectedCount)
 				}
