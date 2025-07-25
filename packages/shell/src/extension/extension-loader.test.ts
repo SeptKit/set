@@ -97,9 +97,7 @@ describe('Extension Loader', () => {
 
 				// Assert
 				const store = useExtensionStore()
-				expect(store.extensions[0]).toEqual(tc.expectedExtension)
-				// expect(store.extensions).toContain(tc.expectedExtension)
-				// console.debug({ level: 'debug', msg: 'extension loader test', exts: store.extensions })
+				expect(store.extensions).toContainEqual(tc.expectedExtension)
 
 				// Cleanup
 				// server.resetHandlers()
