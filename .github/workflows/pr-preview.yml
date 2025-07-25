@@ -54,7 +54,6 @@ jobs:
           run_install: false
 
       - name: Install dependencies
-        working-directory: ./packages/shell
         run: pnpm install --ignore-scripts --frozen-lockfile
 
       - name: Build app
