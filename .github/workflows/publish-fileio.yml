@@ -1,0 +1,58 @@
+name: Publish @septkit/fileio
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/fileio/**'
+
+jobs:
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: fileio
+
+  build:
+    name: Build Project
+    needs: install
+    uses: ./.github/workflows/_build.yml
+    with:
+      package-name: fileio
+
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: fileio
+
+  version:
+    name: Check Version
+    uses: ./.github/workflows/_check-npm-version.yml
+    with:
+      package-name: fileio
+      npm-package: '@septkit/fileio'
+
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: fileio
+
+  deploy:
+    name: Publish to NPM
+    if: needs.version.outputs.version_changed == 'true'
+    needs:
+      - build
+      - test
+      - version
+      - lint
+    uses: ./.github/workflows/_publish.yml
+    with:
+      package-name: fileio
+    secrets:
+      npm-token: ${{ secrets.NPM_PUBLISH_PAT }}
