@@ -72,7 +72,7 @@ jobs:
         with:
           source-dir: packages/shell/dist
           deploy-repository: 'SeptKit/septkit.github.io'
-          pages-base-url: 'https://septkit.github.io/'
+          pages-base-url: 'septkit.github.io'
           token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}
           umbrella-dir: pr-preview
           preview-branch: main
