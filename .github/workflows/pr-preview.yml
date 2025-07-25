@@ -47,19 +47,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          node-version: 'latest'
+          version: 10.10.0
+          run_install: false
 
       - name: Install Dependencies
-        working-directory: ./packages/shell
-        run: npm ci
+        uses: ./.github/workflows/_install.yml
+        with:
+          package-name: shell
 
       - name: Build app
         working-directory: ./packages/shell
         if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
-        run: npm run-script build
+        run: pnpm build
 
       - name: Deploy shell as preview
         uses: rossjrw/pr-preview-action@v1
