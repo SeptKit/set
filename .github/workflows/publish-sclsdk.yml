@@ -1,0 +1,57 @@
+name: Publish @septkit/sclsdk
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/sclsdk/**'
+
+jobs:
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: sclsdk
+
+  build:
+    name: Build Project
+    needs: install
+    uses: ./.github/workflows/_build.yml
+    with:
+      package-name: sclsdk
+
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: sclsdk
+
+  version:
+    name: Check Version
+    uses: ./.github/workflows/_check-npm-version.yml
+    with:
+      package-name: sclsdk
+      npm-package: '@septkit/sclsdk'
+
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: sclsdk
+
+  deploy:
+    name: Publish to NPM
+    if: needs.version.outputs.version_changed == 'true'
+    needs:
+      - build
+      - test
+      - version
+      - lint
+    uses: ./.github/workflows/_publish.yml
+    with:
+      package-name: sclsdk
+    secrets:
+      npm-token: ${{ secrets.NPM_PUBLISH_PAT }}
