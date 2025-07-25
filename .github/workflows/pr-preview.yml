@@ -45,7 +45,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -53,10 +53,9 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Install Dependencies
-        uses: ./.github/workflows/_install.yml
-        with:
-          package-name: shell
+      - name: Install dependencies
+        working-directory: ./packages/shell
+        run: pnpm install
 
       - name: Build app
         working-directory: ./packages/shell
