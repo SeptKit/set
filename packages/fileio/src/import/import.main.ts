@@ -30,19 +30,8 @@ export async function importXmlFiles({
 			continue
 		}
 
-		// const t1 = performance.now()
 		const databaseName = await importFile({ file, options })
-		// const t2 = performance.now()
 		databaseNames.push(databaseName)
-
-		// const importTimeMS = truncateDecimals(t2 - t1, 4)
-		// const fileSizeMB = truncateDecimals(file.size / Math.pow(1042, 2), 4)
-		// console.info({
-		// 	msg: 'file import performance',
-		// 	fileSizeMB,
-		// 	importTimeMS,
-		// 	file: file.name,
-		// })
 	}
 	return databaseNames
 }
@@ -64,14 +53,6 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 		const databaseName = getDatabaseName(file)
 
 		const databaseInstance = initializeDatabaseInstance(databaseName)
-
-		// console.debug({
-		// 	level: 'debug',
-		// 	msg: 'importFile',
-		// 	databaseName,
-		// 	databaseInstance,
-		// 	userBrowserAPI: options.useBrowserApi,
-		// })
 
 		if (options.useBrowserApi) {
 			const reader = file.stream().getReader()
@@ -134,11 +115,3 @@ async function createChunks(
 	// Continue pumping
 	return await createChunks(reader, xmlParser, textDecoder, newBuffer, chunkSize)
 }
-
-// function truncateDecimals(number: number, digits: number) {
-// 	var multiplier = Math.pow(10, digits),
-// 		adjustedNum = number * multiplier,
-// 		truncatedNum = Math[adjustedNum < 0 ? 'ceil' : 'floor'](adjustedNum)
-
-// 	return truncatedNum / multiplier
-// }
