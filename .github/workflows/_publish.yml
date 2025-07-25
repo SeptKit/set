@@ -26,7 +26,6 @@ jobs:
         with:
           node-version: 'latest'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@openscd'
 
       - name: Extract Version
         id: version
