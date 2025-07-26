@@ -20,15 +20,16 @@ export type WidgetContribution = Contribution & {
 
 export type StartFn = (rootId: string, api: API) => void
 
-type MenuContribution = Contribution & {
-	type: 'menubar'
+export type MenuContribution = Contribution & {
+	type: 'menu'
 	// e.g "/" for main item: "file/edit" to display the label "File > Edit > {label}"
-	menuPath: string
-	action: () => void
+	icon?: string
+	menuPath: string[]
+	actionFnUrl: string
 }
 
 type Contribution = {
 	id: string
-	type: 'widget' | 'menubar'
+	type: 'widget' | 'menu'
 	label: string
 }

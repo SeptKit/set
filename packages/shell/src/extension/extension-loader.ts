@@ -1,5 +1,5 @@
 import type { Optional } from '../x/types'
-import type { Extension, StartFn, WidgetContribution } from './extension'
+import type { Extension, MenuContribution, StartFn, WidgetContribution } from './extension'
 import { useExtensionStore } from './extension-store'
 
 export async function loadExtensions(extensionDefinitionLocations: string[]) {
@@ -21,23 +21,16 @@ async function fetchExtensionDefinitions(
 	const extensions = (
 		await Promise.allSettled(
 			extensionDefinitionLocations
-				.map(async (location) => {
-					const extDef = await fetchExtensionDefinition(location)
+				.map(async (extUrl) => {
+					const extDef = await fetchExtensionDefinition(extUrl)
 					return {
 						id: extDef.name,
 						version: extDef.version,
 						label: extDef.displayName,
 						contributions: [
-							...extDef.contributes.customEditors.map((editorDef) => {
-								return {
-									id: editorDef.id,
-									type: 'widget',
-									label: editorDef.displayName,
-									icon: editorDef.icon,
-									location: 'mainArea',
-									startFnUrl: generateStartFnUrl(editorDef.entryPoint, location),
-								} satisfies WidgetContribution
-							}),
+							...(extDef.contributes.customEditors?.map((def) => mapCustomEditors(def, extUrl)) ??
+								[]),
+							...(extDef.contributes.menu?.map((def) => mapMenu(def, extUrl)) ?? []),
 						],
 					}
 				})
@@ -48,6 +41,28 @@ async function fetchExtensionDefinitions(
 		.map((p) => p.value)
 
 	return extensions
+}
+
+function mapCustomEditors(def: CustomEditorDefinition, extUrl: string): WidgetContribution {
+	return {
+		id: def.id,
+		type: 'widget',
+		label: def.displayName,
+		icon: def.icon,
+		location: 'mainArea',
+		startFnUrl: generateEntrypointUrl(def.entryPoint, extUrl),
+	}
+}
+
+function mapMenu(def: MenuDefinition, extUrl: string): MenuContribution {
+	return {
+		id: def.id,
+		type: 'menu',
+		label: def.displayName,
+		icon: def.icon,
+		menuPath: def.path ?? [],
+		actionFnUrl: generateEntrypointUrl(def.entryPoint, extUrl),
+	}
 }
 
 async function fetchExtensionDefinition(url: string): Promise<ExtensionDefinition> {
@@ -68,20 +83,31 @@ async function fetchExtensionDefinition(url: string): Promise<ExtensionDefinitio
 	}
 }
 
-type ExtensionDefinition = {
+export type ExtensionDefinition = {
 	name: string
 	displayName: string
 	version: string
 	description: string
 	contributes: {
-		customEditors: {
-			id: string
-			displayName: string
-			icon: string // a relative path to package.json
-			entryPoint: string // relative to package.json
-			fileSelectors: string[] // eg.: SSD, ASD, SCD
-		}[]
+		customEditors?: CustomEditorDefinition[]
+		menu?: MenuDefinition[]
 	}
+}
+
+type CustomEditorDefinition = {
+	id: string
+	displayName: string
+	icon: string // a relative path to package.json
+	entryPoint: string // relative to package.json
+	fileSelectors: string[] // eg.: SSD, ASD, SCD
+}
+
+type MenuDefinition = {
+	id: string
+	displayName: string
+	icon?: string
+	entryPoint: string
+	path?: string[]
 }
 
 export async function fetchWidgetStartFn(url: string): Promise<Optional<StartFn>> {
@@ -92,7 +118,7 @@ export async function fetchWidgetStartFn(url: string): Promise<Optional<StartFn>
 	return module.default as StartFn
 }
 
-function generateStartFnUrl(relativeStartFnUrl: string, baseUrl: string): string {
+function generateEntrypointUrl(relativeStartFnUrl: string, baseUrl: string): string {
 	const startFnUrl = new URL(relativeStartFnUrl, baseUrl).toString()
 
 	return startFnUrl
