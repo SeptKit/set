@@ -23,7 +23,6 @@ export type StartFn = (rootId: string, api: API) => void
 export type MenuContribution = Contribution & {
 	type: 'menu'
 	// e.g "/" for main item: "file/edit" to display the label "File > Edit > {label}"
-	label: string
 	icon?: string
 	menuPath: string[]
 	actionFnUrl: string
