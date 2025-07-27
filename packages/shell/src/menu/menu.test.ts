@@ -6,7 +6,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import Menu from './menu.vue'
 
 describe('Menu', () => {
-	describe('configuration hrough extensions', () => {
+	describe('configuration through extensions', () => {
 		type TestCase = {
 			desc: string
 			extensions: Extension[]

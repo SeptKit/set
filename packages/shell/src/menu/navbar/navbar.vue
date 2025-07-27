@@ -128,7 +128,7 @@ function closeAfterExecute(mainItemId: string, actionFn: () => void): () => void
 		actionFn()
 		const wantedDropdown = dropdowns.value.find((d) => d.id === mainItemId)
 		if (!wantedDropdown) {
-			console.log({ msg: 'could not find dropdown to close', itemId: dropdowns })
+			console.warn({ msg: 'could not find dropdown to close', itemId: dropdowns })
 			return
 		}
 
