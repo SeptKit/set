@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Extension } from '../extension/extension'
-import { useExtensionStore, useMenuContributionsStore } from '../extension/extension-store'
+import { useExtensionStore } from '../extension/extension-store'
 import { render } from 'vitest-browser-vue'
 import { createPinia, setActivePinia } from 'pinia'
 import Menu from './menu.vue'
