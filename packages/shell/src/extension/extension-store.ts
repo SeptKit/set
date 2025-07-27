@@ -1,4 +1,4 @@
-import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 import { defineStore } from 'pinia'
 import type { Extension, MenuContribution, WidgetContribution } from './extension'
 import type { Optional } from '../x/types'
@@ -59,8 +59,8 @@ export const useMainAreaWidgetStore = defineStore('mainAreaExtensions', () => {
 
 export const useMenuContributionsStore = defineStore('menuContributionStore', () => {
 	const _extensionStore = useExtensionStore()
+
 	const _contributions = computed<MenuContribution[]>(() => {
-		console.debug({ level: 'debug', msg: 'creating menu conts', ext: _extensionStore.extensions })
 		return _extensionStore.extensions
 			.map((ext) =>
 				ext.contributions.filter((cont) => cont.type === 'menu').map((c) => c as MenuContribution),

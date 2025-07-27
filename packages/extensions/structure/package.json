@@ -25,7 +25,7 @@
 				"path": [
 					"Import"
 				],
-				"actionFnUrl": ""
+				"entryPoint": "/menu.js"
 			}
 		]
 	},

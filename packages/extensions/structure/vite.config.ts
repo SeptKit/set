@@ -32,9 +32,13 @@ export default defineConfig({
 	},
 	build: {
 		lib: {
-			entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+			// entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+			entry: {
+				shell: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+				menu: fileURLToPath(new URL('./src/menu-action.js', import.meta.url)),
+			},
 			formats: ['es'],
-			fileName: () => `shell.js`,
+			fileName: (_, entry) => `${entry}.js`,
 		},
 	},
 	define: {
