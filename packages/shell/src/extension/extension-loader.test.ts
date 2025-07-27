@@ -98,9 +98,6 @@ describe('Extension Loader', () => {
 				// Assert
 				const store = useExtensionStore()
 				expect(store.extensions).toContainEqual(tc.expectedExtension)
-
-				// Cleanup
-				// server.resetHandlers()
 			})
 		}
 	})
@@ -109,7 +106,7 @@ describe('Extension Loader', () => {
 let originalFetch: typeof fetch
 function mockNextFetch(returnObj: unknown) {
 	originalFetch = fetch
-	// @ts-expect-error
+	// @ts-expect-error: ignoring typeings
 	window.fetch = vi.fn(() => {
 		return Promise.resolve({
 			json: () => {
