@@ -23,7 +23,7 @@
 				"id": "sprinteins.structure.menu-import-fsd",
 				"displayName": "Function",
 				"path": [
-					"Import"
+					"Instantiate"
 				],
 				"entryPoint": "/menu.js"
 			}
