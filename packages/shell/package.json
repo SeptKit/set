@@ -9,6 +9,7 @@
 		"preview": "vite preview",
 		"test": "vitest --project unit",
 		"test:watch": "npm run test -- --watch",
+		"test:debug": "npm run test -- --browser.headless=false --testTimeout 100000",
 		"test:e2e": "vitest --project e2e",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",
@@ -23,7 +24,7 @@
 		"link:restore": "rm -rf ./node_modules/@septkit && pnpm install"
 	},
 	"dependencies": {
-		"@septkit/fileio": "workspace:^",
+		"@septkit/fileio": "0.0.1",
 		"@septkit/ui": "0.0.3",
 		"@tailwindcss/vite": "^4.1.11",
 		"@vueuse/core": "^13.5.0",
