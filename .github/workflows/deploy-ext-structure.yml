@@ -60,6 +60,7 @@ jobs:
       - extract-version
     uses: ./.github/workflows/_deploy.yml
     with:
-      package-name: extensions/structure/${{ needs.extract-version.outputs.version }}
+      package-name: extensions/structure
+      target-folder: extensions/structure/${{ needs.extract-version.outputs.version }}
     secrets:
       deployment-token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}
