@@ -1,18 +1,44 @@
 import { describe, expect, it, vi } from 'vitest'
 import { useFileStore } from './data-management.store'
 import { createPinia, setActivePinia } from 'pinia'
-import { useStorage as useStorageOriginal } from '@vueuse/core'
 import { ref } from 'vue'
 
 describe('Data Management', () => {
-	describe('Feature', () => {
+	describe('Open and Import File Combinations', () => {
 		type TestCase = {
 			desc: string
+			actionsToPerform: Array<{ type: 'open' | 'import'; fileNames: string[] }>
+			expectedActiveFileName: string
 		}
 
 		const featureTests: TestCase[] = [
 			{
-				desc: 'first test',
+				desc: 'opening a file makes it active',
+				actionsToPerform: [{ type: 'open', fileNames: ['just-one-first.asd'] }],
+				expectedActiveFileName: 'just-one-first',
+			},
+			{
+				desc: 'when opening multiple files, the first will be the active one',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['same-time-first.asd', 'same-time-second.asd'] },
+				],
+				expectedActiveFileName: 'same-time-first',
+			},
+			{
+				desc: 'when opening two files separately the second will be the active one',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['separate-first.asd'] },
+					{ type: 'open', fileNames: ['separate-second.asd'] },
+				],
+				expectedActiveFileName: 'separate-second',
+			},
+			{
+				desc: 'importing a file does not affects the active file',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['separate-opened.asd'] },
+					{ type: 'import', fileNames: ['separate-imported.asd'] },
+				],
+				expectedActiveFileName: 'separate-opened',
 			},
 		]
 
@@ -24,33 +50,47 @@ describe('Data Management', () => {
 				setActivePinia(createPinia())
 				const fileStore = useFileStore()
 
-				vi.mock('@vueuse/core', () => ({
-					useFileDialog: () => ({
-						open: () => {},
-						onChange: (callback: (file: File[]) => Promise<void>) => {
-							const fileList: File[] = [
-								new File([''], 'first.asd', {
-									type: 'text/plain',
-								}),
-								new File([''], 'second.asd', {
-									type: 'text/plain',
-								}),
-							]
-							callback(fileList)
-						},
-					}),
-					useStorage: () => {
-						return ref<string>('')
-					},
-				}))
-
 				// Act
-				await fileStore.openFiles()
+				for (const action of tc.actionsToPerform) {
+					if (action.type === 'open') {
+						files = action.fileNames.map((name) => {
+							return new File([''], name, { type: 'text/plain' })
+						})
+
+						await fileStore.openFiles()
+					}
+
+					if (action.type === 'import') {
+						files = action.fileNames.map((name) => {
+							return new File([''], name, { type: 'text/plain' })
+						})
+
+						await fileStore.importFile()
+					}
+				}
 
 				// Arrange
 				const activeFile = fileStore.currentActiveFileDatabaseName
-				expect(activeFile).toEqual('first')
+				expect(activeFile).toEqual(tc.expectedActiveFileName)
 			})
 		}
 	})
 })
+
+let files: File[] = []
+vi.mock('@vueuse/core', () => ({
+	useFileDialog: () => ({
+		open: () => {},
+		onChange: makeOnChangeMock(files),
+	}),
+	useStorage: () => ref<string>(''),
+}))
+function makeOnChangeMock(files: File[]): (cb: OnChangeCallback) => void {
+	return function (callback: OnChangeCallback) {
+		callback(files)
+	}
+}
+// The original uses `FileList` instead of `File[]`,
+// but `FIleList` is a read only object that we cannot create
+// a `File[]` is equivalent in our use case
+type OnChangeCallback = (fileLst: File[]) => Promise<void>
