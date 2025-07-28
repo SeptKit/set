@@ -12,8 +12,8 @@ importers:
         specifier: 0.0.1
         version: 0.0.1(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)
       '@septkit/ui':
-        specifier: 0.0.3
-        version: 0.0.3(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))
+        specifier: 0.0.4
+        version: 0.0.4(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))
@@ -676,8 +676,8 @@ packages:
   '@septkit/fileio@0.0.1':
     resolution: {integrity: sha512-HNIferrMeJvpUf5EpsklKVJqHLjCorD8Ve9K53azp3fA1E1uQQrN4/aclktQKyEPyWvXzMrOIzFjIq492a0ufg==}
 
-  '@septkit/ui@0.0.3':
-    resolution: {integrity: sha512-pXPZcZUMxPdV082vSM8Bg0SP9vax3zAL4KD2yr/W+vFrTCu4f2f4MBnZ4crtBAoVn/s04EPvBOcEqjJjj2lrnA==}
+  '@septkit/ui@0.0.4':
+    resolution: {integrity: sha512-AlnR+leZAiTiMkHERDxMaVoCSPhxh/4tb8xVTPVHQepTKX3zRUhtsA4ceLCUqiA/oWxcu8gFhBOZoNQPKn+diQ==}
     peerDependencies:
       daisyui: ^5.0.0
       tailwindcss: ^4.0.0
@@ -2966,7 +2966,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@septkit/ui@0.0.3(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@septkit/ui@0.0.4(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))':
     dependencies:
       '@tailwindcss/vite': 4.1.11(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))
       '@vueuse/components': 13.5.0(vue@3.5.17(typescript@5.8.3))
