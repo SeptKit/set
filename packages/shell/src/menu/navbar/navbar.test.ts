@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'vitest'
+import { expect, describe, it, vi } from 'vitest'
 import {} from '@vitest/browser/context'
 import { render } from 'vitest-browser-vue'
 import NavBar from './navbar.vue'
@@ -111,6 +111,26 @@ describe('NavBar', () => {
 				}
 			})
 		}
+	})
+
+	describe('Item Actions', () => {
+		it('runs action on click', async () => {
+			// Arrange
+			const action = vi.fn()
+			const items = [{ id: 'file.open', label: 'Open', path: ['File'], action }]
+			const screen = render(NavBar, {
+				props: {
+					items,
+				},
+			})
+
+			// Act
+			await screen.getByText('File').click()
+			await screen.getByText('Open').click()
+
+			// Assert
+			expect(action).toHaveBeenCalled()
+		})
 	})
 })
 

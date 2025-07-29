@@ -16,7 +16,7 @@
 				<template v-slot:label> {{ item.label }} </template>
 				<template v-slot:items>
 					<li v-for="subItem in item.children" :key="subItem.id">
-						<button @click="() => closeAfterExecute(item.id, () => subItem.action(subItem.id))()">
+						<button @click="() => closeAfterExecute(item.id, subItem)()">
 							{{ subItem.label }}
 						</button>
 					</li>
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type ComputedRef } from 'vue'
+import { computed, reactive, ref, type ComputedRef } from 'vue'
 import { Dropdown } from '@septkit/ui'
 import type { ActionFn, NavBarItem } from './navbar-item'
 
@@ -123,12 +123,12 @@ function closeOtherSubMenus(exceptionId: string) {
 	}
 }
 
-function closeAfterExecute(mainItemId: string, actionFn: () => void): () => void {
+function closeAfterExecute(mainItemId: string, subItem: NavigationItem): () => void {
 	return function () {
-		actionFn()
+		subItem.action(subItem.id)
 		const wantedDropdown = dropdowns.value.find((d) => d.id === mainItemId)
 		if (!wantedDropdown) {
-			console.log({ msg: 'could not find dropdown to close', itemId: dropdowns })
+			console.warn({ msg: 'could not find dropdown to close', itemId: dropdowns })
 			return
 		}
 

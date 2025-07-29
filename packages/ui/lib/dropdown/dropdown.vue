@@ -132,7 +132,6 @@ function openDropdown() {
 // `isOpen` value to minizmie the places where change happens to it
 // this is needed to make sure we emit the right open and close events
 function toggleDropdown() {
-	console.debug({ level: 'debug', msg: 'toggle dropdown' })
 	if (!isOpen.value) {
 		openDropdown()
 	} else {
