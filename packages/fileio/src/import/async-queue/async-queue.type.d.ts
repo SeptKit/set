@@ -4,4 +4,5 @@ export type AsyncQueue<T> = {
 	push: (item: T) => void
 	next: () => Promise<QueueResult<T>>
 	close: () => void
+	status: 'pending' | 'done'
 }
