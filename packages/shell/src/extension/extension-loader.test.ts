@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { loadExtensions, type ExtensionDefinition } from './extension-loader'
 import { useExtensionStore } from './extension-store'
 import type { Extension } from './extension'
+import { mockNextFetch } from '../x/test/fetch-mock'
 
 describe('Extension Loader', () => {
 	describe('Loading different kinds of contributions', () => {
@@ -102,18 +103,3 @@ describe('Extension Loader', () => {
 		}
 	})
 })
-
-let originalFetch: typeof fetch
-function mockNextFetch(returnObj: unknown) {
-	originalFetch = fetch
-	// @ts-expect-error: ignoring typeings
-	window.fetch = vi.fn(() => {
-		return Promise.resolve({
-			json: () => {
-				window.fetch = originalFetch
-				return Promise.resolve(returnObj)
-			},
-			ok: true,
-		})
-	})
-}

@@ -58,10 +58,10 @@ export const useMainAreaWidgetStore = defineStore('mainAreaExtensions', () => {
 })
 
 export const useMenuContributionsStore = defineStore('menuContributionStore', () => {
-	const extensionStore = useExtensionStore()
+	const _extensionStore = useExtensionStore()
 
-	const contributions: ComputedRef<MenuContribution[]> = computed(() => {
-		return extensionStore.extensions
+	const _contributions = computed<MenuContribution[]>(() => {
+		return _extensionStore.extensions
 			.map((ext) =>
 				ext.contributions.filter((cont) => cont.type === 'menu').map((c) => c as MenuContribution),
 			)
@@ -69,6 +69,6 @@ export const useMenuContributionsStore = defineStore('menuContributionStore', ()
 	})
 
 	return {
-		contributions,
+		contributions: _contributions,
 	}
 })
