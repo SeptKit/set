@@ -136,7 +136,7 @@ function handleCloseTag(params: { state: ParserState; importContext: ImportConte
 	updatedImportContext: ImportContext
 } {
 	const { state, importContext } = params
-	// const updatedState = { ...state }
+
 	let updatedImportContext: ImportContext = { ...importContext }
 	let updatedStack = [...state.stack]
 	let updatedCurrentParentElements = [...state.currentParentElements]
@@ -147,12 +147,12 @@ function handleCloseTag(params: { state: ParserState; importContext: ImportConte
 	updatedCurrentParentElements = state.currentParentElements.slice(0, -1)
 
 	if (currentRecord) {
-		if (state.stack.length) {
+		if (updatedStack.length) {
 			// create children relationship if parent is still in the stack
-			const parentIndex = state.stack.length - 1
+			const parentIndex = updatedStack.length - 1
 
-			updatedStack = updatedStack.map((item, idx) =>
-				idx === parentIndex
+			updatedStack = updatedStack.map((item, currentIndex) =>
+				currentIndex === parentIndex
 					? {
 							...item,
 							children: [
@@ -177,7 +177,6 @@ function handleCloseTag(params: { state: ParserState; importContext: ImportConte
 			})
 			updatedImportContext.queues[currentRecord.tagName]?.push(currentRecord)
 		} else {
-			console.log(`Tag ${currentRecord.tagName} is not in the initial database tables list.`)
 			updatedImportContext = ensureEndingQueue({
 				tagName: currentRecord.tagName,
 				importContext: updatedImportContext,
