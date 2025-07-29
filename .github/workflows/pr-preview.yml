@@ -16,25 +16,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # install:
-  #   name: Install Dependencies
-  #   uses: ./.github/workflows/_install.yml
-  #   with:
-  #     package-name: shell
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
 
-  # test:
-  #   name: Run Tests
-  #   needs: install
-  #   uses: ./.github/workflows/_test.yml
-  #   with:
-  #     package-name: shell
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: shell
 
-  # lint:
-  #   name: Lint Code
-  #   needs: install
-  #   uses: ./.github/workflows/_lint.yml
-  #   with:
-  #     package-name: shell
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: shell
 
   deploy-preview:
     name: Deploy Preview
@@ -53,9 +53,6 @@ jobs:
         with:
           version: 10.10.0
           run_install: false
-
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile
 
       - name: Build app
         working-directory: ./packages/shell
