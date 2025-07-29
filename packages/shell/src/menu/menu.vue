@@ -20,7 +20,7 @@ const menuContributionStore = useMenuContributionsStore()
 const builtInItems: NavBarItem[] = [
 	{
 		id: 'file.open',
-		label: 'Open Test for PR Preview',
+		label: 'Open',
 		path: ['File'],
 		action: fileStore.openFiles,
 	},
