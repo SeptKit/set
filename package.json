@@ -9,9 +9,11 @@
 		"//====== UI ======//": "",
 		"ui:build": "pnpm --filter @septkit/ui build",
 		"ui:dev": "pnpm --filter @septkit/ui dev",
+		"//====== FILE I/O ======//": "",
+		"fileio:build": "pnpm --filter @septkit/fileio build",
 		"//====== DEPENDENCIES ======//": "",
-		"dependencies:build": "pnpm ui:build",
-		"//====== POST INSTALL ======//": "",
+		"dependencies:build": "pnpm ui:build && pnpm fileio:build",
+		"//====== INSTALLATION ======//": "",
 		"install:browser": "pnpm exec playwright install chromium"
 	},
 	"keywords": [],
