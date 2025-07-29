@@ -1,25 +1,50 @@
-import type { AvailableTagName, DatabaseRecord } from '@/common/common.types'
+import type { AvailableTagName, DatabaseRecord, DatabaseInstance } from '@/common/common.types'
 import type { AsyncQueue } from './async-queue/async-queue.type'
 
-export type ParserOptions = {
+export type ImportContext = {
+	databaseInstance: DatabaseInstance
+	options: QueueOptions
+	queues: Partial<Queues>
+	endingQueues: Partial<EndingQueues>
+	queuesObservable: QueueObservable
+	endingQueuesObservable: QueueObservable
+}
+
+//====== OPTIONS
+
+export type QueueOptions = {
 	batchSize: number
 }
 
-export type ImportOptions = ParserOptions & {
-	useBrowserApi: boolean
+export type ReaderOptions = {
 	chunkSize: number
 }
 
-type ParentTagName = string
+export type ImportOptions = QueueOptions &
+	ReaderOptions & {
+		useBrowserApi: boolean
+	}
+
+//====== RELATIONSHIPS
+
 export type NewRelationship = { parentId: string; childId: string; childTagName: string }
 
-export type State = {
+//====== PARSER
+
+export type ParserState = {
 	stack: DatabaseRecord[]
 	currentParentElements: Array<{ id: string; tagName: AvailableTagName }>
 }
 
 //====== QUEUE
-export type Queues = Record<
-	AvailableTagName,
-	{ status: 'pending' | 'done'; instance: AsyncQueue<DatabaseRecord> }
->
+
+export type Queue = AsyncQueue<DatabaseRecord>
+
+export type Queues = Record<AvailableTagName, Queue>
+export type EndingQueues = Record<string, Queue>
+
+export type QueueObservable = {
+	subscribe: (listener: () => void) => () => boolean
+	notify: () => void
+	isAllDone: () => boolean
+}
