@@ -24,6 +24,8 @@
 		/* Completeness */
 		"skipLibCheck": false /* Skip type checking all .d.ts files. */,
 		"declaration": true /* Generate .d.ts files from TypeScript and JavaScript files in your project. */,
+		"declarationMap": true,
+		"emitDeclarationOnly": false,
 		"removeComments": true /* Disable emitting comments. */
 	},
 	"include": ["src/**/*"],
