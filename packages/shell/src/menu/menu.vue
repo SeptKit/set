@@ -1,5 +1,5 @@
 <template>
-	<Navbar :items="menuItems" />
+	<Navbar :items="menuItems" :activeFileName="fileStore.currentActiveFileDatabaseName" />
 </template>
 
 <script setup lang="ts">
