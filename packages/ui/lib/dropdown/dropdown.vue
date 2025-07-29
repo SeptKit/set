@@ -51,7 +51,7 @@ const props = defineProps<{
 	id?: string
 }>()
 
-const emit = defineEmits(	['open', 'close']	)
+const emit = defineEmits(['open', 'close'])
 
 // Refs for accessing DOM elements
 const details = useTemplateRef<HTMLDetailsElement>('details-ref')
