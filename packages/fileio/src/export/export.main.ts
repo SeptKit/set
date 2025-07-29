@@ -11,6 +11,15 @@ import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/com
 //====== PUBLIC FUNCTIONS ======//
 
 export async function exportFile(params: { databaseName: string }) {
+	const { doc, name } = await exportFileWithoutDownload({ databaseName: params.databaseName })
+	if (!doc) throw new Error('Failed to rebuild XML document from IndexedDB.')
+
+	downloadXmlDocument({ xmlDocument: doc, filename: name + '.scd' })
+}
+
+export async function exportFileWithoutDownload(params: {
+	databaseName: string
+}): Promise<{ doc: XMLDocument | undefined; name: string }> {
 	const databaseInstance = new Dexie(params.databaseName) as DatabaseInstance
 	await databaseInstance.open()
 
@@ -19,9 +28,10 @@ export async function exportFile(params: { databaseName: string }) {
 		useBrowserApi: true,
 	})
 
-	if (!xmlDocument) throw new Error('Failed to rebuild XML document from IndexedDB.')
-
-	downloadXmlDocument({ xmlDocument, filename: databaseInstance.name + '.scd' })
+	return {
+		doc: xmlDocument,
+		name: databaseInstance.name,
+	}
 }
 
 //====== PRIVATE FUNCTIONS ======//
