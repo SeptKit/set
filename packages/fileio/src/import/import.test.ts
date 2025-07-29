@@ -19,6 +19,18 @@ describe('Import', () => {
 					IED: 1,
 				},
 			},
+			{
+				desc: 'second test',
+				fileContent: `<SCL xmlns="http://www.iec.ch/61850/2003/SCL" xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100" version="2007" revision="C" release="5">
+						<IED name="just the one"></IED>
+						<eIEC61850-6-100:NewElementWithNamespace>with a text</eIEC61850-6-100:NewElementWithNamespace>
+					</SCL>`,
+				expectedFileName: 'test',
+				expectedElementCounts: {
+					IED: 1,
+					NewElementWithNamespace: 1,
+				},
+			},
 		]
 
 		featureTests.forEach(testFeature)
@@ -32,12 +44,8 @@ describe('Import', () => {
 
 				// Act
 				const fileNames = await importXmlFiles({ files: [file] })
-				// Note: The timeout is needed beause sometimes `importXmlFiles``
-				// return too early
-				await new Promise((r) => setTimeout(r, 1_00))
 
 				// Assert
-
 				expect(fileNames).toContain(tc.expectedFileName)
 
 				const db = await openDatabase('test')
