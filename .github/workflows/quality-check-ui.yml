@@ -1,4 +1,4 @@
-name: Test @septkit/ui
+name: Quality Check @septkit/ui
 
 on:
   workflow_dispatch:

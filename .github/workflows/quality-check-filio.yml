@@ -1,4 +1,4 @@
-name: Test @septkit/fileio
+name: Quality Check @septkit/fileio
 
 on:
   workflow_dispatch:

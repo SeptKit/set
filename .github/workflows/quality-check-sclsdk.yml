@@ -1,4 +1,4 @@
-name: Test @septkit/sclsdk
+name: Quality Check @septkit/sclsdk
 
 on:
   workflow_dispatch:
