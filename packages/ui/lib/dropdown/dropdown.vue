@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, ref, useTemplateRef, useSlots } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 
 const props = defineProps<{
