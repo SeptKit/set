@@ -1,10 +1,6 @@
 import Dexie from 'dexie'
-// COMMON
-
 // GUARDS
 import { isQualifiedAttribute } from '@/common/common.guards'
-// FORMATTER
-import { formatXml } from './export.formatter'
 // TYPES
 import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/common.types'
 
@@ -21,7 +17,10 @@ export async function exportFile(params: { databaseName: string }) {
 
 	if (!xmlDocument) throw new Error('Failed to rebuild XML document from IndexedDB.')
 
-	downloadXmlDocument({ xmlDocument, filename: databaseInstance.name + '.scd' })
+	return {
+		xmlDocument,
+		filename: databaseInstance.name + '.scd',
+	}
 }
 
 //====== PRIVATE FUNCTIONS ======//
@@ -137,29 +136,6 @@ function createElementWithAttributesAndText(params: {
 	if (record.value) element.textContent = record.value.trim()
 
 	return element
-}
-
-function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename: string }) {
-	const serializer = new XMLSerializer()
-	const xmlString = serializer.serializeToString(params.xmlDocument)
-
-	const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
-	const xmlWithDeclaration = xmlDeclaration + xmlString
-
-	const formattedXmlString = formatXml(xmlWithDeclaration)
-
-	const blob = new Blob([formattedXmlString], { type: 'application/xml' })
-	const url = URL.createObjectURL(blob)
-
-	const a = document.createElement('a')
-	a.href = url
-	a.download = params.filename
-	document.body.appendChild(a)
-	a.click()
-	setTimeout(() => {
-		document.body.removeChild(a)
-		URL.revokeObjectURL(url)
-	}, 0)
 }
 
 function addNamespaceToRootElementIfNeeded(params: {
