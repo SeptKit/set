@@ -19,6 +19,7 @@ export default mergeConfig(
 							enabled: true,
 							headless: true,
 							instances: [{ browser: 'chromium' }],
+							screenshotFailures: false,
 						},
 						include: ['src/**/*.test.{js,ts,jsx,tsx}'],
 						exclude: [...configDefaults.exclude],
