@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, useSlots } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { vOnClickOutside } from '@vueuse/components'
 
 const props = defineProps<{
@@ -51,7 +51,7 @@ const props = defineProps<{
 	id?: string
 }>()
 
-const emit = defineEmits(['open', 'close'])
+const emit = defineEmits(	['open', 'close']	)
 
 // Refs for accessing DOM elements
 const details = useTemplateRef<HTMLDetailsElement>('details-ref')
