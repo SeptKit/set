@@ -33,8 +33,8 @@ export async function bulkAddRecords(params: {
 	const { databaseInstance, tagName, records } = params
 
 	const currentTable = databaseInstance.table(tagName)
-	await databaseInstance.transaction('rw', currentTable, async () => {
-		await currentTable.bulkAdd(records)
+	await databaseInstance.transaction('rw', currentTable, () => {
+		return currentTable.bulkAdd(records)
 	})
 }
 
@@ -67,7 +67,7 @@ export async function bulkUpdateRelationships(params: {
 			}
 		})
 
-		await currentTable.bulkUpdate(recordsFormattedForBulkUpdate)
+		return currentTable.bulkUpdate(recordsFormattedForBulkUpdate)
 	})
 }
 
