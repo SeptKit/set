@@ -1,6 +1,6 @@
 import { computed, ref, type ComputedRef } from 'vue'
 import { defineStore } from 'pinia'
-import type { Extension, WidgetContribution } from './extension'
+import type { Extension, MenuContribution, WidgetContribution } from './extension'
 import type { Optional } from '../x/types'
 
 export const useExtensionStore = defineStore('extension', () => {
@@ -54,5 +54,21 @@ export const useMainAreaWidgetStore = defineStore('mainAreaExtensions', () => {
 
 	function activateWidget(widget: WidgetContribution) {
 		activeWidget.value = widget
+	}
+})
+
+export const useMenuContributionsStore = defineStore('menuContributionStore', () => {
+	const _extensionStore = useExtensionStore()
+
+	const _contributions = computed<MenuContribution[]>(() => {
+		return _extensionStore.extensions
+			.map((ext) =>
+				ext.contributions.filter((cont) => cont.type === 'menu').map((c) => c as MenuContribution),
+			)
+			.flat()
+	})
+
+	return {
+		contributions: _contributions,
 	}
 })
