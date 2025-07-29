@@ -1,0 +1,81 @@
+name: Deploy PR preview
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+    paths:
+      - 'packages/shell/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
+
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: shell
+
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: shell
+
+  deploy-preview:
+    name: Deploy Preview
+    needs: install
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10.10.0
+          run_install: false
+
+      - name: Restore node_modules cache
+        uses: actions/cache@v3
+        with:
+          path: packages/shell/node_modules
+          key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
+
+      - name: Build app
+        working-directory: ./packages/shell
+        if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
+        run: pnpm build --base=/pr-preview/pr-${{ github.event.number }}
+
+      - name: Deploy shell as preview
+        uses: rossjrw/pr-preview-action@v1
+        id: preview-step
+        with:
+          source-dir: packages/shell/dist
+          deploy-repository: 'SeptKit/septkit.github.io'
+          pages-base-url: 'septkit.github.io'
+          token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}
+          umbrella-dir: pr-preview
+          preview-branch: main
+
+      - if: steps.preview-step.outputs.deployment-action == 'deploy'
+        run: echo "Preview visible at ${{ steps.preview-step.outputs.preview-url }}"
