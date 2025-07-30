@@ -45,7 +45,6 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ steps.sanitize.outputs.package-name-safe }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
 
       - name: Install dependencies
-        working-directory: packages/${{ inputs.package-name }}
         run: pnpm install --filter=./packages/${{ inputs.package-name }}
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
 
