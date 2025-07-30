@@ -46,7 +46,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: packages/${{ inputs.package-name }}
-        run: pnpm install --filter ${{ inputs.package-name }}
+        run: pnpm install --filter=./packages/${{ inputs.package-name }}
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
 
       - name: Get Playwright Version
