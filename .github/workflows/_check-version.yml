@@ -49,6 +49,7 @@ jobs:
       - name: Extract Deployed Version
         id: get_version
         if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        working-directory: ${{ inputs.deployed-folder }}
         run: |
           DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "Deployed version: $DEPLOYED_VERSION"

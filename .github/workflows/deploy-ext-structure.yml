@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/_check-version.yml
     with:
       package-name: extensions/structure
-      deployed-folder: .
+      deployed-folder: extensions/structure
 
   lint:
     name: Lint Code
