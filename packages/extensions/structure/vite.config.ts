@@ -9,6 +9,9 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // https://vite.dev/config/
 export default defineConfig({
+	optimizeDeps: {
+		include: ['@septkit/fileio'],
+	},
 	server: {
 		port: 55676,
 	},
@@ -34,8 +37,8 @@ export default defineConfig({
 		lib: {
 			// entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
 			entry: {
-				shell: fileURLToPath(new URL('./src/shell.ts', import.meta.url)),
-				menu: fileURLToPath(new URL('./src/menu.ts', import.meta.url)),
+				shell: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+				menu: fileURLToPath(new URL('./src/menu.js', import.meta.url)),
 			},
 			formats: ['es'],
 			fileName: (_, entry) => `${entry}.js`,

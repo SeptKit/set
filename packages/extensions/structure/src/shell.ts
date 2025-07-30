@@ -8,10 +8,5 @@ export default function start(rootId: string, api: unknown) {
 		return
 	}
 
-	// api.activeFileName.subscribe((newFile, oldFile) => {
-	// 	console.debug({ msg: 'active file has changed', newFile, oldFile })
-	// 	render(root, newFile)
-	// })
-
 	createApp(app, { api }).mount(`#${rootId}`)
 }
