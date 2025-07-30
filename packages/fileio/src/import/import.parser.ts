@@ -9,10 +9,9 @@ import { registerPendingChildrenRelationship } from './import.relationships'
 // GUARDS
 import { isSaxQualifiedTag } from './import.guards'
 // TYPES
-import { State, ParserOptions } from './import.types'
+import { ParserState, ImportContext } from './import.types'
 import {
 	DatabaseRecord,
-	DatabaseInstance,
 	AvailableTagName,
 	Namespace,
 	Attribute,
@@ -26,18 +25,21 @@ import {
  * @param databaseInstance Dexie database instance
  * @returns SAX parser instance
  */
-export function setSaxParser(params: {
-	databaseInstance: DatabaseInstance
-	options: ParserOptions
-}) {
-	const { databaseInstance, options } = params
+export function setSaxParser(params: { importContext: ImportContext }): {
+	xmlParser: sax.SAXParser
+	importContext: ImportContext
+} {
+	const { importContext } = params
 
-	const initialState: State = {
+	const initialState: ParserState = {
 		stack: [],
 		currentParentElements: [],
 	}
 
-	let state = initialState
+	let updatedState = initialState
+	let updatedImportContext: ImportContext = {
+		...importContext,
+	}
 
 	const parser = sax.parser(
 		true, // strict mode
@@ -50,24 +52,22 @@ export function setSaxParser(params: {
 		},
 	)
 
-	parser.onopentag = (node: sax.QualifiedTag) => {
-		state = handleOpenTag({ node, state: { ...state } })
-	}
+	parser.onopentag = (node: sax.QualifiedTag) =>
+		(updatedState = handleOpenTag({ node, state: updatedState }))
 
-	parser.ontext = (text) => {
-		state = handleText({ text, state: { ...state } })
-	}
+	parser.ontext = (text) => (updatedState = handleText({ text, state: updatedState }))
 
-	parser.onclosetag = () => {
-		state = handleCloseTag({ state: { ...state }, databaseInstance, options })
-	}
+	parser.onclosetag = () =>
+		({ updatedState, updatedImportContext } = handleCloseTag({
+			state: updatedState,
+			importContext,
+		}))
 
-	parser.onend = () => {
-		handleEnd(databaseInstance)
-	}
+	parser.onend = () => (updatedImportContext = handleEnd({ importContext: updatedImportContext }))
+
 	parser.onerror = handleError
 
-	return parser
+	return { xmlParser: parser, importContext: updatedImportContext }
 }
 
 //====== PARSER EVENT HANDLERS ======//
@@ -78,7 +78,7 @@ export function setSaxParser(params: {
  * @param state Current tracker state
  * @returns Updated tracker state
  */
-function handleOpenTag(params: { node: sax.QualifiedTag; state: State }) {
+function handleOpenTag(params: { node: sax.QualifiedTag; state: ParserState }) {
 	const { node, state } = params
 	const updatedState = { ...state }
 
@@ -114,7 +114,7 @@ function handleOpenTag(params: { node: sax.QualifiedTag; state: State }) {
  * @returns Updated state
  *
  */
-function handleText(params: { text: string; state: State }): State {
+function handleText(params: { text: string; state: ParserState }): ParserState {
 	const { text, state } = params
 
 	if (!text) return state
@@ -131,27 +131,37 @@ function handleText(params: { text: string; state: State }): State {
  * @param options Parser options
  * @returns Updated state
  */
-function handleCloseTag(params: {
-	state: State
-	databaseInstance: DatabaseInstance
-	options: ParserOptions
-}): State {
-	const { state, databaseInstance, options } = params
-	const updatedState = { ...state }
+function handleCloseTag(params: { state: ParserState; importContext: ImportContext }): {
+	updatedState: ParserState
+	updatedImportContext: ImportContext
+} {
+	const { state, importContext } = params
 
-	const currentRecord = updatedState.stack.pop()
-	updatedState.currentParentElements.pop()
+	let updatedImportContext: ImportContext = { ...importContext }
+	let updatedStack = [...state.stack]
+	let updatedCurrentParentElements = [...state.currentParentElements]
+
+	const currentRecord = state.stack.at(-1)
+	// removing the last record from the stack and current parent elements
+	updatedStack = state.stack.slice(0, -1)
+	updatedCurrentParentElements = state.currentParentElements.slice(0, -1)
 
 	if (currentRecord) {
-		if (updatedState.stack.length) {
+		if (updatedStack.length) {
 			// create children relationship if parent is still in the stack
-			const parentIndex = updatedState.stack.length - 1
-			updatedState.stack[parentIndex].children = updatedState.stack[parentIndex].children || []
+			const parentIndex = updatedStack.length - 1
 
-			updatedState.stack[parentIndex].children.push({
-				id: currentRecord.id,
-				tagName: currentRecord.tagName,
-			})
+			updatedStack = updatedStack.map((item, currentIndex) =>
+				currentIndex === parentIndex
+					? {
+							...item,
+							children: [
+								...(item.children || []),
+								{ id: currentRecord.id, tagName: currentRecord.tagName },
+							],
+						}
+					: item,
+			)
 		} else if (currentRecord.parent)
 			registerPendingChildrenRelationship({
 				parent: currentRecord.parent,
@@ -159,21 +169,29 @@ function handleCloseTag(params: {
 			})
 
 		const initialDatabaseTablesList = TAG_NAMES
-		const queue = initialDatabaseTablesList.includes(currentRecord.tagName)
-			? ensureQueue({
-					databaseInstance,
-					tagName: currentRecord.tagName,
-					batchSize: options.batchSize,
-				})
-			: ensureEndingQueue({
-					tagName: currentRecord.tagName,
-					batchSize: options.batchSize,
-				})
 
-		queue.push(currentRecord)
+		if (initialDatabaseTablesList.includes(currentRecord.tagName)) {
+			updatedImportContext = ensureQueue({
+				tagName: currentRecord.tagName,
+				importContext: updatedImportContext,
+			})
+			updatedImportContext.queues[currentRecord.tagName]?.push(currentRecord)
+		} else {
+			updatedImportContext = ensureEndingQueue({
+				tagName: currentRecord.tagName,
+				importContext: updatedImportContext,
+			})
+			updatedImportContext.endingQueues[currentRecord.tagName]?.push(currentRecord)
+		}
 	}
 
-	return updatedState
+	return {
+		updatedState: {
+			stack: updatedStack,
+			currentParentElements: updatedCurrentParentElements,
+		},
+		updatedImportContext,
+	}
 }
 
 /**
@@ -181,8 +199,12 @@ function handleCloseTag(params: {
  * @param databaseInstance Dexie database instance
  * @param state Current state
  */
-function handleEnd(databaseInstance: DatabaseInstance) {
-	closeAllQueues({ databaseInstance })
+function handleEnd(params: { importContext: ImportContext }): ImportContext {
+	const { importContext } = params
+
+	return closeAllQueues({
+		importContext,
+	})
 }
 
 /**

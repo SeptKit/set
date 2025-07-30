@@ -1,12 +1,14 @@
 import { AsyncQueue, QueueResult, ResolverFunction } from './async-queue.type'
 
 export function createAsyncQueue<T>(params: { batchSize: number }): AsyncQueue<T> {
+	let status: AsyncQueue<T>['status'] = 'pending'
+
 	const _batchSize = params.batchSize
 	let _queue: T[] = []
 	let _closed = false
 	let _nextResolve: ResolverFunction<T> | undefined = undefined
 
-	return { push, next, close }
+	return { push, next, close, status }
 
 	// When a consumer wants data but none is available,
 	// a "resolver" is created and stored.
@@ -14,6 +16,7 @@ export function createAsyncQueue<T>(params: { batchSize: number }): AsyncQueue<T
 	async function next(): Promise<QueueResult<T>> {
 		const closedWithoutData = _queue.length === 0 && _closed
 		if (closedWithoutData) {
+			status = 'done'
 			return Promise.resolve({ value: [], done: true })
 		}
 
