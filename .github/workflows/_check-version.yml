@@ -46,21 +46,6 @@ jobs:
           repository: 'SeptKit/septkit.github.io'
           ref: 'main'
 
-      - name: Extract Deployed Version
-        id: get_version
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
-        working-directory: ${{ inputs.deployed-folder }}
-        run: |
-          DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
-          echo "Deployed version: $DEPLOYED_VERSION"
-          echo "deployed_version=$DEPLOYED_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Checkout Main Branch
-        uses: actions/checkout@v3
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
-        with:
-          ref: 'main'
-
       - name: Verify Deployed Folder Exists
         id: verify_deployed_folder
         if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
@@ -74,9 +59,24 @@ jobs:
             echo "version_changed=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Extract Deployed Version
+        id: get_version
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
+        working-directory: ${{ inputs.deployed-folder }}
+        run: |
+          DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "Deployed version: $DEPLOYED_VERSION"
+          echo "deployed_version=$DEPLOYED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout Main Branch
+        uses: actions/checkout@v3
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        with:
+          ref: 'main'
+
       - name: Extract Current Version
         id: current_version
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
         working-directory: packages/${{ inputs.package-name }}
         run: |
           CURRENT_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
