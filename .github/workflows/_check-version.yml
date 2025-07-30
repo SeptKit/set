@@ -61,9 +61,22 @@ jobs:
         with:
           ref: 'main'
 
+      - name: Verify Deployed Folder Exists
+        id: verify_deployed_folder
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        run: |
+          if [ -d "${{ inputs.deployed-folder }}" ]; then
+            echo "Deployed folder exists."
+            echo "deployed_folder_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Deployed folder does not exist."
+            echo "deployed_folder_exists=false" >> $GITHUB_OUTPUT
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Extract Current Version
         id: current_version
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
         working-directory: packages/${{ inputs.package-name }}
         run: |
           CURRENT_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
