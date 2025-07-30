@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 // VUEUSE
-import { useFileDialog, useStorage } from '@vueuse/core'
+import { useFileDialog, useStorage, useObjectUrl } from '@vueuse/core'
 // FILEIO
 import { importXmlFiles, exportFile } from '@septkit/fileio'
+// FORMATTER
+import { formatXml } from './data-management.formatter'
 
 export const useFileStore = defineStore('file', () => {
 	//====== STATE ======//
@@ -18,15 +20,7 @@ export const useFileStore = defineStore('file', () => {
 		localStorage,
 	)
 
-	return {
-		// state
-		currentActiveFileDatabaseName,
-		currentImportedDatabaseNames,
-		// actions
-		openFiles,
-		saveFile,
-		importFile,
-	}
+	//====== ACTIONS ======//
 
 	async function openFiles() {
 		const { open, onChange } = useFileDialog({
@@ -34,8 +28,6 @@ export const useFileStore = defineStore('file', () => {
 		})
 
 		//====== ACTIONS ======//
-
-		const { promise, resolve, reject } = Promise.withResolvers()
 
 		onChange(async (files) => {
 			if (!files || files.length === 0) return
@@ -45,14 +37,10 @@ export const useFileStore = defineStore('file', () => {
 			currentActiveFileDatabaseName.value = databaseNames[0]
 			if (databaseNames.length) {
 				console.info(`Files imported successfully: ${databaseNames.join(', ')}`)
-				resolve(undefined)
-			} else {
-				reject()
 			}
 		})
 
-		open()
-		return promise
+		return open()
 	}
 
 	async function saveFile() {
@@ -61,9 +49,32 @@ export const useFileStore = defineStore('file', () => {
 				throw new Error('No active file to save - please open a file first')
 			}
 
-			return await exportFile({
+			const response = await exportFile({
 				databaseName: currentActiveFileDatabaseName.value,
 			})
+
+			const serializer = new XMLSerializer()
+			const xmlString = serializer.serializeToString(response.xmlDocument)
+
+			const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+			const xmlWithDeclaration = xmlDeclaration + xmlString
+
+			const formattedXmlString = formatXml(xmlWithDeclaration)
+
+			const blob = new Blob([formattedXmlString], { type: 'application/xml' })
+			const url = useObjectUrl(blob)
+
+			if (!url.value) throw new Error('Failed to create object URL for the XML document')
+
+			const a = document.createElement('a')
+			a.href = url.value
+			a.download = response.filename
+			document.body.appendChild(a)
+			a.click()
+
+			setTimeout(() => {
+				document.body.removeChild(a)
+			}, 0)
 		} catch (error) {
 			console.error('Error saving file:', error)
 			throw error
@@ -75,8 +86,6 @@ export const useFileStore = defineStore('file', () => {
 			accept: 'fsd',
 		})
 
-		//====== ACTIONS ======//
-
 		onChange(async (files) => {
 			if (!files || files.length === 0) return
 
@@ -86,5 +95,17 @@ export const useFileStore = defineStore('file', () => {
 		})
 
 		return open()
+	}
+
+	//====== RETURNED STORE PROPERTIES ======//
+
+	return {
+		// state
+		currentActiveFileDatabaseName,
+		currentImportedDatabaseNames,
+		// actions
+		openFiles,
+		saveFile,
+		importFile,
 	}
 })

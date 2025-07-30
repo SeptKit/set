@@ -32,7 +32,13 @@ export async function importXmlFiles({
 			continue
 		}
 
+		if (file.size === 0) {
+			console.warn(`File is empty: ${file.name}`)
+			continue
+		}
+
 		const databaseName = await importFile({ file, options })
+
 		databaseNames.push(databaseName)
 	}
 
@@ -52,8 +58,10 @@ export function getDatabaseName(file: File): string {
 
 async function importFile(params: { file: File; options: ImportOptions }) {
 	const { file, options } = params
+
 	try {
 		const databaseName = getDatabaseName(file)
+
 		const databaseInstance = initializeDatabaseInstance(databaseName)
 
 		let importContext: ImportContext = {

@@ -1,25 +1,14 @@
 import Dexie from 'dexie'
-// COMMON
-
 // GUARDS
 import { isQualifiedAttribute } from '@/common/common.guards'
-// FORMATTER
-import { formatXml } from './export.formatter'
 // TYPES
 import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/common.types'
 
 //====== PUBLIC FUNCTIONS ======//
 
-export async function exportFile(params: { databaseName: string }) {
-	const { doc, name } = await exportFileWithoutDownload({ databaseName: params.databaseName })
-	if (!doc) throw new Error('Failed to rebuild XML document from IndexedDB.')
-
-	downloadXmlDocument({ xmlDocument: doc, filename: name + '.scd' })
-}
-
-export async function exportFileWithoutDownload(params: {
+export async function exportFile(params: {
 	databaseName: string
-}): Promise<{ doc: XMLDocument | undefined; name: string }> {
+}): Promise<{ xmlDocument: XMLDocument; filename: string }> {
 	const databaseInstance = new Dexie(params.databaseName) as DatabaseInstance
 	await databaseInstance.open()
 
@@ -28,9 +17,13 @@ export async function exportFileWithoutDownload(params: {
 		useBrowserApi: true,
 	})
 
+	if (!xmlDocument) {
+		throw new Error('Failed to rebuild XML document from IndexedDB.')
+	}
+
 	return {
-		doc: xmlDocument,
-		name: databaseInstance.name,
+		xmlDocument,
+		filename: databaseInstance.name + '.scd',
 	}
 }
 
@@ -147,29 +140,6 @@ function createElementWithAttributesAndText(params: {
 	if (record.value) element.textContent = record.value.trim()
 
 	return element
-}
-
-function downloadXmlDocument(params: { xmlDocument: XMLDocument; filename: string }) {
-	const serializer = new XMLSerializer()
-	const xmlString = serializer.serializeToString(params.xmlDocument)
-
-	const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
-	const xmlWithDeclaration = xmlDeclaration + xmlString
-
-	const formattedXmlString = formatXml(xmlWithDeclaration)
-
-	const blob = new Blob([formattedXmlString], { type: 'application/xml' })
-	const url = URL.createObjectURL(blob)
-
-	const a = document.createElement('a')
-	a.href = url
-	a.download = params.filename
-	document.body.appendChild(a)
-	a.click()
-	setTimeout(() => {
-		document.body.removeChild(a)
-		URL.revokeObjectURL(url)
-	}, 0)
 }
 
 function addNamespaceToRootElementIfNeeded(params: {

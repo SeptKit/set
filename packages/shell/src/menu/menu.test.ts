@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { Extension } from '../extension/extension'
 import { useExtensionStore } from '../extension/extension-store'
 import { render } from 'vitest-browser-vue'
