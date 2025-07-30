@@ -18,7 +18,12 @@ const fileStore = useFileStore()
 const menuContributionStore = useMenuContributionsStore()
 
 const builtInItems: NavBarItem[] = [
-	{ id: 'file.open', label: 'Open', path: ['File'], action: fileStore.openFiles },
+	{
+		id: 'file.open',
+		label: 'Open',
+		path: ['File'],
+		action: fileStore.openFiles,
+	},
 	{ id: 'file.save', label: 'Save', path: ['File'], action: fileStore.saveFile },
 ]
 

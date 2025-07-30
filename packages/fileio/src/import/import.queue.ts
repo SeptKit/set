@@ -2,117 +2,158 @@
 import { bulkAddRecords, bulkCreateTables } from './import.database'
 // RELATIONSHIPS
 import { resolveCurrentBatchChildrenRelationships } from './import.relationships'
-// TYPES
-import type { Queues } from './import.types'
-import type { AsyncQueue } from './async-queue/async-queue.type'
+// GUARDS
+import { isTagNameInQueues } from './import.guards'
+// QUEUE
 import { createAsyncQueue } from './async-queue/async-queue'
-import type { AvailableTagName, DatabaseInstance, DatabaseRecord } from '@/common'
-
-//====== STATE MANAGEMENT ======//
-
-const queues: Partial<Queues> = {}
-const endingQueues: Partial<Queues> = {}
-const queuesObservable = createQueuesObservable(queues)
+// TYPES
+import type { EndingQueues, Queues, QueueObservable, ImportContext } from './import.types'
+import type { AvailableTagName, DatabaseRecord } from '@/common'
 
 //====== PUBLIC FUNCTIONS ======//
 
 export function ensureQueue(params: {
-	databaseInstance: DatabaseInstance
 	tagName: AvailableTagName
-	batchSize: number
-}): AsyncQueue<DatabaseRecord> {
-	const { databaseInstance, tagName, batchSize } = params
-	let queue = queues[tagName]?.instance
+	importContext: ImportContext
+}): ImportContext {
+	const { importContext, tagName } = params
 
-	if (!queue) {
-		const newQueue = createAsyncQueue<DatabaseRecord>({ batchSize })
-		queues[tagName] = { status: 'pending', instance: newQueue }
+	const updatedImportContext = {
+		...importContext,
+	}
+
+	let currentQueue = updatedImportContext.queues[tagName]
+
+	if (!currentQueue) {
+		const newQueue = createAsyncQueue<DatabaseRecord>({
+			batchSize: updatedImportContext.options.batchSize,
+		})
+
+		updatedImportContext.queues[tagName] = newQueue
 
 		// event loop deferral
 		queueMicrotask(() => {
 			consumeQueueAndSaveToDatabase({
-				databaseInstance,
 				tagName,
-				queue: newQueue,
+				importContext: updatedImportContext,
+				isEndingQueue: false,
 			}).catch((error) => {
 				console.error(`Consumer error for ${tagName}:`, error)
 				throw error
 			})
 		})
-
-		return newQueue
 	}
 
-	return queue
+	return updatedImportContext
 }
 
 export function ensureEndingQueue(params: {
 	tagName: AvailableTagName
-	batchSize: number
-}): AsyncQueue<DatabaseRecord> {
-	const { tagName, batchSize } = params
-	let queue = endingQueues[tagName]?.instance
-
-	if (!queue) {
-		const newQueue = createAsyncQueue<DatabaseRecord>({ batchSize })
-		endingQueues[tagName] = { status: 'pending', instance: newQueue }
-		return newQueue
+	importContext: ImportContext
+}): ImportContext {
+	const { tagName, importContext } = params
+	const updatedImportContext = {
+		...importContext,
 	}
+	let currentQueue = importContext.endingQueues[tagName]
 
-	return queue
-}
-
-export function closeAllQueues(params: { databaseInstance: DatabaseInstance }) {
-	const { databaseInstance } = params
-
-	for (const queue of Object.values(queues)) {
-		queue.instance.close()
-	}
-
-	const unsubscribe = queuesObservable.subscribe(async () => {
-		await bulkCreateTables({
-			databaseInstance: databaseInstance,
-			tagNames: Object.keys(queues),
+	if (!currentQueue) {
+		const newQueue = createAsyncQueue<DatabaseRecord>({
+			batchSize: importContext.options.batchSize,
 		})
 
-		const endingQueuesEntries = Object.entries(endingQueues) as [
-			AvailableTagName,
-			{ instance: AsyncQueue<DatabaseRecord> },
-		][]
+		updatedImportContext.endingQueues[tagName] = newQueue
+	}
 
-		for (const [tagName, { instance: queue }] of endingQueuesEntries) {
-			queue.close()
-			queueMicrotask(() => {
-				consumeQueueAndSaveToDatabase({
-					databaseInstance,
-					tagName,
-					queue,
-				}).catch((error) => {
-					console.error(`Consumer error for ${tagName}:`, error)
-					throw error
-				})
-			})
-		}
-
-		unsubscribe()
-	})
+	return updatedImportContext
 }
 
-//====== PRIVATE FUNCTIONS ======//
+export function closeAllQueues(params: { importContext: ImportContext }): ImportContext {
+	const { importContext } = params
+	let updatedImportContext = { ...importContext }
 
-function createQueuesObservable(queues: Partial<Queues>) {
+	for (const tagName of Object.keys(updatedImportContext.queues) as AvailableTagName[])
+		updatedImportContext.queues[tagName]?.close()
+
+	const unsubscribe = updatedImportContext.queuesObservable.subscribe(async () => {
+		updatedImportContext = await createRemainingTablesAndFireEndingQueues({
+			importContext: updatedImportContext,
+		})
+		unsubscribe()
+	})
+
+	return updatedImportContext
+}
+
+export function areAllQueuesDone(params: { importContext: ImportContext }) {
+	const { importContext } = params
+	const hasEndingQueues =
+		importContext.endingQueues && Object.keys(importContext.endingQueues).length > 0
+
+	return Promise.all([
+		new Promise<void>((resolve) => {
+			const unsubscribe = importContext.queuesObservable.subscribe(() => {
+				if (importContext.queuesObservable.isAllDone()) {
+					unsubscribe()
+					resolve()
+				}
+			})
+		}),
+		hasEndingQueues
+			? new Promise<void>((resolve) => {
+					const unsubscribe = importContext.endingQueuesObservable.subscribe(() => {
+						if (importContext.endingQueuesObservable.isAllDone()) {
+							unsubscribe()
+							resolve()
+						}
+					})
+				})
+			: Promise.resolve(),
+	])
+}
+
+async function createRemainingTablesAndFireEndingQueues(params: { importContext: ImportContext }) {
+	const { importContext } = params
+	const updatedImportContext = { ...importContext }
+
+	await bulkCreateTables({
+		databaseInstance: importContext.databaseInstance,
+		tagNames: Object.keys(importContext.endingQueues),
+	})
+
+	for (const tagName of Object.keys(updatedImportContext.endingQueues)) {
+		const currentQueue = updatedImportContext.endingQueues[tagName]
+		if (!currentQueue) throw new Error(`Ending queue for tagName ${tagName} is not defined`)
+
+		updatedImportContext.endingQueues[tagName]?.close()
+		queueMicrotask(() => {
+			consumeQueueAndSaveToDatabase({
+				tagName,
+				importContext: updatedImportContext,
+				isEndingQueue: true,
+			}).catch((error) => {
+				console.error(`Consumer error for ${tagName}:`, error)
+				throw error
+			})
+		})
+	}
+
+	return updatedImportContext
+}
+
+export function createQueuesObservable(queues: Partial<Queues>): QueueObservable {
 	const listeners = new Set<() => void>()
 
 	function subscribe(listener: () => void) {
 		listeners.add(listener)
-		// Return an unsubscribe function
-		return () => listeners.delete(listener)
+
+		const unsubscribe = () => listeners.delete(listener)
+
+		return unsubscribe
 	}
 
 	function notify() {
-		for (const listener of listeners) {
-			listener()
-		}
+		for (const listener of listeners) listener()
 	}
 
 	function isAllDone() {
@@ -122,19 +163,34 @@ function createQueuesObservable(queues: Partial<Queues>) {
 	return { subscribe, notify, isAllDone }
 }
 
+//====== PRIVATE FUNCTIONS ======//
+
 async function consumeQueueAndSaveToDatabase(params: {
-	databaseInstance: DatabaseInstance
-	tagName: AvailableTagName
-	queue: AsyncQueue<DatabaseRecord>
+	tagName: AvailableTagName | string
+	importContext: ImportContext
+	isEndingQueue: boolean
 }) {
-	const { databaseInstance, tagName, queue } = params
+	const { tagName, importContext, isEndingQueue } = params
+
+	let currentQueues: Queues | EndingQueues
+	let currentQueuesObservable: QueueObservable
+
+	if (isEndingQueue) {
+		currentQueues = importContext.endingQueues as EndingQueues
+		currentQueuesObservable = importContext.endingQueuesObservable
+	} else {
+		currentQueues = importContext.queues as Queues
+		currentQueuesObservable = importContext.queuesObservable
+	}
+
+	if (!isTagNameInQueues(tagName, currentQueues) || !currentQueues[tagName])
+		throw new Error(`Queue for tagName ${tagName} is not defined to be consumed`)
 
 	while (true) {
-		const { value: elementsBatch, done } = await queue.next()
+		const { value: elementsBatch, done } = await currentQueues[tagName].next()
 
-		if (done && queues[tagName]) {
-			queues[tagName].status = 'done'
-			if (queuesObservable.isAllDone()) queuesObservable.notify()
+		if (done) {
+			if (currentQueuesObservable.isAllDone()) currentQueuesObservable.notify()
 			break
 		}
 
@@ -147,7 +203,7 @@ async function consumeQueueAndSaveToDatabase(params: {
 		})
 
 		await bulkAddRecords({
-			databaseInstance,
+			databaseInstance: importContext.databaseInstance,
 			tagName,
 			records: elementsBatchWithResolvedRelationships,
 		})

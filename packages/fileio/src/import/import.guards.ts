@@ -1,4 +1,7 @@
-import * as sax from 'sax'
+// TYPES
+import type * as sax from 'sax'
+import type { Queues, EndingQueues } from './import.types'
+import type { AvailableTagName } from '@/common'
 
 export function isSaxQualifiedTag(node: sax.Tag | sax.QualifiedTag): node is sax.QualifiedTag {
 	return 'prefix' in node && 'uri' in node && !!node.prefix && !!node.uri
@@ -16,4 +19,11 @@ export function isSaxQualifiedAttribute(
 		'uri' in attribute &&
 		!!attribute.uri
 	)
+}
+
+export function isTagNameInQueues(
+	tagName: string | AvailableTagName,
+	queues: Queues | EndingQueues,
+): tagName is keyof typeof queues {
+	return Object.keys(queues).includes(tagName as string)
 }

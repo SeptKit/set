@@ -5,8 +5,10 @@ import { setSaxParser } from './import.parser'
 import { initializeDatabaseInstance } from './import.database'
 // CONSTANTS
 import { SUPPORTED_EXTENSIONS } from '../common/common.constant'
+// QUEUE
+import { createQueuesObservable, areAllQueuesDone } from './import.queue'
 // TYPES
-import { ImportOptions } from './import.types'
+import type { ImportOptions, ReaderOptions, ImportContext } from './import.types'
 
 const DEFAULT_IMPORT_OPTIONS: ImportOptions = {
 	useBrowserApi: true,
@@ -30,9 +32,16 @@ export async function importXmlFiles({
 			continue
 		}
 
+		if (file.size === 0) {
+			console.warn(`File is empty: ${file.name}`)
+			continue
+		}
+
 		const databaseName = await importFile({ file, options })
+
 		databaseNames.push(databaseName)
 	}
+
 	return databaseNames
 }
 
@@ -49,22 +58,35 @@ export function getDatabaseName(file: File): string {
 
 async function importFile(params: { file: File; options: ImportOptions }) {
 	const { file, options } = params
+
 	try {
 		const databaseName = getDatabaseName(file)
 
 		const databaseInstance = initializeDatabaseInstance(databaseName)
 
-		if (options.useBrowserApi) {
-			const reader = file.stream().getReader()
-			const xmlParser = setSaxParser({
-				databaseInstance,
-				options: { batchSize: options.batchSize },
+		let importContext: ImportContext = {
+			databaseInstance,
+			options: {
+				batchSize: options.batchSize,
+			},
+			queues: {},
+			endingQueues: {},
+			queuesObservable: createQueuesObservable({}),
+			endingQueuesObservable: createQueuesObservable({}),
+		}
+
+		if (options.useBrowserApi)
+			importContext = await processXmlWithBrowserApi({
+				file,
+				importContext,
+				options: {
+					chunkSize: options.chunkSize,
+				},
 			})
 
-			const textDecoder = new TextDecoder()
-			const buffer = new Uint8Array(0)
-			await createChunks(reader, xmlParser, textDecoder, buffer, options.chunkSize)
-		}
+		await areAllQueuesDone({
+			importContext,
+		})
 
 		return databaseName
 	} catch (error) {
@@ -73,13 +95,33 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 	}
 }
 
+async function processXmlWithBrowserApi(params: {
+	file: File
+	importContext: ImportContext
+	options: ReaderOptions
+}): Promise<ImportContext> {
+	const { file, importContext, options } = params
+
+	const reader = file.stream().getReader()
+	const { xmlParser, importContext: updatedImportContext } = setSaxParser({
+		importContext,
+	})
+
+	const textDecoder = new TextDecoder()
+	const buffer = new Uint8Array(0)
+	await createChunks(reader, xmlParser, textDecoder, buffer, options)
+
+	return updatedImportContext
+}
+
 async function createChunks(
 	reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>>,
 	xmlParser: sax.SAXParser,
 	textDecoder: TextDecoder,
 	buffer: Uint8Array,
-	chunkSize: number,
+	options: ReaderOptions,
 ): Promise<void> {
+	const chunkSize = options.chunkSize
 	const { done, value } = await reader.read()
 
 	if (done) {
@@ -95,7 +137,7 @@ async function createChunks(
 
 	// If value is null or undefined, skip this chunk
 	if (!value) {
-		return await createChunks(reader, xmlParser, textDecoder, buffer, chunkSize)
+		return await createChunks(reader, xmlParser, textDecoder, buffer, options)
 	}
 
 	// Append new data to buffer
@@ -113,5 +155,5 @@ async function createChunks(
 	}
 
 	// Continue pumping
-	return await createChunks(reader, xmlParser, textDecoder, newBuffer, chunkSize)
+	return await createChunks(reader, xmlParser, textDecoder, newBuffer, options)
 }
