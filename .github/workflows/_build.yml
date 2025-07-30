@@ -36,7 +36,8 @@ jobs:
         run: |
           PACKAGE_NAME_SAFE=${{ env.PACKAGE_NAME }}
           PACKAGE_NAME_SAFE=${PACKAGE_NAME_SAFE//\//-}
-          echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_ENV
+          echo package name: $PACKAGE_NAME_SAFE
+          echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_OUTPUT
 
       - name: Restore node_modules cache
         uses: actions/cache@v3
