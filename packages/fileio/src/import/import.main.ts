@@ -67,7 +67,7 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 			endingQueuesObservable: createQueuesObservable({}),
 		}
 
-		if (options.useBrowserApi)
+		if (options.useBrowserApi) {
 			importContext = await processXmlWithBrowserApi({
 				file,
 				importContext,
@@ -75,6 +75,7 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 					chunkSize: options.chunkSize,
 				},
 			})
+		}
 
 		await areAllQueuesDone({
 			importContext,
