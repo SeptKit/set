@@ -27,22 +27,23 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Sanitize package name
-        id: sanitize
-        env:
-          PACKAGE_NAME: ${{ inputs.package-name }}
-        run: |
-          PACKAGE_NAME_SAFE=${{ env.PACKAGE_NAME }}
-          PACKAGE_NAME_SAFE=${PACKAGE_NAME_SAFE//\//-}
-          echo package name: $PACKAGE_NAME_SAFE
-          echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_OUTPUT
+      # - name: Sanitize package name
+      #   id: sanitize
+      #   env:
+      #     PACKAGE_NAME: ${{ inputs.package-name }}
+      #   run: |
+      #     PACKAGE_NAME_SAFE=${{ env.PACKAGE_NAME }}
+      #     PACKAGE_NAME_SAFE=${PACKAGE_NAME_SAFE//\//-}
+      #     echo package name: $PACKAGE_NAME_SAFE
+      #     echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_OUTPUT
 
       - name: Setup node_modules Cache
         id: cache-node-modules
         uses: actions/cache@v3
         with:
           path: packages/${{inputs.package-name}}/node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.sanitize.outputs.package-name-safe }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
+          # key: ${{ runner.os }}-node-modules-${{ steps.sanitize.outputs.package-name-safe }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
+          key: ${{ runner.os }}-node-modules-${{ inputs.package-name }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
 
       - name: Install dependencies
         run: pnpm install --filter=./packages/${{ inputs.package-name }}
