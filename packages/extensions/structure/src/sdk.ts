@@ -29,7 +29,13 @@ export function useSDK(db: Dexie) {
 
 			return addedRecord
 		} catch (err) {
-			const errMsg = { msg: 'could not add record', db: db.name, table: record.tagName, record }
+			const errMsg = {
+				msg: 'could not add record',
+				db: db.name,
+				table: record.tagName,
+				record,
+				err,
+			}
 			console.error(errMsg)
 			throw new Error(JSON.stringify(errMsg))
 		}

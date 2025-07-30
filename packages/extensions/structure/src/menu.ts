@@ -159,7 +159,7 @@ async function extractElementPathTilSCLRoot(
 }
 
 async function promptForFSDSelection(): Promise<File[]> {
-	const { promise, resolve, reject } = Promise.withResolvers<File[]>()
+	const { promise, resolve } = Promise.withResolvers<File[]>()
 
 	const { open, onChange } = useFileDialog({
 		accept: 'fsd',

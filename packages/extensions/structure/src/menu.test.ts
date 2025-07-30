@@ -107,7 +107,7 @@ describe('Menu: Instantiate Function', () => {
 				//
 				// Assert
 				//
-				const { xmlDocument, filename } = await exportFile({ databaseName: asdFileName })
+				const { xmlDocument } = await exportFile({ databaseName: asdFileName })
 				const xmlAsString = new XMLSerializer()
 					.serializeToString(xmlDocument)
 					.replace(/></g, '>\n<')
