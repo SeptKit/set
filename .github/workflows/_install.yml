@@ -35,7 +35,7 @@ jobs:
           PACKAGE_NAME_SAFE=${{ env.PACKAGE_NAME }}
           PACKAGE_NAME_SAFE=${PACKAGE_NAME_SAFE//\//-}
           echo package name: $PACKAGE_NAME_SAFE
-          echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_ENV
+          echo package-name-safe=${PACKAGE_NAME_SAFE} >> $GITHUB_OUTPUT
 
       - name: Setup node_modules Cache
         id: cache-node-modules
