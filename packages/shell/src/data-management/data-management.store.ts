@@ -27,14 +27,17 @@ export const useFileStore = defineStore('file', () => {
 			accept: 'asd',
 		})
 
+		//====== ACTIONS ======//
+
 		onChange(async (files) => {
 			if (!files || files.length === 0) return
 
 			const filesArray = Array.from(files)
 			const databaseNames = await importXmlFiles({ files: filesArray })
 			currentActiveFileDatabaseName.value = databaseNames[0]
-
-			if (databaseNames.length) alert(`Files imported successfully: ${databaseNames.join(', ')}`)
+			if (databaseNames.length) {
+				console.info(`Files imported successfully: ${databaseNames.join(', ')}`)
+			}
 		})
 
 		return open()

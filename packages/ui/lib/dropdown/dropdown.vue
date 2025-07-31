@@ -123,7 +123,6 @@ function closeDropdown() {
 }
 
 function openDropdown() {
-	console.debug({ level: 'debug', msg: 'opening dropdown' })
 	isOpen.value = true
 	emit('open')
 }

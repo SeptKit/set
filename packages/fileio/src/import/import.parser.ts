@@ -162,11 +162,12 @@ function handleCloseTag(params: { state: ParserState; importContext: ImportConte
 						}
 					: item,
 			)
-		} else if (currentRecord.parent)
+		} else if (currentRecord.parent) {
 			registerPendingChildrenRelationship({
 				parent: currentRecord.parent,
 				child: { id: currentRecord.id, tagName: currentRecord.tagName },
 			})
+		}
 
 		const initialDatabaseTablesList = TAG_NAMES
 

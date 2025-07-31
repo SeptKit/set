@@ -6,7 +6,9 @@ import { DatabaseInstance, DatabaseRecord, AvailableTagName } from '@/common/com
 
 //====== PUBLIC FUNCTIONS ======//
 
-export async function exportFile(params: { databaseName: string }) {
+export async function exportFile(params: {
+	databaseName: string
+}): Promise<{ xmlDocument: XMLDocument; filename: string }> {
 	const databaseInstance = new Dexie(params.databaseName) as DatabaseInstance
 	await databaseInstance.open()
 
@@ -15,7 +17,9 @@ export async function exportFile(params: { databaseName: string }) {
 		useBrowserApi: true,
 	})
 
-	if (!xmlDocument) throw new Error('Failed to rebuild XML document from IndexedDB.')
+	if (!xmlDocument) {
+		throw new Error('Failed to rebuild XML document from IndexedDB.')
+	}
 
 	return {
 		xmlDocument,
