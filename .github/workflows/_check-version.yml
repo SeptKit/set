@@ -29,26 +29,38 @@ jobs:
       - name: Verify Branch
         id: verify_branch
         run: |
-          git fetch --all
-          output=$(git branch -r | grep "origin/gh-pages" || true)
-          if [ -n "$output" ]; then
-            echo "gh_pages_branch_exists=true" >> $GITHUB_OUTPUT
+          if git ls-remote --heads https://github.com/SeptKit/septkit.github.io.git main | grep main; then
+            echo "deployment_branch_exists=true" >> $GITHUB_OUTPUT
           else
             echo "version_changed=true" >> $GITHUB_OUTPUT
-            echo "gh_pages_branch_exists=false" >> $GITHUB_OUTPUT 
-            echo "No gh-pages branch found, skipping version check."
+            echo "deployment_branch_exists=false" >> $GITHUB_OUTPUT
+            echo "No deployment branch found, skipping version check."
           fi
 
       - name: Checkout Deployed App
         uses: actions/checkout@v3
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
         with:
           repository: 'SeptKit/septkit.github.io'
           ref: 'main'
 
+      - name: Verify Deployed Folder Exists
+        id: verify_deployed_folder
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        run: |
+          if [ -d "${{ inputs.deployed-folder }}" ]; then
+            echo "Deployed folder exists."
+            echo "deployed_folder_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Deployed folder does not exist."
+            echo "deployed_folder_exists=false" >> $GITHUB_OUTPUT
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Extract Deployed Version
         id: get_version
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
+        working-directory: ${{ inputs.deployed-folder }}
         run: |
           DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "Deployed version: $DEPLOYED_VERSION"
@@ -56,13 +68,13 @@ jobs:
 
       - name: Checkout Main Branch
         uses: actions/checkout@v3
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
         with:
           ref: 'main'
 
       - name: Extract Current Version
         id: current_version
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
         working-directory: packages/${{ inputs.package-name }}
         run: |
           CURRENT_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
@@ -71,7 +83,7 @@ jobs:
 
       - name: Compare Versions
         id: compare_versions
-        if: ${{ steps.verify_branch.outputs.gh_pages_branch_exists == 'true' }}
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
         run: |
           if [ "${{ steps.get_version.outputs.deployed_version }}" != "${{ steps.current_version.outputs.current_version }}" ]; then
             echo "Version has changed: ${{ steps.get_version.outputs.deployed_version }} -> ${{ steps.current_version.outputs.current_version }}"
@@ -81,8 +93,8 @@ jobs:
             echo "version_changed=false" >> $GITHUB_OUTPUT
           fi
 
-      # Mergin Outputs is necessary because if there is no gh-pages, then the
-      # compare version step will nut run and otherwise
+      # Mergin Outputs is necessary because if there is no deployment branch, then the
+      # compare version step will not run and otherwise
       # the verify branch step will not set the output to true
       - name: Mergin Outputs
         id: final_output
