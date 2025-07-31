@@ -1,4 +1,4 @@
-name: 'Deploy Ext. Structure'
+name: Deploy Ext. Structure
 
 on:
   workflow_dispatch:
