@@ -1,0 +1,2594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100" xmlns:scl="http://www.iec.ch/61850/2003/SCL" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://www.iec.ch/61850/2019/SCL/6-100" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2019C1">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+            COPYRIGHT (c) IEC, 2024. This XSD schema is part of IEC 61850-90-30:2022 ed1 and IEC 61850-7-6:2020 ed2; see the IEC 61850-90-30:2022 ed1 and IEC 61850-7-6:2020 ed2 for full legal notices. In case of any differences between the here-below code and the IEC published content, the here-below definition supersedes the IEC publication; it may contain updates. See history files. The whole document has to be taken into account to have a full description of this code component.
+See www.iec.ch/CCv1 for copyright details.
+        </xs:documentation>
+	</xs:annotation>
+	<xs:import namespace="http://www.iec.ch/61850/2003/SCL" schemaLocation="SCL.xsd"/>
+	<xs:simpleType name="tPathName">
+		<xs:annotation>
+			<xs:documentation>Reference to any element in the SCL hierarchy</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:pattern value=".+(/.+)*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tIedRefDO">
+		<xs:annotation>
+			<xs:documentation>IED Reference to a DataObject in a LN. Expressed by &lt;IEDName&gt;/&lt;LDInst&gt;/&lt;LNNAme&gt;.&lt;DOName(.SDOName)&gt;</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:pattern value="(([A-Za-z][0-9A-Za-z_]{0,63})/([A-Za-z][0-9A-Za-z_]{0,63})/((LLN0|([A-Za-z][0-9A-Za-z_]{0,10})?[A-Z]{4}[0-9]{1,12}))\.)?([A-Z][0-9A-Za-z]{0,11}(\.[a-z][0-9A-Za-z]*(\([0-9]+\))?)?)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tIedRefDA">
+		<xs:annotation>
+			<xs:documentation>IED Reference to a DataAttribute in a LN. Expressed by &lt;IEDName&gt;/&lt;LDInst&gt;/&lt;LNNAme&gt;.&lt;DOName(.SDOName)&gt;.&lt;DAName(.BDAName)&gt;</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:pattern value="(([A-Za-z][0-9A-Za-z_]{0,63})/([A-Za-z][0-9A-Za-z_]{0,63})/((LLN0|([A-Za-z][0-9A-Za-z_]{0,10})?[A-Z]{4}[0-9]{1,12}))\.)?([A-Z][0-9A-Za-z]{0,11}(\.[a-z][0-9A-Za-z]*(\([0-9]+\))?)?)\.([a-zA-Z][a-zA-Z0-9]*(\([0-9]+\))?(\.[a-zA-Z][a-zA-Z0-9]*(\([0-9]+\))?)*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="tBaseExtensionElement" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Base element for 6-100 extension</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Text" type="scl:tText" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="tBaseExtensionElementWithDesc" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Base element for 6-100 extension with description attribute</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:attributeGroup ref="scl:agDesc"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ****************************** -->
+	<!-- XSD Version Management -->
+	<!-- ****************************** -->
+	<xs:attribute name="version" type="scl:tSclVersion" fixed="2019">
+		<xs:annotation>
+			<xs:documentation>Attribute used to identify version of 6-100 XSD. To be added to SCL header</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="revision" type="scl:tSclRevision" fixed="C">
+		<xs:annotation>
+			<xs:documentation>Attribute used to identify revision of 6-100 XSD. To be added to SCL header</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="release" type="scl:tSclRelease" fixed="1">
+		<xs:annotation>
+			<xs:documentation>Attribute used to identify release of 6-100 XSD. To be added to SCL header</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<!-- **************************************** -->
+	<!-- Functional specification extension -->
+	<!-- **************************************** -->
+	<!-- ********************* -->
+	<!-- Function Category -->
+	<!-- ********************* -->
+	<xs:complexType name="tFunctionCategory">
+		<xs:annotation>
+			<xs:documentation>Category of functions, used to group functions by common category, independetly of the process allocation</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="SubCategory" type="eIEC61850-6-100:tFunctionCategory" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Recursive definition of function category</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FunctionCatRef" type="eIEC61850-6-100:tFunctionCatRef" minOccurs="1" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a function which is part of the current category</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required"/>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionCatRef">
+		<xs:annotation>
+			<xs:documentation>Logical reference to a function. A function may be referenced by multiple categories</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:attribute name="function" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>SCL path of the function associated to the Function Category</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="functionUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the function associated to the Function Category</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="FunctionCategory" type="eIEC61850-6-100:tFunctionCategory">
+		<xs:annotation>
+			<xs:documentation>Category of functions. To be added to Process, Line, Substation, VoltageLevel and Bay SCL elements</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ********************************** -->
+	<!-- Process Resource Reference -->
+	<!-- ********************************** -->
+	<xs:simpleType name="tCardinalityEnum">
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="0..1">
+				<xs:annotation>
+					<xs:documentation>Indicates that the element is optional and cannot be multiplied</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="1..1">
+				<xs:annotation>
+					<xs:documentation>Indicates that the element is not optional and cannot be multiplied</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="0..n">
+				<xs:annotation>
+					<xs:documentation>Indicates that the element is optional and can be multiplied</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="1..n">
+				<xs:annotation>
+					<xs:documentation>Indicates that the element is not optional and can be multiplied</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attributeGroup name="agCardinality">
+		<xs:attribute name="cardinality" type="eIEC61850-6-100:tCardinalityEnum" use="optional" default="1..1">
+			<xs:annotation>
+				<xs:documentation>This attribute indicates the multiple instances allowed for the current element.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="max" use="optional">
+			<xs:annotation>
+				<xs:documentation>This attribute indicates the maximum number of an element in case of cardinality allowing multiple instances. If not defined, there is no limit</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="agSelector">
+		<xs:attribute name="selector" type="xs:normalizedString" use="optional">
+			<xs:annotation>
+				<xs:documentation>Selector is used to give a searching rule to help user to select a target. It is represented by an XPath</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="agCardinalityWithSelector">
+		<xs:annotation>
+			<xs:documentation>Attributes used to select the cardinality with a max and a selector</xs:documentation>
+		</xs:annotation>
+		<xs:attributeGroup ref="eIEC61850-6-100:agSelector"/>
+		<xs:attributeGroup ref="eIEC61850-6-100:agCardinality"/>
+	</xs:attributeGroup>
+	<xs:complexType name="tProcessResources">
+		<xs:annotation>
+			<xs:documentation>This element is used by a function/sub function to indicate reference to a process resource (conducting equipment, transformer, ...) which is associated to current function</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="ProcessResource" type="eIEC61850-6-100:tProcessResource" maxOccurs="unbounded">
+						<xs:unique name="uniqueResource">
+							<xs:selector xpath="./eIEC61850-6-100:Resource"/>
+							<xs:field xpath="@resInst"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tProcessResource">
+		<xs:annotation>
+			<xs:documentation>Reference to resources. Could refer any named process element or LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="Resource" type="eIEC61850-6-100:tResource" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>resource bound to this element could be multi</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>a name used to identify the process resource in the rest of the SCL elements</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agCardinalityWithSelector"/>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tResource">
+		<xs:annotation>
+			<xs:documentation>resource bound to this element (could be any named element in the process structure or a LNode)</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:normalizedString">
+				<xs:attribute name="resInst" use="optional" default="1">
+					<xs:annotation>
+						<xs:documentation>Instance of the reference in case of multiplicity is allowed</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="source" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>resource bound to the current instance</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the resource bound to the current instance</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:element name="ProcessResources" type="eIEC61850-6-100:tProcessResources">
+		<xs:annotation>
+			<xs:documentation>List of Process Resources related to a function. to be added to the SCL elements Function, SubFunction, EqFunction and EqSubFunction</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniquePR">
+			<xs:selector xpath="./eIEC61850-6-100:ProcessResource"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+	</xs:element>
+	<!-- *************************************************************** -->
+	<!-- Power system relation indicating functional relationship -->
+	<!-- *************************************************************** -->
+	<xs:complexType name="tPowerSystemRelations">
+		<xs:annotation>
+			<xs:documentation>This element is used by a function/sub function to indicate relation with any element of the process (conducting equipment, transformer, Bay, ...) when there is a dependency between them</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="PowerSystemRelation" type="eIEC61850-6-100:tPowerSystemRelation" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tPowerSystemRelation">
+		<xs:annotation>
+			<xs:documentation>Relation to a power system element. Could refer any named process element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>a name used to identify the power system relation in the rest of the SCL elements</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agSelector"/>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+				<xs:attribute name="relation" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>reference to an element of the Power System functionally related to function</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="relationUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the element of the Power System functionally related to function</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="PowerSystemRelations" type="eIEC61850-6-100:tPowerSystemRelations">
+		<xs:annotation>
+			<xs:documentation>Functional relation from a Function/SubFunction to another element of the process</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniquePSR">
+			<xs:selector xpath="./eIEC61850-6-100:PowerSystemRelation"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+	</xs:element>
+	<!-- **************************************************** -->
+	<!-- Data Exchange specification between LNodes-->
+	<!-- **************************************************** -->
+	<xs:simpleType name="tAdditionalSpecServiceType">
+		<xs:annotation>
+			<xs:documentation>Additional services for specification</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:Name">
+			<xs:enumeration value="Wired">
+				<xs:annotation>
+					<xs:documentation>Indicates that the dataflow is expected to be wired (no dataflow between devices will be generated)</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Internal">
+				<xs:annotation>
+					<xs:documentation>Indicates that the dataflow is expected to be internal to the device (no dataflow between devices will be generated)</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tSpecServiceType">
+		<xs:annotation>
+			<xs:documentation>Extension of ExtRef services for specification by adding physical services</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="scl:tServiceType eIEC61850-6-100:tAdditionalSpecServiceType"/>
+	</xs:simpleType>
+	<xs:complexType name="tLinkFCDRef" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Specification of a link to data (down to DO) required by a LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+				<xs:attribute name="pLN" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>LN class to be used on binding, if any</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="pDO" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Data object to be used on binding, if any</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="resourceName" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>
+						resourceName is used to indicate a ProcessResource used as a reference to filled in the data ref, with the use of pLN, pDO and pDA to identify the data in the context of the resource. 
+						When the binding is obvious it could even more be automatically bound.
+						In case of mulitple candidates the Input may be duplicated
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="resourceUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ProcessResource used as a reference to filled in the data ref</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLinkFCDARef" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Specification of a link to data (down to DA) required by a LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tLinkFCDRef">
+				<xs:attribute name="pDA" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Data attribute to be used on binding, if any</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLNodeInputs">
+		<xs:annotation>
+			<xs:documentation>Specification of data inputs required by the LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="SourceRef" type="eIEC61850-6-100:tSourceRef" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a data in the process</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSourceRef">
+		<xs:annotation>
+			<xs:documentation>Specification of a data required by a LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tLinkFCDARef">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="GooseParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is GOOSE</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="SMVParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is SMV</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReportParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is Report</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="BinaryWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the binary wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AnalogueWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the analogue wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="source" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Process data to be used on implementation as source for the sourceRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceLNodeUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode to be used on implementation as source for the sourceRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceDoName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DO of the LNode to be used on implementation as source for the sourceRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceDaName" type="scl:tFullAttributeName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DA of the LNode to be used on implementation as source for the sourceRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="service" type="eIEC61850-6-100:tSpecServiceType" use="optional">
+					<xs:annotation>
+						<xs:documentation>Service to be used on implementation</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="input" use="required">
+					<xs:annotation>
+						<xs:documentation>Identifier of the input, mandatory. Uniqueness of the 'input'+'inputInst" among the LNodeInputs shall be ensure</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="inputInst" use="optional" default="1">
+					<xs:annotation>
+						<xs:documentation>Instance of the input in case of multiplicity is allowed</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="extRefAddr" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>IntAddr of the ExtRef used to implement the given source ref specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="extRefUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ExtRef used to implement the given source ref specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="LNodeInputs" type="eIEC61850-6-100:tLNodeInputs">
+		<xs:annotation>
+			<xs:documentation>List of specification inputs of the given LNode. To be added at LNode level</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniqueSourceRef">
+			<xs:selector xpath="./eIEC61850-6-100:SourceRef"/>
+			<xs:field xpath="@input"/>
+			<xs:field xpath="@inputInst"/>
+			<xs:field xpath="@pDA"/>
+		</xs:unique>
+	</xs:element>
+	<xs:complexType name="tLNodeOutputs">
+		<xs:annotation>
+			<xs:documentation>Specification of data outputs required by the LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="ControlRef" type="eIEC61850-6-100:tControlRef" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a control data in the process</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tControlRef">
+		<xs:annotation>
+			<xs:documentation>Specification of a control required by a LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tLinkFCDRef">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="BinaryWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the binary wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AnalogueWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the analogue wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="controlled" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Process data to be used on implementation as controlled DO for the controlRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="controlledLNodeUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode to be used on implementation as controlled DO for the controlRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="controlledDoName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DO of the LNode to be used on implementation as controlled DO for the controlRef</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="output" use="required">
+					<xs:annotation>
+						<xs:documentation>Identifier of the output, mandatory. Uniqueness of the 'output'+'outputInst" among the LNodeOutputs shall be ensure</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="outputInst" use="optional" default="1">
+					<xs:annotation>
+						<xs:documentation>Instance of the output in case of multiplicity is allowed</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="extCtrlAddr" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>IntAddr of the ExtCtrl used to implement the given control ref specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="extCtrlUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ExtCtrl used to implement the given control ref specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="LNodeOutputs" type="eIEC61850-6-100:tLNodeOutputs">
+		<xs:annotation>
+			<xs:documentation>List of specification outputs of the given LNode. To be added at LNode level</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniqueControlRef">
+			<xs:selector xpath="./eIEC61850-6-100:ControlRef"/>
+			<xs:field xpath="@output"/>
+			<xs:field xpath="@outputInst"/>
+		</xs:unique>
+	</xs:element>
+	<xs:complexType name="tProcessEcho">
+		<xs:annotation>
+			<xs:documentation>Specification of an echo LNode/DOS/DAS</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="source" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>source LNode/DOS/DAS of the echo</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceLNodeUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode of the echo</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceDoName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DO of the LNode of the echo</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceDaName" type="scl:tFullAttributeName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DA of the LNode of the echo</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="ProcessEcho" type="eIEC61850-6-100:tProcessEcho">
+		<xs:annotation>
+			<xs:documentation>Definition of an echo LNode, mirroring the DO of another LNode</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- *********************************** -->
+	<!-- LNode Specification Attributes -->
+	<!-- *********************************** -->
+	<xs:complexType name="tLNodeSpecNaming">
+		<xs:annotation>
+			<xs:documentation>LNode identification specification. This is the intended value of the user to be kept even after implementation of the LNode by a real LN in case of a non flexible Device with a different representation of the LN hierarchy</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:attribute name="sIedName" type="scl:tIEDNameOrNone" use="optional"/>
+				<xs:attribute name="sLdInst" type="scl:tLDInst" use="optional"/>
+				<xs:attribute name="sPrefix" type="scl:tPrefix" use="optional"/>
+				<xs:attribute name="sLnClass" type="scl:tLNClassEnum" use="optional"/>
+				<xs:attribute name="sLnInst" type="scl:tLNInst" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="LNodeSpecNaming" type="eIEC61850-6-100:tLNodeSpecNaming">
+		<xs:annotation>
+			<xs:documentation>LNode user specification. To be added to LNode SCL element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ***************************** -->
+	<!-- Data Instance Information -->
+	<!-- ***************************** -->
+	<xs:complexType name="tDOS">
+		<xs:annotation>
+			<xs:documentation>Specification of data object to be implemented by a device</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="SDS" type="eIEC61850-6-100:tSDS">
+							<xs:annotation>
+								<xs:documentation>Specification of a sub-Data Object</xs:documentation>
+							</xs:annotation>
+							<xs:unique name="uniqueSDS_DASinSDS">
+								<xs:selector xpath="./eIEC61850-6-100:DAS|./eIEC61850-6-100:SDS"/>
+								<xs:field xpath="@name"/>
+								<xs:field xpath="@ix"/>
+							</xs:unique>
+						</xs:element>
+						<xs:element name="DAS" type="eIEC61850-6-100:tDAS">
+							<xs:annotation>
+								<xs:documentation>Specification of a Data attribute</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="SubscriberLNode" type="eIEC61850-6-100:tSubscriberLNode"/>
+						<xs:element name="ControllingLNode" type="eIEC61850-6-100:tControllingLNode"/>
+						<xs:element name="ProcessEcho" type="eIEC61850-6-100:tProcessEcho"/>
+						<xs:element name="LogParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+							<xs:annotation>
+								<xs:documentation>Specification of the Log parameters expected for the current DOS when Log capability is required</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="Labels" type="scl:tLabels" minOccurs="0">
+						<xs:unique name="uniqueLabelInDOS">
+							<xs:selector xpath="./scl:Label"/>
+							<xs:field xpath="@id"/>
+							<xs:field xpath="@lang"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tDataName" use="required"/>
+				<xs:attribute name="mappedDoName" type="eIEC61850-6-100:tIedRefDO" use="optional">
+					<xs:annotation>
+						<xs:documentation>DoName in the IED which implements the DOS. If mappedLnUuid is defined or LNode mapped to an LN, the DoName is internal to the referenced LN. If not defined, the mappedDoName shall be an absolute reference to a DO in an IED</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="mappedLnUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LN which implements the DOS</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSDS">
+		<xs:annotation>
+			<xs:documentation>Specification of sub data object to be implemented by a device</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="SDS" type="eIEC61850-6-100:tSDS">
+							<xs:annotation>
+								<xs:documentation>Specification of a sub-Data Object</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="DAS" type="eIEC61850-6-100:tDAS">
+							<xs:annotation>
+								<xs:documentation>Specification of a Data attribute</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="SubscriberLNode" type="eIEC61850-6-100:tSubscriberLNode"/>
+						<xs:element name="ControllingLNode" type="eIEC61850-6-100:tControllingLNode"/>
+						<xs:element name="ProcessEcho" type="eIEC61850-6-100:tProcessEcho"/>
+						<xs:element name="LogParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+							<xs:annotation>
+								<xs:documentation>Specification of the Log parameters expected for the current SDS when Log capability is required</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="Labels" type="scl:tLabels" minOccurs="0">
+						<xs:unique name="uniqueLabelInSDS">
+							<xs:selector xpath="./scl:Label"/>
+							<xs:field xpath="@id"/>
+							<xs:field xpath="@lang"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tAttributeNameEnum" use="required"/>
+				<xs:attribute name="mappedDoName" type="eIEC61850-6-100:tIedRefDO" use="optional">
+					<xs:annotation>
+						<xs:documentation>DoName in the IED which implements the SDS. If mappedLnUuid is defined or LNode mapped to an LN, the DoName is internal to the referenced LN. If not defined, the mappedDoName shall be an absolute reference to a DO in an IED</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="mappedLnUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LN which implements the SDS</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="ix" type="xs:unsignedInt" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tDAS">
+		<xs:annotation>
+			<xs:documentation>Specification of data attribute to be implemented by a device</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="SubscriberLNode" type="eIEC61850-6-100:tSubscriberLNode"/>
+					<xs:element name="ControllingLNode" type="eIEC61850-6-100:tControllingLNode"/>
+					<xs:element name="ProcessEcho" type="eIEC61850-6-100:tProcessEcho"/>
+					<xs:element name="LogParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the Log parameters expected for the current DAS when Log capability is required</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Val" type="scl:tVal"/>
+					<xs:element name="Labels" type="scl:tLabels" minOccurs="0">
+						<xs:unique name="uniqueLabelInDAS">
+							<xs:selector xpath="./scl:Label"/>
+							<xs:field xpath="@id"/>
+							<xs:field xpath="@lang"/>
+						</xs:unique>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="name" type="scl:tAttributeNameEnum" use="required"/>
+				<xs:attribute name="mappedDaName" type="eIEC61850-6-100:tIedRefDA" use="optional">
+					<xs:annotation>
+						<xs:documentation>DaName in the IED which implements the DAS. If mappedLnUuid is defined or LNode mapped to an LN, the DaName is internal to the referenced LN. If not defined, the mappedDaName shall be an absolute reference to a DA in an IED</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="mappedLnUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LN which implements the DAS</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="ix" type="xs:unsignedInt" use="optional"/>
+				<xs:attribute name="valKind" type="scl:tValKindEnum" use="optional"/>
+				<xs:attribute name="valImport" type="xs:boolean" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSubscriberLNode">
+		<xs:annotation>
+			<xs:documentation>SubscriberLNode can now where to be create with resource or pLN. At least one of them shall be filled in</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="GooseParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is GOOSE</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="SMVParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is SMV</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReportParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the communication parameters expected for the current SourceRef when ServiceType is Report</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="BinaryWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the binary wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="resourceName" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Process resource used to instantiate the subscribing LNodes</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="resourceUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ProcessResource used to instantiate the subscribing LNodes</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="inputName" use="required">
+					<xs:annotation>
+						<xs:documentation>input name to use in SourceRef created to answer to the SubscribingLNode</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="service" type="eIEC61850-6-100:tSpecServiceType" use="optional">
+					<xs:annotation>
+						<xs:documentation>type of service to use in SourceRef created to answer to the SubscribingLNode</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="pLN" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>class of the LNode to select to create SourceRef to answer to the SusbcribingLNode</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tControllingLNode">
+		<xs:annotation>
+			<xs:documentation>ControllingLNode can now where to be create with resource or pLN. At least one of them shall be filled in</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="BinaryWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the binary wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AnalogueWiringParametersRef" type="eIEC61850-6-100:tServiceParametersRef">
+						<xs:annotation>
+							<xs:documentation>Specification of the analogue wiring parameters expected for the current SourceRef when ServiceType is Wired</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="resourceName" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Process resource used to instantiate the controlling LNodes</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="resourceUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ProcessResource used to instantiate the controlling LNodes</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outputName" use="required">
+					<xs:annotation>
+						<xs:documentation>output name to use in ControlRef created to answer to the ControllingLNode</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="pLN" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>class of the LNode to select to create ControlRef to answer to the ControllingLNode</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="DOS" type="eIEC61850-6-100:tDOS">
+		<xs:annotation>
+			<xs:documentation>Data Object specification. To be added to LNode SCL element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniqueSDS_DASinDOS">
+			<xs:selector xpath="./eIEC61850-6-100:DAS|./eIEC61850-6-100:SDS"/>
+			<xs:field xpath="@name"/>
+			<xs:field xpath="@ix"/>
+		</xs:unique>
+	</xs:element>
+	<!-- ************************ -->
+	<!-- SCL UUID extension -->
+	<!-- ************************ -->
+	<xs:attributeGroup name="agUuidWithOrigin">
+		<xs:attributeGroup ref="scl:agUuid"/>
+		<xs:attribute name="originUuid" type="scl:tUUIDAttribute" use="optional"/>
+	</xs:attributeGroup>
+	<xs:attribute name="originUuid" type="scl:tUUIDAttribute">
+		<xs:annotation>
+			<xs:documentation>Attribute which can be added to any process element to indicate the UUID of the original template when a template is instanciated in another template which is intantiated again</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:complexType name="tFunctionSclRef">
+		<xs:annotation>
+			<xs:documentation>Reference to the FSD files used to create a Function</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:sequence>
+					<xs:element name="SclFileReference" type="scl:tSclFileUUIDReference" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="FunctionSclRef" type="eIEC61850-6-100:tFunctionSclRef">
+		<xs:annotation>
+			<xs:documentation>Reference to the FSD files used to create a Function. Could be added under Function/SubFunction/EqFunction/EqSubFunction</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tApplicationSclRef">
+		<xs:annotation>
+			<xs:documentation>Reference to the ASD files used to create an application</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:sequence>
+					<xs:element name="SclFileReference" type="scl:tSclFileUUIDReference" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSclFileUUIDCheckoutRestriction">
+		<xs:annotation>
+			<xs:documentation>
+			Restriction of the tSclFileUUIDReference for the CheckoutID element allowing only SED/SCC
+			</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:restriction base="scl:tSclFileUUIDReference">
+				<xs:attribute name="fileType" use="required">
+					<xs:simpleType>
+						<xs:restriction base="scl:tSCLFileType">
+							<xs:enumeration value="SED"/>
+							<xs:enumeration value="SCC"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tCheckoutID">
+		<xs:annotation>
+			<xs:documentation>Type defining the CheckoutID element based on tSclFileUUIDReference with new attribute for engineering rights</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tSclFileUUIDCheckoutRestriction">
+				<xs:sequence>
+					<xs:element name="SubCheckoutID" type="eIEC61850-6-100:tCheckoutID" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>When an IED is checkedout for a collaborative work by an SCC, it may be required to give right to a subpart of the collaborative project. So a CheckoutID may have an additional SubCheckoutID giving IED to nother project</xs:documentation>
+							<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="headerId" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Id of the header in the imported file</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="engRight" type="scl:tRightEnum">
+					<xs:annotation>
+						<xs:documentation>Engineering right transfered from the original project to the current one</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="CheckoutID" type="eIEC61850-6-100:tCheckoutID">
+		<xs:annotation>
+			<xs:documentation>Element used by an IED to indicates that a file has been imported to give engineering rights on this IED. This is opening a transaction between both projects to lock it on first project until the checkout is given back from current project, which then lock the IED locally</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- **************************** -->
+	<!-- SCL Variable definition -->
+	<!-- **************************** -->
+	<xs:complexType name="tVariableApplyTo">
+		<xs:annotation>
+			<xs:documentation>Definition of the application of a Variable</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="element" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the element where the variable has to be applied</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="elementUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the element where the variable has to be applied. If the element is an LNode, additional attributes to identify the DO and the DA have to be fulfilled</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="doName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>When element is an LNode, name of the DO of the LNode where the variable has to be applied</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="daName" type="scl:tFullAttributeName" use="optional">
+					<xs:annotation>
+						<xs:documentation>When element is an LNode, name of the DA of the LNode where the variable has to be applied</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="attribute" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Name of the attribute in the element where the variable has to be applied. If not defined, variable value will be applied to the text value of the element</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sGroup" type="xs:unsignedInt">
+					<xs:annotation>
+						<xs:documentation>When the element is a DA which belong to a setting group, this attribute indicates the group number to use to set the DA value when no attribute is defined</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="format" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Definition of a format to follow before applying value. This is a text with identification of the place to put the value, identified by brackets.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="defaultValue" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>A default value which can be applied if no value is selected</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tVariable">
+		<xs:annotation>
+			<xs:documentation>Definition of a Variable</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="VariableApplyTo" type="eIEC61850-6-100:tVariableApplyTo" minOccurs="1" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="name" type="xs:normalizedString" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the variable used to identify it</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+				<xs:attribute name="value" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Value to be used for the variable</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Variable" type="eIEC61850-6-100:tVariable">
+		<xs:annotation>
+			<xs:documentation>A Variable is a way to define a global variable which can be modified by a user and applied to a list of SCL attributes</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ************************************ -->
+	<!-- Services specification definition -->
+	<!-- ************************************ -->
+	<xs:simpleType name="tIPv4">
+		<xs:annotation>
+			<xs:documentation>Definition of IPv4 attributes format</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:pattern value="([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tIPv6">
+		<xs:annotation>
+			<xs:documentation>Definition of IPv6 attributes format</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString">
+			<xs:pattern value="([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="tCommParameters" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Communication parameters for Goose and SMV service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="vlanId" use="optional">
+					<xs:annotation>
+						<xs:documentation>VLAN ID to be used on implementation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:pattern value="[0-9A-F]{3}"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="vlanPriority" use="optional">
+					<xs:annotation>
+						<xs:documentation>VLAN Priority to be used on implementation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:pattern value="[0-7]"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="appId" use="optional">
+					<xs:annotation>
+						<xs:documentation>APPID to be used on implementation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:pattern value="[0-9A-F]{4}"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tL2CommParameters">
+		<xs:annotation>
+			<xs:documentation>Communication parameters for layer 2 (non routable) Goose and SMV service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tCommParameters">
+				<xs:attribute name="macAddr" use="optional">
+					<xs:annotation>
+						<xs:documentation>MAC-Address to be used on implementation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:pattern value="[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tL3IPv6CommParameters">
+		<xs:annotation>
+			<xs:documentation>Communication parameters for layer 3 (routable) Goose and SMV service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tCommParameters">
+				<xs:attribute name="IPv6" type="eIEC61850-6-100:tIPv6" use="optional">
+					<xs:annotation>
+						<xs:documentation>IPv6 destination address</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="IPv6-IGMPv3Src" type="eIEC61850-6-100:tIPv6" use="optional">
+					<xs:annotation>
+						<xs:documentation>Unicast IPv6 address to be used for IGMPv3 subscription</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tL3IPv4CommParameters">
+		<xs:annotation>
+			<xs:documentation>Communication parameters for layer 3 (routable) Goose and SMV service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tCommParameters">
+				<xs:attribute name="IPv4" type="eIEC61850-6-100:tIPv4" use="optional">
+					<xs:annotation>
+						<xs:documentation>IPv4 destination address</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="IPv4-IGMPv3Src" type="eIEC61850-6-100:tIPv4" use="optional">
+					<xs:annotation>
+						<xs:documentation>Unicast IPv4 address to be used for IGMPv3 subscription</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tServiceParameters" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Service parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="id" type="scl:tID" use="required">
+					<xs:annotation>
+						<xs:documentation>identification of the service specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tControlBlockParameters" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Control blocks parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tServiceParameters">
+				<xs:attribute name="cbName" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>name to use for the control block or rule to create it</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="dsName" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>name to use for the dtatset linked to the control block or rule to create it</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tGooseParameters">
+		<xs:annotation>
+			<xs:documentation>GOOSE parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tControlBlockParameters">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="L2CommParameters" type="eIEC61850-6-100:tL2CommParameters"/>
+					<xs:element name="L3IPv4CommParameters" type="eIEC61850-6-100:tL3IPv4CommParameters"/>
+					<xs:element name="L3IPv6CommParameters" type="eIEC61850-6-100:tL3IPv6CommParameters"/>
+				</xs:choice>
+				<xs:attribute name="goId" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>GOOSE identifier to be used</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="securityEnabled" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>indicates if the security is enable. The choice of kind of security is done based on supported security</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="minTime" type="xs:decimal" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the minTime</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="maxTime" type="xs:decimal" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the maxTime</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSMVParameters">
+		<xs:annotation>
+			<xs:documentation>SMV parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tControlBlockParameters">
+				<xs:choice minOccurs="0" maxOccurs="1">
+					<xs:element name="L2CommParameters" type="eIEC61850-6-100:tL2CommParameters"/>
+					<xs:element name="L3IPv4CommParameters" type="eIEC61850-6-100:tL3IPv4CommParameters"/>
+					<xs:element name="L3IPv6CommParameters" type="eIEC61850-6-100:tL3IPv6CommParameters"/>
+				</xs:choice>
+				<xs:attribute name="smvId" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>SMV identifier to be used</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="securityEnabled" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>indicates if the security is enable. The choice of kind of security is done based on supported security</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="multicast" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the multicast</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="smpRate" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the smpRate</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="nofASDU" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the nofASDU</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="smpMod" type="scl:tSmpMod" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the smpMod</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tReportParameters">
+		<xs:annotation>
+			<xs:documentation>Report control parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tControlBlockParameters">
+				<xs:attribute name="intgPd" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the intgPd</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="buffered" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the buffered</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="bufTime" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the bufTime</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLogParameters">
+		<xs:annotation>
+			<xs:documentation>Log control parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tControlBlockParameters">
+				<xs:attribute name="intgPd" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>value to use for the intgPd</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logName" type="scl:tLogName" use="optional">
+					<xs:annotation>
+						<xs:documentation>name of the Log to use</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logLdInst" type="scl:tLDInst" use="optional">
+					<xs:annotation>
+						<xs:documentation>if logName is provided, indication of the LDevice to locate the Log</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logPrefix" type="scl:tPrefix" use="optional">
+					<xs:annotation>
+						<xs:documentation>if logName is provided, indication of the LNode prefix to locate the Log</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logLnClass" type="scl:tLNClassEnum" use="optional">
+					<xs:annotation>
+						<xs:documentation>if logName is provided, indication of the LNode Class to locate the Log</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logLnInst" type="scl:tLNInst" use="optional">
+					<xs:annotation>
+						<xs:documentation>if logName is provided, indication of the LNode instance to locate the Log</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="logEna" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>default value for Log enabling</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="reasonCode" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>value tu use for reasonCode</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tWiringParameters">
+		<xs:annotation>
+			<xs:documentation>Wiring parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tServiceParameters">
+				<xs:attribute name="inpRef" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Reference of the input to use in physical input logical node</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="inpNam" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Label text of the input to use in physical input logical node</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tBinaryWiringParameters">
+		<xs:annotation>
+			<xs:documentation>Binary wiring parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tWiringParameters">
+				<xs:attribute name="debTm" type="xs:integer" use="optional">
+					<xs:annotation>
+						<xs:documentation>Debounce Time to use in LPDI (in ms)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="vInOff" type="xs:float" use="optional">
+					<xs:annotation>
+						<xs:documentation>Drop-off voltage to use in LPDI</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="vInOn" type="xs:float" use="optional">
+					<xs:annotation>
+						<xs:documentation>Pick-up voltage to use in LPDI</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outRef" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Reference of the output to use in LPDO</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outTyp" use="optional">
+					<xs:annotation>
+						<xs:documentation>Physical output type to use in LPDO</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:enumeration value="Normally open"/>
+							<xs:enumeration value="Normally closed"/>
+							<xs:enumeration value="Change over"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="fastOutput" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>Indicates if the output needs to be a fast output in LPDO</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outOffDl" type="xs:float" use="optional">
+					<xs:annotation>
+						<xs:documentation>Delay of the output (drop-off) to use in LPDO</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outOnDl" type="xs:float" use="optional">
+					<xs:annotation>
+						<xs:documentation>Delay of the output (pick-up) to use in LPDO</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outNam" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Label text of the output to use in LPDO</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tAnalogueWiringParameters">
+		<xs:annotation>
+			<xs:documentation>Analogue wiring parameters for service specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tWiringParameters">
+				<xs:attribute name="dsgInp" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Designation of the input to use in LPAI</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="fctInp" type="xs:normalizedString" use="optional">
+					<xs:annotation>
+						<xs:documentation>Function designation of the input to use in LPAI</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tServiceParametersRef">
+		<xs:annotation>
+			<xs:documentation>type used in SourceRef/ControlRef to reference communication parameters id</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="id" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>id of the service specification to use</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tCommServiceSpecifications">
+		<xs:annotation>
+			<xs:documentation>Definition of the list of Communication Service Specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="GooseParameters" type="eIEC61850-6-100:tGooseParameters"/>
+					<xs:element name="SMVParameters" type="eIEC61850-6-100:tSMVParameters"/>
+					<xs:element name="ReportParameters" type="eIEC61850-6-100:tReportParameters"/>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tServiceSpecifications">
+		<xs:annotation>
+			<xs:documentation>Definition of the list of Service Specification</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="GooseParameters" type="eIEC61850-6-100:tGooseParameters"/>
+					<xs:element name="SMVParameters" type="eIEC61850-6-100:tSMVParameters"/>
+					<xs:element name="ReportParameters" type="eIEC61850-6-100:tReportParameters"/>
+					<xs:element name="BinaryWiringParameters" type="eIEC61850-6-100:tBinaryWiringParameters"/>
+					<xs:element name="AnalogueWiringParameters" type="eIEC61850-6-100:tAnalogueWiringParameters"/>
+					<xs:element name="LogParameters" type="eIEC61850-6-100:tLogParameters"/>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="CommunicationServiceSpecifications" type="eIEC61850-6-100:tCommServiceSpecifications">
+		<xs:annotation>
+			<xs:documentation>The CommunicationServiceSpecifications is containing parameters used to create control blocks during implementation</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:key name="commServiceSpecKey">
+			<xs:selector xpath="./*"/>
+			<xs:field xpath="@id"/>
+		</xs:key>
+	</xs:element>
+	<xs:element name="ServiceSpecifications" type="eIEC61850-6-100:tServiceSpecifications">
+		<xs:annotation>
+			<xs:documentation>The ServiceSpecification is containing parameters used to create control blocks or physical interface (LPDI/LPDO) during implementation</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:key name="serviceSpecKey">
+			<xs:selector xpath="./*"/>
+			<xs:field xpath="@id"/>
+		</xs:key>
+	</xs:element>
+	<!-- **************************************** -->
+	<!-- Basic Application Profile extension -->
+	<!-- **************************************** -->
+	<!-- ************ -->
+	<!-- Bay type   -->
+	<!-- ************ -->
+	<xs:simpleType name="tBayType">
+		<xs:annotation>
+			<xs:documentation>Definition of BayType element</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:normalizedString"/>
+	</xs:simpleType>
+	<xs:element name="BayType" type="eIEC61850-6-100:tBayType">
+		<xs:annotation>
+			<xs:documentation>Bay type element is keeping value of the type. It's a free string</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ********************* -->
+	<!-- Role management -->
+	<!-- ********************* -->
+	<xs:complexType name="tLNodeInputRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the LNodeInputRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="sourceRef" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Identification of the SourceRef belonging to the current role (reference the input attribute of the SourceRef)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sourceRefUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the SourceRef belonging to the current role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLNodeOutputRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the LNodeOutputRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="controlRef" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Identification of the ControlRef belonging to the current role (reference the output attribute of the ControlRef)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="controlRefUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the ControlRef belonging to the current role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLNodeDataRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the LNodeDataRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="data" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Identification of the Data (DO/DA) belonging to the current role (reference the Data name)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="lnodeUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode belonging to the current role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="doName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DO of the LNode belonging to the current role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="daName" type="scl:tFullAttributeName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DA of the LNode belonging to the current role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSignalRole">
+		<xs:annotation>
+			<xs:documentation>Definition of the SignalRole element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:sequence>
+					<xs:element name="LNodeInputRef" type="eIEC61850-6-100:tLNodeInputRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to SourceRefs belonging to current role</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="LNodeOutputRef" type="eIEC61850-6-100:tLNodeOutputRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to ControlRefs belonging to current role</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="LNodeDataRef" type="eIEC61850-6-100:tLNodeDataRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to Data belonging to current role</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Identification of the current signal role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the FunctionRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:sequence>
+					<xs:element name="SignalRole" type="eIEC61850-6-100:tSignalRole" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Signal list attached to the referenced function in the context of the cureent Role definition</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="function" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the function referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="functionUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the function referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionRoleContent">
+		<xs:annotation>
+			<xs:documentation>
+			Definition of the content of a Function Role
+			In case of a content which can be instantiated multiple times when Cardinality is greater than 1, then this content will be instantiated multiple times
+			</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:sequence>
+					<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="FunctionRef" type="eIEC61850-6-100:tFunctionRef">
+							<xs:annotation>
+								<xs:documentation>Reference to a function definition attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="BehaviorDescriptionRef" type="eIEC61850-6-100:tBehaviorDescriptionRef">
+							<xs:annotation>
+								<xs:documentation>Reference to a behavior description attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ProcessResourceRef" type="eIEC61850-6-100:tProcessResourceRef">
+							<xs:annotation>
+								<xs:documentation>Reference to a process resource attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="VariableRef" type="eIEC61850-6-100:tVariableRefWithUuid">
+							<xs:annotation>
+								<xs:documentation>Reference to a variable attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="FunctionCategoryRef" type="eIEC61850-6-100:tFunctionCategoryRef">
+							<xs:annotation>
+								<xs:documentation>Reference to a function category attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="PowerSystemRelationRef" type="eIEC61850-6-100:tPowerSystemRelationRef">
+							<xs:annotation>
+								<xs:documentation>Reference to a power system relation attached to current role</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+				<xs:attribute name="roleInst" use="optional" default="1">
+					<xs:annotation>
+						<xs:documentation>Instance of the role</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionRole">
+		<xs:annotation>
+			<xs:documentation>Definition of the Function Role element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:sequence>
+					<xs:choice minOccurs="1" maxOccurs="unbounded">
+						<xs:element name="FunctionRoleContent" type="eIEC61850-6-100:tFunctionRoleContent">
+							<xs:annotation>
+								<xs:documentation>an instance of the current role. In case of application type definition, instance 1 is the default instance</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+				<xs:attribute name="type" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Type of the role (Predefined value = EXTERNAL)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agCardinalityWithSelector">
+					<xs:annotation>
+						<xs:documentation>
+						Selector is used to give a searching rule to help user to select target(s) to deploy the given role. 
+						When the target is obvious it could even more be automatically deployed.
+						When a selector is defined, the user may select different candidates matching this selector, and then the FunctionRole 
+						
+						The cardinality, indicated the rule to instanciate the role multiple times. 
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attributeGroup>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tAllocationRoleRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the AllocationRoleRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="allocationRole" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the allocation role referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="allocationRoleUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the allocation role referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tBehaviorDescriptionRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the BehaviorDescriptionRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="InputVarRef" type="eIEC61850-6-100:tVariableRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to InputVar belonging to current behavior description</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="OutputVarRef" type="eIEC61850-6-100:tVariableRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to OutputVar belonging to current behavior description</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="behaviorDescription" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the behavior description referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="behaviorDescriptionUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the behavior description referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tVariableRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the VariableRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="variable" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the variable referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="value" type="xs:normalizedString">
+					<xs:annotation>
+						<xs:documentation>Value to be used for the variable when current reference is used</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tVariableRefWithUuid">
+		<xs:annotation>
+			<xs:documentation>Definition of the VariableRef element which can be referenced with a UUID</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tVariableRef">
+				<xs:attribute name="variableUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the variable referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tProcessResourceRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the ProcessResourceRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="processResource" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the process resource referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="processResourceUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the process resource referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionCategoryRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the FunctionCategoryRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="functionCategory" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the function category referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="functionCategoryUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the function category referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tPowerSystemRelationRef">
+		<xs:annotation>
+			<xs:documentation>Definition of the PowerSystemRelationRef element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tFunctionalVariantRefContainer">
+				<xs:attribute name="powerSystemRelation" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the power system relation referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="powerSystemRelationUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the power system relation referenced</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ********************* -->
+	<!-- Allocation Role management -->
+	<!-- ********************* -->
+	<xs:complexType name="tAllocationRole">
+		<xs:annotation>
+			<xs:documentation>Definition of the Allocation Role element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="FunctionRef" type="eIEC61850-6-100:tFunctionRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a function definition attached to current allocation role</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the role</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="AllocationRole" type="eIEC61850-6-100:tAllocationRole">
+		<xs:annotation>
+			<xs:documentation>Definition of an allocation role allowing definition of possible allocation to devices type without using virtual IED</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ********************** -->
+	<!-- Functional variants   -->
+	<!-- ********************** -->
+	<xs:complexType name="tAbstractFunctionalVariant" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Definition of a functional variant of the Application</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="FunctionalSubVariant" type="eIEC61850-6-100:tFunctionalSubVariant" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Sub variant of the current variant</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="VariableRef" type="eIEC61850-6-100:tVariableRefWithUuid" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a variable attached to current variant, to parameterize the instance with the value defined in the reference</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the variant</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+				<xs:attribute name="isBaseline" type="xs:boolean" use="optional" default="false">
+					<xs:annotation>
+						<xs:documentation>Indication if the functional variant is used as baseline variant used as reference for other variants</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionalVariant">
+		<xs:annotation>
+			<xs:documentation>Definition of a functional variant of the Application</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tAbstractFunctionalVariant"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionalSubVariant">
+		<xs:annotation>
+			<xs:documentation>Definition of a functional sub variant of a variant</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tAbstractFunctionalVariant"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionalVariantGroup">
+		<xs:annotation>
+			<xs:documentation>
+			Definition of a group of functional variant which are exclusive to each other. 
+			But an application may contains multiple groups which can be combined together
+			</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="FunctionalVariant" type="eIEC61850-6-100:tFunctionalVariant" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Varian of the current group</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the group of variant</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionalVariantRef">
+		<xs:annotation>
+			<xs:documentation>Definition of a ref to a functional variant of the Application</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElement">
+				<xs:attribute name="functionalVariant" type="scl:tName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the variant</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="functionalVariantUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the variant</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="update" use="optional" default="add">
+					<xs:annotation>
+						<xs:documentation>kind of update to apply to the variant</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="add"/>
+							<xs:enumeration value="remove"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionalVariantRefContainer" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Type which could be linked to functional variants</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="FunctionalVariantRef" type="eIEC61850-6-100:tFunctionalVariantRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Ref to a functional variant of the Application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- ************** -->
+	<!-- Application   -->
+	<!-- ************** -->
+	<xs:complexType name="tApplication">
+		<xs:annotation>
+			<xs:documentation>Definition of the Application element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="FunctionRole" type="eIEC61850-6-100:tFunctionRole" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Role attached to the application type</xs:documentation>
+						</xs:annotation>
+						<xs:unique name="uniqueRoleContent">
+							<xs:selector xpath="./eIEC61850-6-100:FunctionRoleContent"/>
+							<xs:field xpath="@roleInst"/>
+						</xs:unique>
+					</xs:element>
+					<xs:element name="FunctionalVariant" type="eIEC61850-6-100:tFunctionalVariant" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Variant attached to the application type</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FunctionalVariantGroup" type="eIEC61850-6-100:tFunctionalVariantGroup" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Group of variants attached to the application type</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="AllocationRoleRef" type="eIEC61850-6-100:tAllocationRoleRef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Allocation role attached to the application type</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ApplicationSclRef" type="eIEC61850-6-100:tApplicationSclRef" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Reference to the ASD files used to create an Application</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="type" type="scl:tID" use="optional">
+					<xs:annotation>
+						<xs:documentation>Identification of the application type if any</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="name" type="scl:tName" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the application</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Application" type="eIEC61850-6-100:tApplication">
+		<xs:annotation>
+			<xs:documentation>Application definition to be added at Process, Substation, Voltage Level or Bay level</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-7-6</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ************************* -->
+	<!-- Behavior Description   -->
+	<!-- ************************* -->
+	<xs:simpleType name="tPredefinedBehaviorDescTypeEnum">
+		<xs:restriction base="xs:normalizedString">
+			<xs:enumeration value="IEC 61131"/>
+			<xs:enumeration value="Textual"/>
+			<xs:enumeration value="Graphic"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tExtensionBehaviorDescTypeEnum">
+		<xs:restriction base="xs:normalizedString">
+			<xs:maxLength value="64"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="tBehaviorDescTypeEnum">
+		<xs:union memberTypes="eIEC61850-6-100:tPredefinedBehaviorDescTypeEnum eIEC61850-6-100:tExtensionBehaviorDescTypeEnum"/>
+	</xs:simpleType>
+	<xs:complexType name="tLogicVarRef">
+		<xs:annotation>
+			<xs:documentation>A binding between a variable in the behavior description and a specification data object in the behavior description hierarchy.</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="value">
+					<xs:annotation>
+						<xs:documentation>In case of internal variable (not linked to a data or an input or output) a default value can be defined</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="dataName" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>local path to a DO or DA to be used in the logic (as input or output)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="lnodeUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode which contain the data to be used in the logic (as input or output)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="doName" type="scl:tFullDOName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DO to be used in the logic (as input or output) when lnodeUuid is defined</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="daName" type="scl:tFullAttributeName" use="optional">
+					<xs:annotation>
+						<xs:documentation>Name of the DA to be used in the logic (as input or output) when lnodeUuid is defined</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="varName" type="xs:normalizedString" use="required">
+					<xs:annotation>
+						<xs:documentation>variable name used in the logic</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tInputVar">
+		<xs:annotation>
+			<xs:documentation>A binding between a variable in the behavior description and a specification data object or input in the behavior description hierarchy.</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tLogicVarRef">
+				<xs:attribute name="inputName" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>local path to an LNode SourceRef to be used as input of the logic</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="inputUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode SourceRef to be used as input of the logic</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tOutputVar">
+		<xs:annotation>
+			<xs:documentation>A binding between a variable in the behavior description and a specification data object or output in the behavior description hierarchy.</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tLogicVarRef">
+				<xs:attribute name="outputName" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>local path to an LNode ControlRef to be used as output of the logic</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="outputUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of the LNode ControlRef to be used as output of the logic</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tBehaviorReference">
+		<xs:annotation>
+			<xs:documentation>A reference to another behavior description, used when a vendor is describing his implementation of a specific specification.</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="behaviorReference" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>path to another BehaviorDescription</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="behaviorUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of another BehaviorDescription</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tBehaviorDescription">
+		<xs:annotation>
+			<xs:documentation>Definition of the BehaviorDescription element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="InputVar" type="eIEC61850-6-100:tInputVar" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Input variable used in the behavior description</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="OutputVar" type="eIEC61850-6-100:tOutputVar" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Output variable used in the behavior description</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="BehaviorReference" type="eIEC61850-6-100:tBehaviorReference" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to a behavior description when for example a manufacturer wants to indicate its implementation of a user specification described by another behavior description</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the behavior description.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="format" type="eIEC61850-6-100:tBehaviorDescTypeEnum" use="optional">
+					<xs:annotation>
+						<xs:documentation>Identification of the behavior description format</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="fileReference" type="xs:anyURI" use="optional">
+					<xs:annotation>
+						<xs:documentation>Path to the behavior description file</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="isSpecification" type="xs:boolean" default="true">
+					<xs:annotation>
+						<xs:documentation>indication that the behavior description is used for specification</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="isSimulation" type="xs:boolean" default="false">
+					<xs:annotation>
+						<xs:documentation>indication that the behavior description is used for simulation</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="BehaviorDescription" type="eIEC61850-6-100:tBehaviorDescription">
+		<xs:annotation>
+			<xs:documentation>Element allowing to describe the behavior its parent (Application, Bay, Function, LN...)</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:unique name="uniqueChildNameInBehaviorDescription">
+			<xs:selector xpath="./*"/>
+			<xs:field xpath="@varName"/>
+		</xs:unique>
+	</xs:element>
+	<!-- ******************* -->
+	<!-- Project Definition -->
+	<!-- ******************* -->
+	<xs:complexType name="tProjectProcessReference">
+		<xs:annotation>
+			<xs:documentation>A reference to another behavior description, used when a vendor is describing his implementation of a specific specification.</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:attribute name="processReference" type="eIEC61850-6-100:tPathName" use="optional">
+					<xs:annotation>
+						<xs:documentation>path to an element in the process belonging to this project</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="processUuid" type="scl:tUUIDAttribute" use="optional">
+					<xs:annotation>
+						<xs:documentation>UUID of an element in the process belonging to this project</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tProject">
+		<xs:annotation>
+			<xs:documentation>Definition of the Project element</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="ProjectProcessReference" type="eIEC61850-6-100:tProjectProcessReference" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Reference to the process elements belonging to the current project</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the Project</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="uuid" type="scl:tUUIDAttribute">
+					<xs:annotation>
+						<xs:documentation>UUID identifying uniquelly the project</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Project" type="eIEC61850-6-100:tProject">
+		<xs:annotation>
+			<xs:documentation>Element allowing to define a project, to identify the project and the process elements defined by this project</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<!-- ******************************** -->
+	<!-- Function template Definition -->
+	<!-- ******************************** -->
+	<xs:complexType name="t6-100LNodeContainer" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:tBaseExtensionElementWithDesc">
+				<xs:sequence>
+					<xs:element name="LNode" type="scl:tLNode" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="name" type="scl:tName" use="required"/>
+				<xs:attributeGroup ref="eIEC61850-6-100:agUuidWithOrigin"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tFunctionTemplate">
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:t6-100LNodeContainer">
+				<xs:sequence>
+					<xs:element name="SubFunctionTemplate" type="eIEC61850-6-100:tSubFunctionTemplate" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInSubFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueChildNameInSubFuncTemplate">
+							<xs:selector xpath="./*"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+					<xs:element name="GeneralEquipment" type="scl:tGeneralEquipment" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInGeneralEquipmentOfFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueChildNameInGEFuncTemplate">
+							<xs:selector xpath="./*"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+					<xs:element name="ConductingEquipment" type="scl:tConductingEquipment" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInConductingEquipmentOfFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueChildNameInCondEqTemplate">
+							<xs:selector xpath="./scl:SubEquipment|./scl:EqFunction"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="type" type="xs:normalizedString" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tSubFunctionTemplate">
+		<xs:complexContent>
+			<xs:extension base="eIEC61850-6-100:t6-100LNodeContainer">
+				<xs:sequence>
+					<xs:element name="GeneralEquipment" type="scl:tGeneralEquipment" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInGeneralEquipmentOfSubFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueChildNameInGESubFuncTemplate">
+							<xs:selector xpath="./*"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+					<xs:element name="ConductingEquipment" type="scl:tConductingEquipment" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInConductingEquipmentOfSubFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueSubEquipmentSubFuncTemplate">
+							<xs:selector xpath="./scl:SubEquipment"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+					<xs:element name="SubFunctionTemplate" type="eIEC61850-6-100:tSubFunctionTemplate" minOccurs="0" maxOccurs="unbounded">
+						<xs:unique name="uniqueLNodeInSubSubFunctionTemplate">
+							<xs:selector xpath="./scl:LNode"/>
+							<xs:field xpath="@lnInst"/>
+							<xs:field xpath="@lnClass"/>
+							<xs:field xpath="@iedName"/>
+							<xs:field xpath="@ldInst"/>
+							<xs:field xpath="@prefix"/>
+						</xs:unique>
+						<xs:unique name="uniqueSubSubFuncTemplate">
+							<xs:selector xpath="./*"/>
+							<xs:field xpath="@name"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="type" type="xs:normalizedString" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="FunctionTemplate" type="eIEC61850-6-100:tFunctionTemplate">
+		<xs:annotation>
+			<xs:documentation>Base element for FSD format, will be used as a template element for Function/SubFunction or EqFunction/EqSubFunction</xs:documentation>
+			<xs:appinfo>Definition in IEC 61850-90-30</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+</xs:schema>

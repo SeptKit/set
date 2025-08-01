@@ -24,10 +24,12 @@
 		"link:restore": "rm -rf ./node_modules/@septkit && pnpm install"
 	},
 	"dependencies": {
-		"@septkit/fileio": "0.0.1",
+		"@septkit/fileio": "workspace:^",
+		"@septkit/sclsdk": "workspace:^",
 		"@septkit/ui": "0.0.3",
 		"@tailwindcss/vite": "^4.1.11",
 		"@vueuse/core": "^13.5.0",
+		"@vueuse/rxjs": "^13.6.0",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
 		"vite-plugin-static-copy": "^3.1.1",

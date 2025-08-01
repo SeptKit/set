@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:scl="http://www.iec.ch/61850/2003/SCL" xmlns="http://www.iec.ch/61850/2003/SCL" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.iec.ch/61850/2003/SCL" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2007C5">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+						COPYRIGHT (c) IEC, 2023. This version of this XSD is part of IEC 61850-6:2009/AMD2:2023; see the IEC 61850-6:2009/AMD2:2023 for full legal notices. In case of any differences between the here-below code and the IEC published content, the here-below definition supersedes the IEC publication; it may contain updates. See history files. The whole document has to be taken into account to have a full description of this code component.
+			See www.iec.ch/CCv1 for copyright details.
+		</xs:documentation>
+		<xs:documentation xml:lang="en">
+			SCL schema version "2007" revision "C" release 5,  for IEC 61850-6 Ed. 2.2. 2024-02-02
+		</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="SCL_Enums.xsd"/>
+	<xs:attributeGroup name="agDesc">
+		<xs:attribute name="desc" type="xs:normalizedString" use="optional" default=""/>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="agUuid">
+		<xs:attribute name="uuid" type="tUUIDAttribute" use="optional"/>
+		<xs:attribute name="templateUuid" type="tUUIDAttribute" use="optional"/>
+	</xs:attributeGroup>
+	<xs:complexType name="tBaseElement" abstract="true">
+		<xs:sequence>
+			<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Text" type="tText" minOccurs="0"/>
+			<xs:element name="Private" type="tPrivate" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" processContents="lax"/>
+	</xs:complexType>
+	<xs:complexType name="tUnNaming" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="tBaseElement">
+				<xs:attributeGroup ref="agDesc"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tNaming" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="tBaseElement">
+				<xs:sequence>
+					<xs:element name="Labels" type="tLabels" minOccurs="0">
+						<xs:unique name="uniqueLabel">
+							<xs:selector xpath="./scl:Label"/>
+							<xs:field xpath="@id"/>
+							<xs:field xpath="@lang"/>
+						</xs:unique>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="name" type="tName" use="required"/>
+				<xs:attributeGroup ref="agUuid"/>
+				<xs:attributeGroup ref="agDesc"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tIDNaming" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="tBaseElement">
+				<xs:attribute name="id" type="tID" use="required"/>
+				<xs:attributeGroup ref="agDesc"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tAnyContentFromOtherNamespace" abstract="true" mixed="true">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:any namespace="##other" processContents="lax"/>
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" processContents="lax"/>
+	</xs:complexType>
+	<xs:complexType name="tText" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tAnyContentFromOtherNamespace">
+				<xs:attribute name="source" type="xs:anyURI" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tPrivate" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tAnyContentFromOtherNamespace">
+				<xs:attribute name="type" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:normalizedString">
+							<xs:minLength value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="source" type="xs:anyURI" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLabels">
+		<xs:complexContent>
+			<xs:extension base="tUnNaming">
+				<xs:sequence>
+					<xs:element name="Label" type="tLabel" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tLabel" mixed="true">
+		<xs:simpleContent>
+			<xs:extension base="xs:normalizedString">
+				<xs:attribute name="id" type="tID" use="optional"/>
+				<xs:attribute name="lang" type="xs:language" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tHeader">
+		<xs:sequence>
+			<xs:element name="Text" type="tText" minOccurs="0"/>
+			<xs:element name="History" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Hitem" type="tHitem" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SourceFiles" type="tHeaderSclRef" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="version" type="xs:normalizedString" use="optional"/>
+		<xs:attribute name="revision" type="xs:normalizedString" use="optional" default=""/>
+		<xs:attribute name="toolID" type="xs:normalizedString" use="optional"/>
+		<xs:attribute name="nameStructure" use="optional" default="IEDName">
+			<xs:simpleType>
+				<xs:restriction base="xs:Name">
+					<xs:enumeration value="IEDName"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="fileType" type="tSCLFileType" use="optional"/>
+		<xs:attribute name="uuid" type="tUUIDAttribute" use="required"/>
+		<xs:attribute name="baseUuid" type="tUUIDAttribute" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="tHitem" mixed="true">
+		<xs:complexContent>
+			<xs:extension base="tAnyContentFromOtherNamespace">
+				<xs:sequence>
+					<xs:element name="SourceFiles" type="tHeaderSclRef" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="version" type="xs:normalizedString" use="required"/>
+				<xs:attribute name="revision" type="xs:normalizedString" use="required"/>
+				<xs:attribute name="when" type="xs:normalizedString" use="required"/>
+				<xs:attribute name="who" type="xs:normalizedString"/>
+				<xs:attribute name="what" type="xs:normalizedString"/>
+				<xs:attribute name="why" type="xs:normalizedString"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tHeaderSclRef">
+		<xs:complexContent>
+			<xs:extension base="tBaseElement">
+				<xs:sequence>
+					<xs:element name="SclFileReference" type="tSclFileUUIDReference" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="tVal">
+		<xs:simpleContent>
+			<xs:extension base="xs:normalizedString">
+				<xs:attribute name="sGroup" type="xs:unsignedInt" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tValueWithUnit">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="unit" type="xs:token" use="required"/>
+				<xs:attribute name="multiplier" type="tUnitMultiplierEnum" use="optional" default=""/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tVoltage">
+		<xs:simpleContent>
+			<xs:restriction base="tValueWithUnit">
+				<xs:attribute name="unit" type="xs:token" use="required" fixed="V"/>
+				<xs:attribute name="multiplier" type="tUnitMultiplierEnum" use="optional" default=""/>
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tDurationInSec">
+		<xs:simpleContent>
+			<xs:restriction base="tValueWithUnit">
+				<xs:attribute name="unit" type="xs:token" use="required" fixed="s"/>
+				<xs:attribute name="multiplier" type="tUnitMultiplierEnum" use="optional" default=""/>
+			</xs:restriction>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tDurationInMilliSec">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="unit" type="xs:token" use="optional" fixed="s"/>
+				<xs:attribute name="multiplier" type="tUnitMultiplierEnum" use="optional" fixed="m"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tBitRateInMbPerSec">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="unit" type="xs:normalizedString" use="optional" fixed="b/s"/>
+				<xs:attribute name="multiplier" type="tUnitMultiplierEnum" use="optional" fixed="M"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="tSclFileUUIDReference">
+		<xs:annotation>
+			<xs:documentation>Definition of a reference to an SCL file by its UUID and/or File name with an associated version revision, corresponding to the definition of an SCL file header</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="tUnNaming">
+				<xs:attribute name="fileUuid" type="tUUIDAttribute"/>
+				<xs:attribute name="fileName" type="xs:normalizedString"/>
+				<xs:attribute name="fileType" type="tSCLFileType" use="required"/>
+				<xs:attribute name="version" type="xs:normalizedString" use="required"/>
+				<xs:attribute name="revision" type="xs:normalizedString" use="required"/>
+				<xs:attribute name="when" type="xs:normalizedString"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

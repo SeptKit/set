@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SCL xmlns="http://www.iec.ch/61850/2003/SCL" xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100" xmlns:sxy="http://www.iec.ch/61850/2003/SCLcoordinates" eIEC61850-6-100:version="2019" eIEC61850-6-100:revision="C" eIEC61850-6-100:release="1" revision="C" version="2007" release="5" xmlns:esld="https://transpower.co.nz/SCL/SSD/SLD/v0">
+  <Header id="CB_INT_FSD" nameStructure="IEDName" revision="0" toolID="Helinks STS 1.0.0.9" version="0" uuid="XCBR">
+    <History>
+      <Hitem revision="1" version="0" what="History file created" when="Fri Jul 04 14:32:48 CEST 2025" who="System" why="History reset"/>
+    </History>
+  </Header>
+  <Substation name="TEMPLATE" esld:w="50" esld:h="25" uuid="c9bf281c-5856-4f60-a770-a836dadd6660">
+    <VoltageLevel name="TEMPLATE" esld:x="1" esld:y="1" esld:lx="1" esld:ly="1" esld:w="33" esld:h="20" uuid="d702b3b2-3719-4a2f-9359-a4d8820211b8">
+      <Bay name="TEMPLATE" esld:x="2" esld:y="2" esld:lx="2" esld:ly="2" esld:w="30" esld:h="18" uuid="f0d3b512-1bd5-4f86-a05b-27ffaed8466d">
+        <Private type="eIEC61850-6-100">
+		  <eIEC61850-6-100:FunctionCategory name="INTERFACE FCAT" uuid="b159f5e3-d97c-430d-8664-95b5cfed7c44">
+			<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/TEMPLATE/TEMPLATE/CB Interface" functionUuid="d996cde9-fc40-4510-8b08-d685da2be6e5"/>
+		  </eIEC61850-6-100:FunctionCategory>
+        </Private>
+        <Function name="CB Interface" uuid="d996cde9-fc40-4510-8b08-d685da2be6e5" >
+			<LNode iedName="none" ldInst="" lnClass="XCBR" lnInst="1" lnType="ELIA_XCBR" prefix="" uuid="e775a78e-2879-40c7-adbf-fa6acc7a8021" >
+                <Private type="eIEC61850-6-100">
+                  <eIEC61850-6-100:LNodeSpecNaming sIedName="none" sLdInst="" sLnClass="XCBR" sLnInst="1" sPrefix=""/>
+                  <eIEC61850-6-100:DOS desc="Trip Command" name="TrCmd">
+                    <eIEC61850-6-100:DAS desc="TrCmd.stVal[ST]" name="stVal"/>
+                    <eIEC61850-6-100:DAS desc="TrCmd.q[ST]" name="q"/>
+                  </eIEC61850-6-100:DOS>
+                </Private>			
+			</LNode>
+        </Function>
+      </Bay>
+    </VoltageLevel>
+  </Substation>
+  <DataTypeTemplates>
+    <LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::SensorLN.SmpRte.desc" name="SmpRte" type="ING" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.HzRtg.desc" name="HzRtg" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.Rat.desc" name="Rat" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.Cor.desc" name="Cor" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.AngCor.desc" name="AngCor" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.CorCrv.desc" name="CorCrv" type="CSG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.Clip.desc" name="Clip" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.AccMeas.desc" name="AccMeas" type="eng_InstrumentTransformerMeasurementRatingKind" transient="false"/>
+      <DO desc="IEC61850_7_4.AbstractLNsGroupT::InstrumentTransformerLN.AccPro.desc" name="AccPro" type="eng_InstrumentTransformerProtectionRatingKind" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.AmpSv.desc" name="AmpSv" type="SAV" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.ARtg.desc" name="ARtg" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.Trp.desc" name="Trp" type="eng_TransientPerformanceClassKind" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.ScndTmms.desc" name="ScndTmms" type="ING" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.DynRngMin.desc" name="DynRngMin" type="ASG" transient="false"/>
+      <DO desc="IEC61850_7_4.LNGroupT::TCTR.DynRngMax.desc" name="DynRngMax" type="ASG" transient="false"/>
+    </LNodeType>
+    <LNodeType id="ELIA_XCBR" lnClass="XCBR">
+      <DO name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false"/>
+      <DO name="OpCmd" type="ELIA_SPS_basic_V001" transient="false"/>
+      <DO name="OpCnt" type="ELIA_INS" transient="false"/>
+      <DO name="BlkOpn" type="ELIA_SPC" transient="false"/>
+      <DO name="BlkCls" type="ELIA_SPC" transient="false"/>
+      <DO name="Pos" type="ELIA_DPC" transient="false"/>
+      <DO name="ClsCmd" type="ELIA_SPS_basic_V001" transient="false"/>
+      <DO name="Loc" type="ELIA_SPS_basic_V001" transient="false"/>
+      <DO name="EEName" type="ELIA_DPL_V003" transient="false"/>
+      <DO name="NamUr" type="ELIA_VSD" transient="false"/>
+      <DO name="NamIr" type="ELIA_VSD" transient="false"/>
+      <DO name="NamIsc" type="ELIA_VSD" transient="false"/>
+      <DO name="NamXpo" type="ELIA_VSD" transient="false"/>
+      <DO name="NamXis" type="ELIA_VSD" transient="false"/>
+      <DO name="TrCmd" type="ELIA_SPS_basic_V001" transient="false"/>
+    </LNodeType>
+    <LNodeType id="ELIA_LCBO_V001" lnClass="LCBO">
+      <DO name="OutInd" type="ELIA_SPS_basic_V001" transient="false"/>
+      <DO name="OutMod" type="ELIA_ENG_OutMod_V001" transient="false"/>
+      <DO name="MinPlsDur" type="ELIA_ING_V002" transient="false"/>
+    </LNodeType>
+    <LNodeType id="ELIA_LPDO_V001" lnClass="LPDO">
+      <DO name="RdbSt" type="ELIA_SPS_basic_V001" transient="false"/>
+      <DO desc="Name plate" name="NamPlt" type="ELIA_LPL_V004" transient="false"/>
+      <DO desc="Behaviour" name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false"/>
+      <DO name="OutNam" type="ELIA_VSD" transient="false"/>
+      <DO name="FctOutNOSig1" type="ELIA_VSD" transient="false"/>
+      <DO name="FctOutCom1" type="ELIA_VSD" transient="false"/>
+      <DO name="OutTyp" type="ELIA_ENG_OutputKind_V001" transient="false"/>
+      <DO name="FastOut" type="ELIA_SPG_V001" transient="false"/>
+    </LNodeType>
+    <LNodeType id="ELIA_PIOC_V001" lnClass="PIOC">
+      <DO name="Op" type="ELIA_ACT_V001" transient="false"/>
+      <DO name="Str" type="ELIA_ACD_V003" transient="false"/>
+    </LNodeType>
+    <LNodeType id="ELIA_PTRC_TR_SET_V002" lnClass="PTRC">
+      <DO desc="Trip (electrical protection function)" name="Tr" type="ELIA_ACT_V001" transient="false"/>
+      <DO desc="Behaviour" name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false"/>
+      <DO desc="Name plate" name="NamPlt" type="ELIA_LPL_V004" transient="false"/>
+    </LNodeType>
+    <LNodeType id="lln0_7_4_B2007" lnClass="LLN0">
+      <DO name="Mod" type="SIPROTEC5_DOType_Mod_status_only_with_InitVal_V08.40.10_V08.30.00"/>
+      <DO name="Beh" type="ELIA_ENS_BehaviourModeKind"/>
+      <DO name="Health" type="SIPROTEC5_DOType_ENS_Health_V08.40.10_V07.90.00"/>
+    </LNodeType>
+    <LNodeType id="lphd_7_4_B2007" lnClass="LPHD">
+      <DO name="NamPlt" type="ELIA_LPL_V004"/>
+      <DO name="PhyNam" type="ELIA_DPL_V003"/>
+      <DO name="PhyHealth" type="SIPROTEC5_DOType_ENS_Health_V08.40.10_V07.90.00"/>
+      <DO name="Proxy" type="ELIA_SPS_basic_V001"/>
+      <DO name="MaxDl" type="ELIA_ING_V002"/>
+    </LNodeType>
+    <DOType id="SIPROTEC5_DOType_Mod_status_only_with_InitVal_V08.40.10_V08.30.00" cdc="ENC">
+      <DA bType="Enum" name="stVal" type="ELIA_BehaviourModeKind" dchg="true" fc="ST"/>
+      <DA bType="Quality" name="q" fc="ST" qchg="true"/>
+      <DA bType="Timestamp" name="t" fc="ST"/>
+      <DA bType="Enum" name="ctlModel" type="SIPROTEC5_Textlist_ctlModel_status_only_V08.40.10_V07.90.00" valKind="RO" dchg="true" fc="CF"/>
+    </DOType>
+    <DOType id="SIPROTEC5_DOType_ENS_Health_V08.40.10_V07.90.00" cdc="ENS">
+      <DA bType="Enum" name="stVal" type="SIPROTEC5_Textlist_Health_V08.40.10_V07.90.00" dchg="true" fc="ST"/>
+      <DA bType="Quality" name="q" fc="ST" qchg="true"/>
+      <DA bType="Timestamp" name="t" fc="ST"/>
+    </DOType>
+    <DOType id="ING" cdc="ING">
+      <DA bType="INT32" name="setVal" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="INT32" name="minVal" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="INT32" name="maxVal" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="INT32U" name="stepSize" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="units" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="ASG" cdc="ASG">
+      <DA bType="Struct" name="setMag" type="AnalogueValueCtl" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="Struct" name="units" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="sVC" type="ScaledValueConfig" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="minVal" type="AnalogueValue" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="maxVal" type="AnalogueValue" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="stepSize" type="AnalogueValue" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="CSG" cdc="CSG">
+      <DA bType="FLOAT32" name="pointZ" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="INT16U" name="numPts" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="Struct" name="crvPts" type="Point" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="Struct" name="xUnits" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="yUnits" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="zUnits" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="INT16U" name="maxPts" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="VisString255" name="xD" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="xDU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="yD" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="yDU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="zD" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="zDU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="eng_InstrumentTransformerMeasurementRatingKind" cdc="ENG">
+      <DA bType="Enum" name="setVal" type="InstrumentTransformerMeasurementRatingKind" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="eng_InstrumentTransformerProtectionRatingKind" cdc="ENG">
+      <DA bType="Enum" name="setVal" type="InstrumentTransformerProtectionRatingKind" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="SAV" cdc="SAV">
+      <DA bType="Struct" name="instMag" type="AnalogueValue" dchg="false" dupd="false" fc="MX" qchg="false"/>
+      <DA bType="Quality" name="q" dchg="false" dupd="false" fc="MX" qchg="false"/>
+      <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="MX" qchg="false"/>
+      <DA bType="Struct" name="units" type="Unit" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="sVC" type="ScaledValueConfig" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="min" type="AnalogueValue" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="Struct" name="max" type="AnalogueValue" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="eng_TransientPerformanceClassKind" cdc="ENG">
+      <DA bType="Enum" name="setVal" type="TransientPerformanceClassKind" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ENS_BehaviourModeKind" cdc="ENS">
+      <DA bType="Enum" name="stVal" type="ELIA_BehaviourModeKind" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_SPS_basic_V001" cdc="SPS">
+      <DA desc="state value" bType="BOOLEAN" name="stVal" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_INS" cdc="INS">
+      <DA bType="INT32" name="stVal" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_SPC" cdc="SPC">
+      <DA bType="BOOLEAN" name="stVal" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Enum" name="ctlModel" type="ELIA_CtlModelKind" dchg="false" dupd="false" fc="CF" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_DPC" cdc="DPC">
+      <Private source="GE_HVDC" type="privateType">dpcConfig</Private>
+      <DA bType="Struct" name="SBOw" type="ELIA_DPCSelectWithValue" dchg="false" dupd="false" fc="CO" qchg="false"/>
+      <DA bType="Struct" name="Oper" type="ELIA_DPCOperate" dchg="false" dupd="false" fc="CO" qchg="false"/>
+      <DA bType="Struct" name="Cancel" type="ELIA_Cancel" dchg="false" dupd="false" fc="CO" qchg="false"/>
+      <DA bType="Dbpos" name="stVal" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="BOOLEAN" name="stSeld" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="Enum" name="ctlModel" type="ELIA_CtlModelKind" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="INT32U" name="sboTimeout" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="INT32U" name="operTimeout" dchg="false" dupd="false" fc="CF" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_DPL_V003" cdc="DPL">
+      <DA bType="VisString255" name="vendor" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="mRID" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="model" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="hwRev" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="swRev" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="serNum" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString64" name="name" dchg="false" dupd="false" fc="DC" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_VSD" cdc="VSD">
+      <DA desc="Description data value" bType="VisString255" name="val" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ENG_OutMod_V001" cdc="ENG">
+      <DA bType="Enum" name="setVal" type="ELIA_OutModeKind" dchg="false" dupd="false" fc="SP" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ING_V002" cdc="ING">
+      <DA bType="INT32" name="setVal" dchg="false" dupd="false" fc="SP" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="VisString255" name="cdcName" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="dataNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_LPL_V004" cdc="LPL">
+      <DA desc="logical node name space" bType="VisString255" name="lnNs" dchg="false" dupd="false" fc="EX" qchg="false"/>
+      <DA bType="VisString255" name="d" dchg="false" dupd="false" fc="DC" qchg="false"/>
+      <DA bType="Unicode255" name="dU" dchg="false" dupd="false" fc="DC" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ENG_OutputKind_V001" cdc="ENG">
+      <DA bType="Enum" name="setVal" type="ELIA_OutputKind" dchg="false" dupd="false" fc="SP" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_SPG_V001" cdc="SPG">
+      <DA bType="BOOLEAN" name="setVal" dchg="false" dupd="false" fc="SP" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ACT_V001" cdc="ACT">
+      <DA desc="general" bType="BOOLEAN" name="general" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+    </DOType>
+    <DOType id="ELIA_ACD_V003" cdc="ACD">
+      <DA desc="general" bType="BOOLEAN" name="general" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="general fault direction" bType="Enum" name="dirGeneral" type="ELIA_dirGeneral_V001" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="BOOLEAN" name="phsA" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="BOOLEAN" name="phsB" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="BOOLEAN" name="phsC" dchg="false" dupd="false" fc="ST" qchg="false"/>
+      <DA bType="BOOLEAN" name="neut" dchg="false" dupd="false" fc="ST" qchg="false"/>
+    </DOType>
+    <DAType id="Unit" iedType="">
+      <BDA desc="IEC61850_7_3.ConstructedDAs::Unit.SIUnit.desc" bType="Enum" name="SIUnit" type="SIUnitKind"/>
+      <BDA desc="IEC61850_7_3.ConstructedDAs::Unit.multiplier.desc" bType="Enum" name="multiplier" type="MultiplierKind"/>
+    </DAType>
+    <DAType id="AnalogueValueCtl" iedType="">
+      <BDA desc="IEC61850_7_3.AnalogueValue::AnalogueValueCtl.i.desc" bType="INT32" name="i"/>
+      <BDA desc="IEC61850_7_3.AnalogueValue::AnalogueValueCtl.f.desc" bType="FLOAT32" name="f"/>
+    </DAType>
+    <DAType id="ScaledValueConfig" iedType="">
+      <BDA desc="IEC61850_7_3.ConstructedDAs::ScaledValueConfig.scaleFactor.desc" bType="FLOAT32" name="scaleFactor"/>
+      <BDA desc="IEC61850_7_3.ConstructedDAs::ScaledValueConfig.offset.desc" bType="FLOAT32" name="offset"/>
+    </DAType>
+    <DAType id="AnalogueValue" iedType="">
+      <BDA desc="IEC61850_7_3.AnalogueValue::AnalogueValue.i.desc" bType="INT32" name="i"/>
+      <BDA desc="IEC61850_7_3.AnalogueValue::AnalogueValue.f.desc" bType="FLOAT32" name="f"/>
+    </DAType>
+    <DAType id="Point" iedType="">
+      <BDA desc="IEC61850_7_3.ConstructedDAs::Point.xVal.desc" bType="FLOAT32" name="xVal"/>
+      <BDA desc="IEC61850_7_3.ConstructedDAs::Point.yVal.desc" bType="FLOAT32" name="yVal"/>
+      <BDA desc="IEC61850_7_3.ConstructedDAs::Point.zVal.desc" bType="FLOAT32" name="zVal"/>
+    </DAType>
+    <DAType id="ELIA_DPCSelectWithValue" iedType="">
+      <BDA bType="BOOLEAN" name="ctlVal"/>
+      <BDA bType="Struct" name="origin" type="ELIA_Originator"/>
+      <BDA bType="INT8U" name="ctlNum"/>
+      <BDA bType="Timestamp" name="T"/>
+      <BDA bType="BOOLEAN" name="Test"/>
+      <BDA bType="Check" name="Check"/>
+    </DAType>
+    <DAType id="ELIA_Originator" iedType="">
+      <BDA bType="Enum" name="orCat" type="ELIA_OriginatorCategoryKind"/>
+      <BDA bType="Octet64" name="orIdent"/>
+    </DAType>
+    <DAType id="ELIA_DPCOperate" iedType="">
+      <BDA bType="BOOLEAN" name="ctlVal"/>
+      <BDA bType="Struct" name="origin" type="ELIA_Originator"/>
+      <BDA bType="INT8U" name="ctlNum"/>
+      <BDA bType="Timestamp" name="T"/>
+      <BDA bType="BOOLEAN" name="Test"/>
+      <BDA bType="Check" name="Check"/>
+    </DAType>
+    <DAType id="ELIA_Cancel" iedType="">
+      <BDA bType="BOOLEAN" name="ctlVal" sAddr=""/>
+      <BDA bType="Struct" name="origin" sAddr="" type="ELIA_Originator"/>
+      <BDA bType="INT8U" name="ctlNum" sAddr=""/>
+      <BDA bType="Timestamp" name="T" sAddr=""/>
+      <BDA bType="BOOLEAN" name="Test" sAddr=""/>
+    </DAType>
+    <EnumType id="SIPROTEC5_Textlist_ctlModel_status_only_V08.40.10_V07.90.00">
+      <EnumVal ord="0">status-only</EnumVal>
+    </EnumType>
+    <EnumType id="SIPROTEC5_Textlist_Health_V08.40.10_V07.90.00">
+      <EnumVal ord="1">Ok</EnumVal>
+      <EnumVal ord="2">Warning</EnumVal>
+      <EnumVal ord="3">Alarm</EnumVal>
+    </EnumType>
+    <EnumType id="SIUnitKind">
+      <EnumVal desc="" ord="1"/>
+      <EnumVal desc="m" ord="2">m</EnumVal>
+      <EnumVal desc="kg" ord="3">kg</EnumVal>
+      <EnumVal desc="s" ord="4">s</EnumVal>
+      <EnumVal desc="A" ord="5">A</EnumVal>
+      <EnumVal desc="K" ord="6">K</EnumVal>
+      <EnumVal desc="mol" ord="7">mol</EnumVal>
+      <EnumVal desc="cd" ord="8">cd</EnumVal>
+      <EnumVal desc="deg" ord="9">deg</EnumVal>
+      <EnumVal desc="rad" ord="10">rad</EnumVal>
+      <EnumVal desc="sr" ord="11">sr</EnumVal>
+      <EnumVal desc="Gy" ord="21">Gy</EnumVal>
+      <EnumVal desc="Bq" ord="22">Bq</EnumVal>
+      <EnumVal desc="°C" ord="23">°C</EnumVal>
+      <EnumVal desc="Sv" ord="24">Sv</EnumVal>
+      <EnumVal desc="F" ord="25">F</EnumVal>
+      <EnumVal desc="C" ord="26">C</EnumVal>
+      <EnumVal desc="S" ord="27">S</EnumVal>
+      <EnumVal desc="H" ord="28">H</EnumVal>
+      <EnumVal desc="V" ord="29">V</EnumVal>
+      <EnumVal desc="ohm" ord="30">ohm</EnumVal>
+      <EnumVal desc="J" ord="31">J</EnumVal>
+      <EnumVal desc="N" ord="32">N</EnumVal>
+      <EnumVal desc="Hz" ord="33">Hz</EnumVal>
+      <EnumVal desc="lx" ord="34">lx</EnumVal>
+      <EnumVal desc="Lm" ord="35">Lm</EnumVal>
+      <EnumVal desc="Wb" ord="36">Wb</EnumVal>
+      <EnumVal desc="T" ord="37">T</EnumVal>
+      <EnumVal desc="W" ord="38">W</EnumVal>
+      <EnumVal desc="Pa" ord="39">Pa</EnumVal>
+      <EnumVal desc="m²" ord="41">m²</EnumVal>
+      <EnumVal desc="m³" ord="42">m³</EnumVal>
+      <EnumVal desc="m/s" ord="43">m/s</EnumVal>
+      <EnumVal desc="m/s²" ord="44">m/s²</EnumVal>
+      <EnumVal desc="m³/s" ord="45">m³/s</EnumVal>
+      <EnumVal desc="m/m³" ord="46">m/m³</EnumVal>
+      <EnumVal desc="M" ord="47">M</EnumVal>
+      <EnumVal desc="kg/m³" ord="48">kg/m³</EnumVal>
+      <EnumVal desc="m²/s" ord="49">m²/s</EnumVal>
+      <EnumVal desc="W/m K" ord="50">W/m K</EnumVal>
+      <EnumVal desc="J/K" ord="51">J/K</EnumVal>
+      <EnumVal desc="ppm" ord="52">ppm</EnumVal>
+      <EnumVal desc="1/s" ord="53">1/s</EnumVal>
+      <EnumVal desc="rad/s" ord="54">rad/s</EnumVal>
+      <EnumVal desc="W/m²" ord="55">W/m²</EnumVal>
+      <EnumVal desc="J/m²" ord="56">J/m²</EnumVal>
+      <EnumVal desc="S/m" ord="57">S/m</EnumVal>
+      <EnumVal desc="K/s" ord="58">K/s</EnumVal>
+      <EnumVal desc="Pa/s" ord="59">Pa/s</EnumVal>
+      <EnumVal desc="J/kg K" ord="60">J/kg K</EnumVal>
+      <EnumVal desc="VA" ord="61">VA</EnumVal>
+      <EnumVal desc="Watts" ord="62">Watts</EnumVal>
+      <EnumVal desc="VAr" ord="63">VAr</EnumVal>
+      <EnumVal desc="phi" ord="64">phi</EnumVal>
+      <EnumVal desc="cos(phi)" ord="65">cos(phi)</EnumVal>
+      <EnumVal desc="Vs" ord="66">Vs</EnumVal>
+      <EnumVal desc="V²" ord="67">V²</EnumVal>
+      <EnumVal desc="As" ord="68">As</EnumVal>
+      <EnumVal desc="A²" ord="69">A²</EnumVal>
+      <EnumVal desc="A²t" ord="70">A²t</EnumVal>
+      <EnumVal desc="VAh" ord="71">VAh</EnumVal>
+      <EnumVal desc="Wh" ord="72">Wh</EnumVal>
+      <EnumVal desc="VArh" ord="73">VArh</EnumVal>
+      <EnumVal desc="V/Hz" ord="74">V/Hz</EnumVal>
+      <EnumVal desc="Hz/s" ord="75">Hz/s</EnumVal>
+      <EnumVal desc="char" ord="76">char</EnumVal>
+      <EnumVal desc="char/s" ord="77">char/s</EnumVal>
+      <EnumVal desc="kgm²" ord="78">kgm²</EnumVal>
+      <EnumVal desc="dB" ord="79">dB</EnumVal>
+      <EnumVal desc="J/Wh" ord="80">J/Wh</EnumVal>
+      <EnumVal desc="W/s" ord="81">W/s</EnumVal>
+      <EnumVal desc="l/s" ord="82">l/s</EnumVal>
+      <EnumVal desc="dBm" ord="83">dBm</EnumVal>
+      <EnumVal desc="h" ord="84">h</EnumVal>
+      <EnumVal desc="min" ord="85">min</EnumVal>
+      <EnumVal desc="Ohm/m" ord="86">Ohm/m</EnumVal>
+      <EnumVal desc="percent/s" ord="87">percent/s</EnumVal>
+    </EnumType>
+    <EnumType id="MultiplierKind">
+      <EnumVal desc="y" ord="-24">y</EnumVal>
+      <EnumVal desc="z" ord="-21">z</EnumVal>
+      <EnumVal desc="a" ord="-18">a</EnumVal>
+      <EnumVal desc="f" ord="-15">f</EnumVal>
+      <EnumVal desc="p" ord="-12">p</EnumVal>
+      <EnumVal desc="n" ord="-9">n</EnumVal>
+      <EnumVal desc="µ" ord="-6">µ</EnumVal>
+      <EnumVal desc="m" ord="-3">m</EnumVal>
+      <EnumVal desc="c" ord="-2">c</EnumVal>
+      <EnumVal desc="d" ord="-1">d</EnumVal>
+      <EnumVal desc="" ord="0"/>
+      <EnumVal desc="da" ord="1">da</EnumVal>
+      <EnumVal desc="h" ord="2">h</EnumVal>
+      <EnumVal desc="k" ord="3">k</EnumVal>
+      <EnumVal desc="M" ord="6">M</EnumVal>
+      <EnumVal desc="G" ord="9">G</EnumVal>
+      <EnumVal desc="T" ord="12">T</EnumVal>
+      <EnumVal desc="P" ord="15">P</EnumVal>
+      <EnumVal desc="E" ord="18">E</EnumVal>
+      <EnumVal desc="Z" ord="21">Z</EnumVal>
+      <EnumVal desc="Y" ord="24">Y</EnumVal>
+    </EnumType>
+    <EnumType id="InstrumentTransformerMeasurementRatingKind">
+      <EnumVal desc="0.05" ord="1">0.05</EnumVal>
+      <EnumVal desc="0.1" ord="2">0.1</EnumVal>
+      <EnumVal desc="0.2" ord="3">0.2</EnumVal>
+      <EnumVal desc="0.2S" ord="4">0.2S</EnumVal>
+      <EnumVal desc="0.5" ord="5">0.5</EnumVal>
+      <EnumVal desc="0.5S" ord="6">0.5S</EnumVal>
+      <EnumVal desc="1" ord="7">1</EnumVal>
+      <EnumVal desc="3" ord="8">3</EnumVal>
+      <EnumVal desc="5" ord="9">5</EnumVal>
+    </EnumType>
+    <EnumType id="InstrumentTransformerProtectionRatingKind">
+      <EnumVal desc="1" ord="1">1</EnumVal>
+      <EnumVal desc="3" ord="2">3</EnumVal>
+      <EnumVal desc="5" ord="3">5</EnumVal>
+      <EnumVal desc="6" ord="4">6</EnumVal>
+      <EnumVal desc="10" ord="5">10</EnumVal>
+    </EnumType>
+    <EnumType id="TransientPerformanceClassKind">
+      <EnumVal desc="Unknown" ord="1">Unknown</EnumVal>
+      <EnumVal desc="P" ord="2">P</EnumVal>
+      <EnumVal desc="PR" ord="3">PR</EnumVal>
+      <EnumVal desc="PX" ord="4">PX</EnumVal>
+      <EnumVal desc="PXR" ord="5">PXR</EnumVal>
+      <EnumVal desc="TPX" ord="6">TPX</EnumVal>
+      <EnumVal desc="TPY" ord="7">TPY</EnumVal>
+      <EnumVal desc="TPZ" ord="8">TPZ</EnumVal>
+      <EnumVal desc="TPE" ord="9">TPE</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_BehaviourModeKind">
+      <EnumVal desc="on" ord="1">on</EnumVal>
+      <EnumVal desc="blocked" ord="2">blocked</EnumVal>
+      <EnumVal desc="test" ord="3">test</EnumVal>
+      <EnumVal desc="test/blocked" ord="4">test/blocked</EnumVal>
+      <EnumVal desc="off" ord="5">off</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_CtlModelKind">
+      <EnumVal desc="status-only" ord="0">status-only</EnumVal>
+      <EnumVal desc="direct-with-normal-security" ord="1">direct-with-normal-security</EnumVal>
+      <EnumVal desc="sbo-with-normal-security" ord="2">sbo-with-normal-security</EnumVal>
+      <EnumVal desc="direct-with-enhanced-security" ord="3">direct-with-enhanced-security</EnumVal>
+      <EnumVal desc="sbo-with-enhanced-security" ord="4">sbo-with-enhanced-security</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_OriginatorCategoryKind">
+      <EnumVal desc="not-supported" ord="0">not-supported</EnumVal>
+      <EnumVal desc="TEMPLATE-control" ord="1">TEMPLATE-control</EnumVal>
+      <EnumVal desc="station-control" ord="2">station-control</EnumVal>
+      <EnumVal desc="remote-control" ord="3">remote-control</EnumVal>
+      <EnumVal desc="automatic-TEMPLATE" ord="4">automatic-TEMPLATE</EnumVal>
+      <EnumVal desc="automatic-station" ord="5">automatic-station</EnumVal>
+      <EnumVal desc="automatic-remote" ord="6">automatic-remote</EnumVal>
+      <EnumVal desc="maintenance" ord="7">maintenance</EnumVal>
+      <EnumVal desc="process" ord="8">process</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_OutModeKind">
+      <EnumVal desc="straight-through" ord="1">straight-through</EnumVal>
+      <EnumVal desc="pulse" ord="2">pulse</EnumVal>
+      <EnumVal desc="latching" ord="3">latching</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_OutputKind">
+      <EnumVal desc="Normally open (Form A)" ord="1">Normally open (Form A)</EnumVal>
+      <EnumVal desc="Normally closed (Form B)" ord="2">Normally closed (Form B)</EnumVal>
+      <EnumVal desc="Change over (Form C)" ord="3">Change over (Form C)</EnumVal>
+    </EnumType>
+    <EnumType id="ELIA_dirGeneral_V001">
+      <EnumVal desc="unknown" ord="0">unknown</EnumVal>
+      <EnumVal desc="forward" ord="1">forward</EnumVal>
+      <EnumVal desc="backward" ord="2">backward</EnumVal>
+      <EnumVal desc="both" ord="3">both</EnumVal>
+    </EnumType>
+  </DataTypeTemplates>
+</SCL>
