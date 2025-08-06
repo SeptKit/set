@@ -28,7 +28,7 @@
 				{{ item.label }}
 			</button>
 		</template>
-		<ActiveFileInfo />
+		<ActiveSCLfileInfo />
 	</nav>
 </template>
 
@@ -36,7 +36,7 @@
 import { computed, reactive, ref, type ComputedRef } from 'vue'
 import { Dropdown } from '@septkit/ui'
 import type { ActionFn, NavBarItem } from './navbar-item'
-import ActiveFileInfo from './active-file-info.vue'
+import ActiveSCLfileInfo from './active-SCL-file-info.vue'
 
 const dropdowns = ref<(typeof Dropdown)[]>([])
 

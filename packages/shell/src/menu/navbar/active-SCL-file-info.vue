@@ -35,7 +35,7 @@ const { currentActiveFileDatabaseName } = storeToRefs(fileStore)
 
 const activeFile = computed(() => {
 	return currentActiveFileDatabaseName.value
-		? `Active File: ${currentActiveFileDatabaseName.value}`
+		? `Active file: ${currentActiveFileDatabaseName.value}`
 		: 'No active file'
 })
 </script>

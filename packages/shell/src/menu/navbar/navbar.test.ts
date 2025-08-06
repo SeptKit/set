@@ -3,6 +3,9 @@ import {} from '@vitest/browser/context'
 import { render } from 'vitest-browser-vue'
 import NavBar from './navbar.vue'
 import type { NavBarItem } from './navbar-item'
+import { createPinia } from 'pinia'
+
+function noop() {}
 
 describe('NavBar', () => {
 	describe('Rendering Elements', () => {
@@ -11,7 +14,6 @@ describe('NavBar', () => {
 			items: NavBarItem[]
 			expectedLabels: string[]
 		}
-
 		const tests: TestCase[] = [
 			{
 				desc: 'a main menu item is one without any path',
@@ -24,24 +26,21 @@ describe('NavBar', () => {
 				expectedLabels: ['File', 'Open'],
 			},
 		]
-
 		tests.forEach(testRendering)
-
 		function testRendering(tc: TestCase) {
 			it(tc.desc, async () => {
 				const screen = render(NavBar, {
 					props: {
 						items: tc.items,
 					},
+					global: { plugins: [createPinia()] },
 				})
-
 				for (const label of tc.expectedLabels) {
-					await expect.element(screen.getByText(label)).toBeInTheDocument()
+					await expect.element(screen.getByText(label, { exact: true })).toBeInTheDocument()
 				}
 			})
 		}
 	})
-
 	describe('Opening Sub Menus', () => {
 		type TestCase = {
 			desc: string
@@ -50,7 +49,6 @@ describe('NavBar', () => {
 			expectedVisibleLabels: string[]
 			expectedInvisibleLabel: string[]
 		}
-
 		const tests: TestCase[] = [
 			{
 				desc: 'without clickin submenus are hidden',
@@ -84,54 +82,40 @@ describe('NavBar', () => {
 				expectedInvisibleLabel: ['Open'],
 			},
 		]
-
 		tests.forEach(testRendering)
-
 		function testRendering(tc: TestCase) {
 			it(tc.desc, async () => {
-				// Arrange
 				const screen = render(NavBar, {
 					props: {
 						items: tc.items,
 					},
+					global: { plugins: [createPinia()] },
 				})
-
-				// Act
 				for (const label of tc.clickOnLabels) {
-					await screen.getByText(label).click()
+					await screen.getByText(label, { exact: true }).click()
 				}
-
-				// Assert
 				for (const label of tc.expectedVisibleLabels) {
-					await expect.element(screen.getByText(label)).toBeVisible()
+					await expect.element(screen.getByText(label, { exact: true })).toBeVisible()
 				}
-
 				for (const label of tc.expectedInvisibleLabel) {
-					await expect.element(screen.getByText(label)).not.toBeVisible()
+					await expect.element(screen.getByText(label, { exact: true })).not.toBeVisible()
 				}
 			})
 		}
 	})
-
 	describe('Item Actions', () => {
 		it('runs action on click', async () => {
-			// Arrange
 			const action = vi.fn()
 			const items = [{ id: 'file.open', label: 'Open', path: ['File'], action }]
 			const screen = render(NavBar, {
 				props: {
 					items,
 				},
+				global: { plugins: [createPinia()] },
 			})
-
-			// Act
-			await screen.getByText('File').click()
-			await screen.getByText('Open').click()
-
-			// Assert
+			await screen.getByText('File', { exact: true }).click()
+			await screen.getByText('Open', { exact: true }).click()
 			expect(action).toHaveBeenCalled()
 		})
 	})
 })
-
-function noop() {}
