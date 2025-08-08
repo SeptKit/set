@@ -45,7 +45,7 @@ jobs:
   build_fileio:
     name: Build fileio dependency
     needs: check_fileio
-    if: github.event.action != 'closed' && steps.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
+    if: github.event.action != 'closed' && jobs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
