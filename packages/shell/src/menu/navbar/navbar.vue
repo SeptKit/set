@@ -33,9 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, type ComputedRef } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 import { Dropdown } from '@septkit/ui'
-import type { ActionFn, NavBarItem } from './navbar-item'
+import type { NavBarItem } from './navbar-item'
 import ActiveSCLfileInfo from './active-SCL-file-info.vue'
 
 const dropdowns = ref<(typeof Dropdown)[]>([])

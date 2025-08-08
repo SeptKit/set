@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue'
+import { useTemplateRef, watch } from 'vue'
 import type { Optional } from '../../x/types'
 import type { WidgetContribution } from '../extension'
 import { fetchWidgetStartFn } from '../extension-loader'
