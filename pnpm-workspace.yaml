@@ -4,9 +4,6 @@ packages:
   - 'packages/ui'
   - 'packages/sclsdk'
   - 'packages/fileio'
-catalog:
-  '@septkit/fileio': 0.0.2
-  '@septkit/ui': 0.0.3
 
 linkWorkspacePackages: true
 sharedWorkspaceLockfile: false

@@ -16,13 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint Code
-    needs: install
-    uses: ./.github/workflows/_lint.yml
-    with:
-      package-name: shell
-
   check_fileio:
     name: Check if fileio version exists in npm registry
     uses: ./.github/workflows/_check-if-npm-version-exists.yml
@@ -74,6 +67,13 @@ jobs:
       - build_fileio
     if: always()
     uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
+
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
     with:
       package-name: shell
 
