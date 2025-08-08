@@ -32,6 +32,7 @@ describe('NavBar', () => {
 				const screen = render(NavBar, {
 					props: {
 						items: tc.items,
+						activeFileName: '',
 					},
 					global: { plugins: [createPinia()] },
 				})
@@ -71,7 +72,7 @@ describe('NavBar', () => {
 					{ id: 'import.function', label: 'Function', path: ['Import'], action: noop },
 				],
 				clickOnLabels: ['File', 'Import'],
-				expectedVisibleLabels: ['File', 'Function'],
+				expectedVisibleLabels: ['File', 'Import', 'Function'],
 				expectedInvisibleLabel: ['Open'],
 			},
 			{
@@ -88,6 +89,7 @@ describe('NavBar', () => {
 				const screen = render(NavBar, {
 					props: {
 						items: tc.items,
+						activeFileName: '',
 					},
 					global: { plugins: [createPinia()] },
 				})
@@ -110,6 +112,7 @@ describe('NavBar', () => {
 			const screen = render(NavBar, {
 				props: {
 					items,
+					activeFileName: '',
 				},
 				global: { plugins: [createPinia()] },
 			})

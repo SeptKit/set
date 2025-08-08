@@ -130,7 +130,7 @@ function closeAfterExecute(mainItemId: string, subItem: NavigationItem): () => v
 		subItem.action(subItem.id)
 		const wantedDropdown = dropdowns.value.find((d) => d.id === mainItemId)
 		if (!wantedDropdown) {
-			console.warn({ msg: 'could not find dropdown to close', itemId: dropdowns })
+			console.warn({ msg: 'could not find dropdown to close', itemId: mainItemId })
 			return
 		}
 
