@@ -42,24 +42,21 @@ jobs:
     with:
       package-name: fileio
 
+  install_fileio_dependencies:
+    name: Install fileio dependencies
+    needs: check_fileio
+    if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: fileio
+
   build_fileio:
     name: Build fileio dependency
-    needs: check_fileio
+    needs: install_fileio_dependencies
     if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ./.github/workflows/_install.yml
-        with:
-          package-name: fileio
-
-      - name: Build fileio
-        uses: ./.github/workflows/_build.yml
-        with:
-          package-name: fileio
+    uses: ./.github/workflows/_build.yml
+    with:
+      package-name: fileio
 
   check_ui:
     name: Check if ui version exists in npm registry
@@ -67,24 +64,21 @@ jobs:
     with:
       package-name: ui
 
+  install_ui_dependencies:
+    name: Install ui dependencies
+    needs: check_ui
+    if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: ui
+
   build_ui:
     name: Build ui dependency
-    needs: check_ui
+    needs: install_ui_dependencies
     if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ./.github/workflows/_install.yml
-        with:
-          package-name: ui
-
-      - name: Build ui
-        uses: ./.github/workflows/_build.yml
-        with:
-          package-name: ui
+    uses: ./.github/workflows/_build.yml
+    with:
+      package-name: ui
 
   deploy-preview:
     name: Deploy Preview
