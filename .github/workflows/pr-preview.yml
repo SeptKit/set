@@ -128,6 +128,10 @@ jobs:
         working-directory: packages/ui
         run: pnpm build
 
+      - name: Install Playwright
+        working-directory: packages/shell
+        run: npx playwright install chromium --with-deps
+
       - name: Run shell tests
         working-directory: packages/shell
         run: pnpm test
