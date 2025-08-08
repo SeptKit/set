@@ -116,7 +116,7 @@ jobs:
           run_install: false
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build fileio dependency
         if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
