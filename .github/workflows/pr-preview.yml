@@ -16,12 +16,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  install:
-    name: Install Dependencies
-    uses: ./.github/workflows/_install.yml
-    with:
-      package-name: shell
-
   lint:
     name: Lint Code
     needs: install
@@ -72,6 +66,16 @@ jobs:
     uses: ./.github/workflows/_build.yml
     with:
       package-name: ui
+
+  install:
+    name: Install Dependencies
+    needs:
+      - build_ui
+      - build_fileio
+    if: always()
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
 
   test:
     name: Run Tests
