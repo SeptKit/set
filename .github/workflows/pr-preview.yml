@@ -22,17 +22,33 @@ jobs:
     with:
       package-name: fileio
 
-  install_fileio_dependencies:
-    name: Install fileio dependencies
-    needs: check_fileio
-    if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
-    uses: ./.github/workflows/_install.yml
-    with:
-      package-name: fileio
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10.10.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+
+  # install_fileio_dependencies:
+  #   name: Install fileio dependencies
+  #   needs: check_fileio
+  #   if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
+  #   uses: ./.github/workflows/_install.yml
+  #   with:
+  #     package-name: fileio
 
   build_fileio:
     name: Build fileio dependency
-    needs: install_fileio_dependencies
+    needs: install
     if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
     uses: ./.github/workflows/_build.yml
     with:
@@ -44,31 +60,31 @@ jobs:
     with:
       package-name: ui
 
-  install_ui_dependencies:
-    name: Install ui dependencies
-    needs: check_ui
-    if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
-    uses: ./.github/workflows/_install.yml
-    with:
-      package-name: ui
+  # install_ui_dependencies:
+  #   name: Install ui dependencies
+  #   needs: check_ui
+  #   if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
+  #   uses: ./.github/workflows/_install.yml
+  #   with:
+  #     package-name: ui
 
   build_ui:
     name: Build ui dependency
-    needs: install_ui_dependencies
+    needs: install
     if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
     uses: ./.github/workflows/_build.yml
     with:
       package-name: ui
 
-  install:
-    name: Install Dependencies
-    needs:
-      - build_ui
-      - build_fileio
-    if: always()
-    uses: ./.github/workflows/_install.yml
-    with:
-      package-name: shell
+  # install:
+  #   name: Install Dependencies
+  #   needs:
+  #     - build_ui
+  #     - build_fileio
+  #   if: always()
+  #   uses: ./.github/workflows/_install.yml
+  #   with:
+  #     package-name: shell
 
   lint:
     name: Lint Code
