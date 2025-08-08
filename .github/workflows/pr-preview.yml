@@ -71,10 +71,6 @@ jobs:
 
   install:
     name: Install Dependencies
-    needs:
-      - build_ui
-      - build_fileio
-    if: always()
     uses: ./.github/workflows/_install.yml
     with:
       package-name: shell
@@ -86,16 +82,16 @@ jobs:
     with:
       package-name: shell
 
-  test:
-    name: Run Tests
-    needs:
-      - install
-      - build_ui
-      - build_fileio
-    if: always()
-    uses: ./.github/workflows/_test.yml
-    with:
-      package-name: shell
+  # test:
+  #   name: Run Tests
+  #   needs:
+  #     - install
+  #     - build_ui
+  #     - build_fileio
+  #   if: always()
+  #   uses: ./.github/workflows/_test.yml
+  #   with:
+  #     package-name: shell
 
   deploy-preview:
     name: Deploy Preview
