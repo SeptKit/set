@@ -61,13 +61,13 @@ async function reloadPluginIfNeeded() {
 		//
 		// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object
 		const url = addCachBusterToURL(props.widget.startFnUrl)
-		loadAndStartPlugin(url)
+		loadAndStartExtension(url)
 	} catch (error) {
 		console.error('Failed to reload plugin:', error)
 	}
 }
 
-async function loadAndStartPlugin(startFnUrl: Optional<string>) {
+async function loadAndStartExtension(startFnUrl: Optional<string>) {
 	if (!startFnUrl) {
 		console.info({ msg: 'no startFnUrl yet' })
 		return

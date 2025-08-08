@@ -51,14 +51,14 @@ describe('NavBar', () => {
 		}
 		const tests: TestCase[] = [
 			{
-				desc: 'without clickin submenus are hidden',
+				desc: 'without clicking submenus are hidden',
 				items: [{ id: 'file.open', label: 'Open', path: ['File'], action: noop }],
 				clickOnLabels: [],
 				expectedVisibleLabels: ['File'],
 				expectedInvisibleLabel: ['Open'],
 			},
 			{
-				desc: 'if clicked on its parent sub menut items are revealed',
+				desc: 'if clicked on its parent sub menu items are revealed',
 				items: [{ id: 'file.open', label: 'Open', path: ['File'], action: noop }],
 				clickOnLabels: ['File'],
 				expectedVisibleLabels: ['File', 'Open'],
