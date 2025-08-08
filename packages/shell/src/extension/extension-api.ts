@@ -18,7 +18,7 @@ function createActiveFileNameStore() {
 	let listeners: Listener[] = []
 	let activeFileName: string | undefined
 
-	setTimeout(() => sendRandomFilenName(), 2_000)
+	setTimeout(() => sendRandomFileName(), 2_000)
 
 	return {
 		get value() {
@@ -34,11 +34,11 @@ function createActiveFileNameStore() {
 			listeners = listeners.filter((ln) => ln !== listener)
 		}
 	}
-	function sendRandomFilenName() {
+	function sendRandomFileName() {
 		for (const listener of listeners) {
 			listener(activeFileName ?? '' + Math.random(), activeFileName)
 		}
-		setTimeout(() => sendRandomFilenName(), 2_000)
+		setTimeout(() => sendRandomFileName(), 2_000)
 	}
 }
 

@@ -8,7 +8,7 @@ const testApi = {
 	},
 }
 
-test('renders the line "template"', async () => {
+test('renders the line "Structure"', async () => {
 	const screen = render(app, { props: { api: testApi } })
 
 	await expect.element(screen.getByText('Structure')).toBeVisible()

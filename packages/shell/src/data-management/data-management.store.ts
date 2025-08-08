@@ -2,9 +2,7 @@ import { defineStore } from 'pinia'
 // VUEUSE
 import { useFileDialog, useStorage, useObjectUrl } from '@vueuse/core'
 // FILEIO
-import { importXmlFiles, exportFile } from '@septkit/fileio'
-// FORMATTER
-import { formatXml } from './data-management.formatter'
+import { importXmlFiles, exportFile, formatXml } from '@septkit/fileio'
 
 export const useFileStore = defineStore('file', () => {
 	//====== STATE ======//
@@ -78,7 +76,7 @@ export const useFileStore = defineStore('file', () => {
 		}
 	}
 
-	async function importFile() {
+	async function importFiles() {
 		const { open, onChange } = useFileDialog({
 			accept: 'fsd',
 		})
@@ -103,6 +101,6 @@ export const useFileStore = defineStore('file', () => {
 		// actions
 		openFiles,
 		saveFile,
-		importFile,
+		importFiles,
 	}
 })

@@ -1,21 +1,7 @@
-# Extension Template
+# Structure Extension
 
-This is a template for making SET Extensions.
+SeptKit extension to manage structures in SCL
 
-# Starting the Template
+# Starting the Extension
 
 pnpm build:serve
-
-# Creating a new Extension
-
--Copy the `_template` folder
--Change `Structure` in following files:
-
-- app.vue
-- app.test.ts
-- package.json
-- index.html
-
--Register the new Extension in:
-
--main-area.vue -> dummyExtensionLocationList

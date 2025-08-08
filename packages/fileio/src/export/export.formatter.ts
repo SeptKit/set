@@ -1,10 +1,12 @@
 export function formatXml(xmlString: string) {
 	const PADDING = '  '
+	xmlString = xmlString.replace(/\r\n/g, '\n') // Normalize line endings
 	const reg = /(>)(<)(\/*)/g
-	let xml = xmlString.replace(reg, '$1\r\n$2$3')
+	let xml = xmlString.replace(reg, '$1\n$2$3')
+
 	let pad = 0
 	return xml
-		.split('\r\n')
+		.split('\n')
 		.map((node) => {
 			// Remove leading/trailing whitespace
 			node = node.trim()

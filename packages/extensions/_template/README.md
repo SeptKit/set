@@ -8,14 +8,14 @@ pnpm build:serve
 
 # Creating a new Extension
 
--Copy the `_template` folder
--Change `__Template__` in following files:
+- Copy the `_template` folder
+- Change `__Template__` in following files:
 
-- app.vue
-- app.test.ts
-- package.json
-- index.html
+  - app.vue
+  - app.test.ts
+  - package.json
+  - index.html
 
--Register the new Extension in:
+- Register the new Extension in:
 
--main-area.vue -> dummyExtensionLocationList
+- main-area.vue -> dummyExtensionLocationList
