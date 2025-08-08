@@ -133,9 +133,8 @@ jobs:
         run: pnpm build
 
       - name: Run shell tests
-        uses: ./.github/workflows/_test.yml
-        with:
-          package-name: shell
+        working-directory: packages/shell
+        run: pnpm test
 
       - name: Build app
         working-directory: ./packages/shell
