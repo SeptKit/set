@@ -22,13 +22,6 @@ jobs:
     with:
       package-name: shell
 
-  test:
-    name: Run Tests
-    needs: install
-    uses: ./.github/workflows/_test.yml
-    with:
-      package-name: shell
-
   lint:
     name: Lint Code
     needs: install
@@ -79,6 +72,17 @@ jobs:
     uses: ./.github/workflows/_build.yml
     with:
       package-name: ui
+
+  test:
+    name: Run Tests
+    needs:
+      - install
+      - build_ui
+      - build_fileio
+    if: always()
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: shell
 
   deploy-preview:
     name: Deploy Preview
