@@ -48,7 +48,10 @@ jobs:
 
   deploy-preview:
     name: Deploy Preview
-    needs: install
+    needs:
+      - install
+      - check-fileio
+      - check-ui
     runs-on: ubuntu-latest
     permissions:
       contents: write
