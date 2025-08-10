@@ -84,6 +84,8 @@ jobs:
         working-directory: packages/ui
         if: ${{ inputs.package-name == 'shell' }} && needs.check-ui.outputs.npm_version_exists == 'false'
         run: |
+          echo ${{ inputs.package-name == 'shell' }}
+          echo ${{ needs.check-ui.outputs.npm_version_exists }}
           VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
