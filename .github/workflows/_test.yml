@@ -30,6 +30,7 @@ jobs:
     needs:
       - check-fileio
       - check-ui
+    if: always()
     steps:
       - name: Checkout
         uses: actions/checkout@v4
