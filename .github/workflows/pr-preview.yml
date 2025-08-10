@@ -16,62 +16,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check_fileio:
-    name: Check if fileio version exists in npm registry
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
-    with:
-      package-name: fileio
-
-  # install_fileio_dependencies:
-  #   name: Install fileio dependencies
-  #   needs: check_fileio
-  #   if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
-  #   uses: ./.github/workflows/_install.yml
-  #   with:
-  #     package-name: fileio
-
-  # build_fileio:
-  #   name: Build fileio dependency
-  #   needs: install
-  #   if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - uses: pnpm/action-setup@v4
-  #       name: Install pnpm
-  #       with:
-  #         version: 10.10.0
-  #         run_install: false
-
-  #     - name: Build dependencies
-  #       run: pnpm build --filter=./packages/fileio
-
-  check_ui:
-    name: Check if ui version exists in npm registry
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
-    with:
-      package-name: ui
-
-  # install_ui_dependencies:
-  #   name: Install ui dependencies
-  #   needs: check_ui
-  #   if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the install if the PR has been closed or if version already exists in npm registry
-  #   uses: ./.github/workflows/_install.yml
-  #   with:
-  #     package-name: ui
-
-  # build_ui:
-  #   name: Build ui dependency
-  #   needs: install
-  #   if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-  #   uses: ./.github/workflows/_build.yml
-  #   with:
-  #     package-name: ui
-
   install:
     name: Install Dependencies
-    uses: ./.github/workflows/_install.yml
+    uses: ./.github/workflows/_install-shell.yml
+    with:
+      package-name: shell
+
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
     with:
       package-name: shell
 
@@ -82,23 +36,9 @@ jobs:
     with:
       package-name: shell
 
-  # test:
-  #   name: Run Tests
-  #   needs:
-  #     - install
-  #     - build_ui
-  #     - build_fileio
-  #   if: always()
-  #   uses: ./.github/workflows/_test.yml
-  #   with:
-  #     package-name: shell
-
   deploy-preview:
     name: Deploy Preview
-    needs:
-      - install
-      - check_fileio
-      - check_ui
+    needs: install
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -115,26 +55,11 @@ jobs:
           version: 10.10.0
           run_install: false
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Build fileio dependency
-        if: github.event.action != 'closed' && needs.check_fileio.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-        working-directory: packages/fileio
-        run: pnpm build
-
-      - name: Build ui dependency
-        if: github.event.action != 'closed' && needs.check_ui.outputs.npm_version_exists == 'false' # Skip the build if the PR has been closed or if version already exists in npm registry
-        working-directory: packages/ui
-        run: pnpm build
-
-      - name: Install Playwright
-        working-directory: packages/shell
-        run: npx playwright install chromium --with-deps
-
-      - name: Run shell tests
-        working-directory: packages/shell
-        run: pnpm test
+      - name: Restore node_modules cache
+        uses: actions/cache@v3
+        with:
+          path: packages/shell/node_modules
+          key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
 
       - name: Build app
         working-directory: ./packages/shell
