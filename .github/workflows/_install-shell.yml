@@ -124,7 +124,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --filter=./packages/shell
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
 
       - name: Get Playwright Version
         id: playwright-version
