@@ -35,10 +35,6 @@ jobs:
           path: packages/${{inputs.package-name}}/node_modules
           key: ${{ runner.os }}-node-modules-${{ inputs.package-name }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}
 
-      - name: Build
-        working-directory: packages/${{ inputs.package-name }}
-        run: pnpm build
-
       - name: Extract Version
         id: version
         working-directory: packages/${{ inputs.package-name }}
@@ -46,9 +42,14 @@ jobs:
           VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Cache build output
+      - name: Setup build output cache
         id: cache-build-output
         uses: actions/cache@v3
         with:
           path: packages/${{inputs.package-name}}/dist
-          key: ${{ runner.os }}-build-output-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml',inputs.package-name) ) }}-${{ steps.version.outputs.version }}
+          key: ${{ runner.os }}-build-output-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml' '**/packages/{0}/src/**', '**/packages/{0}/package.json', inputs.package-name) ) }}-${{ steps.version.outputs.version }}
+
+      - name: Build
+        working-directory: packages/${{ inputs.package-name }}
+        run: pnpm build
+        if: steps.cache-build-output.outputs.cache-hit != 'true'
