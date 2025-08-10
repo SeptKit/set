@@ -19,8 +19,6 @@ jobs:
   install:
     name: Install Dependencies
     uses: ./.github/workflows/_install-shell.yml
-    with:
-      package-name: shell
 
   test:
     name: Run Tests
