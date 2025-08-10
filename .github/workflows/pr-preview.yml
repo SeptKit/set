@@ -34,6 +34,18 @@ jobs:
     with:
       package-name: shell
 
+  check-fileio:
+    name: Check if fileio version exists in npm registry
+    uses: ./.github/workflows/_check-if-npm-version-exists.yml
+    with:
+      package-name: fileio
+
+  check-ui:
+    name: Check if ui version exists in npm registry
+    uses: ./.github/workflows/_check-if-npm-version-exists.yml
+    with:
+      package-name: ui
+
   deploy-preview:
     name: Deploy Preview
     needs: install
@@ -58,6 +70,44 @@ jobs:
         with:
           path: packages/shell/node_modules
           key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
+
+      - name: Extract fileio version
+        id: fileio-version
+        working-directory: packages/fileio
+        if: needs.check-fileio.outputs.npm_version_exists == 'false'
+        run: |
+          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore fileio build output cache
+        uses: actions/cache@v3
+        if: needs.check-fileio.outputs.npm_version_exists == 'false'
+        with:
+          path: 'packages/fileio/dist'
+          key: ${{ runner.os }}-build-output-${{ hashFiles( '**/packages/fileio/pnpm-lock.yaml', '**/packages/fileio/src/**', '**/packages/fileio/package.json' ) }}-${{ steps.fileio-version.outputs.version }}
+
+      - name: Verify fileio build output exists
+        if: needs.check-fileio.outputs.npm_version_exists == 'false'
+        run: ls -la 'packages/fileio/dist'
+
+      - name: Extract ui version
+        id: ui-version
+        working-directory: packages/ui
+        if: needs.check-ui.outputs.npm_version_exists == 'false'
+        run: |
+          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore ui build output cache
+        uses: actions/cache@v3
+        if: needs.check-ui.outputs.npm_version_exists == 'false'
+        with:
+          path: 'packages/ui/dist'
+          key: ${{ runner.os }}-build-output-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
+
+      - name: Verify ui build output exists
+        if: needs.check-ui.outputs.npm_version_exists == 'false'
+        run: ls -la 'packages/ui/dist'
 
       - name: Build app
         working-directory: ./packages/shell

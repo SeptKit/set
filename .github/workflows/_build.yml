@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: packages/${{inputs.package-name}}/dist
-          key: ${{ runner.os }}-build-output-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml', inputs.package-name), format('**/packages/{0}/src/**', inputs.package-name), format('**/packages/{0}/package.json', inputs.package-name) ) }}-${{ steps.version.outputs.version }}
+          key: ${{ runner.os }}-build-output-${{ inputs.package-name }}-${{ hashFiles( format('**/packages/{0}/pnpm-lock.yaml', inputs.package-name), format('**/packages/{0}/src/**', inputs.package-name), format('**/packages/{0}/package.json', inputs.package-name) ) }}-${{ steps.version.outputs.version }}
 
       - name: Build
         working-directory: packages/${{ inputs.package-name }}
