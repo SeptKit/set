@@ -62,6 +62,7 @@ jobs:
       - build-fileio
       - check-ui
       - build-ui
+    if: always()
 
     outputs:
       cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
