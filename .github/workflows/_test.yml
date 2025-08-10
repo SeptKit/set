@@ -82,22 +82,20 @@ jobs:
       - name: Extract ui version
         id: ui-version
         working-directory: packages/ui
-        if: ${{ inputs.package-name == 'shell' }} && needs.check-ui.outputs.npm_version_exists == 'false'
+        if: ${{ (inputs.package-name == 'shell') && (needs.check-ui.outputs.npm_version_exists == 'false') }}
         run: |
-          echo ${{ inputs.package-name == 'shell' }}
-          echo ${{ needs.check-ui.outputs.npm_version_exists }}
           VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Restore ui build output cache
         uses: actions/cache@v3
-        if: ${{ inputs.package-name == 'shell' }} && needs.check-ui.outputs.npm_version_exists == 'false'
+        if: ${{ inputs.package-name == 'shell' }} && needs.check-ui.outputs.npm_version_exists == false
         with:
           path: 'packages/ui/dist'
           key: ${{ runner.os }}-build-output-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
 
       - name: Verify ui build output exists
-        if: ${{ inputs.package-name == 'shell' }} && needs.check-ui.outputs.npm_version_exists == 'false'
+        if: inputs.package-name == 'shell' && needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
 
       - name: Run Tests
