@@ -29,6 +29,8 @@ jobs:
           PKG_NAME=$(node -p "require('./package.json').name")
           if npm view "$PKG_NAME@$VERSION" version > /dev/null 2>&1; then
             echo "npm_version_exists=true" >> $GITHUB_OUTPUT
+            echo "npm_version_exists=true"
           else
             echo "npm_version_exists=false" >> $GITHUB_OUTPUT
+            echo "npm_version_exists=false"
           fi
