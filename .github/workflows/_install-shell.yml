@@ -84,6 +84,7 @@ jobs:
           path: packages/shell/node_modules
           key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
 
+      # TODO: Extract the restore build output part into a separate custom action
       - name: Extract fileio version
         id: fileio-version
         working-directory: packages/fileio

@@ -34,6 +34,7 @@ jobs:
     with:
       package-name: shell
 
+  # TODO: Extract these checks together with the restore build output part below into a separate custom action
   check-fileio:
     name: Check if fileio version exists in npm registry
     uses: ./.github/workflows/_check-if-npm-version-exists.yml
@@ -74,6 +75,7 @@ jobs:
           path: packages/shell/node_modules
           key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
 
+      # TODO: Extract the restore build output part into a separate custom action
       - name: Extract fileio version
         id: fileio-version
         working-directory: packages/fileio
