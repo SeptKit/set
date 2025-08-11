@@ -11,9 +11,7 @@ on:
 jobs:
   install:
     name: Install Dependencies
-    uses: ./.github/workflows/_install.yml
-    with:
-      package-name: shell
+    uses: ./.github/workflows/_install-shell.yml
 
   build:
     name: Build Project

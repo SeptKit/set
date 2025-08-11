@@ -47,8 +47,7 @@
 		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install"
 	},
 	"dependencies": {
-		"@septkit/fileio": "0.0.1",
-		"@septkit/ui": "0.0.1",
+		"@septkit/ui": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
 		"@vueuse/core": "^13.5.0",
 		"dexie": "^4.0.11",
