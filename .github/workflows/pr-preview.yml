@@ -89,7 +89,7 @@ jobs:
         if: needs.check-fileio.outputs.npm_version_exists == 'false'
         with:
           path: 'packages/fileio/dist'
-          key: ${{ runner.os }}-build-output-${{ hashFiles( '**/packages/fileio/pnpm-lock.yaml', '**/packages/fileio/src/**', '**/packages/fileio/package.json' ) }}-${{ steps.fileio-version.outputs.version }}
+          key: ${{ runner.os }}-build-output-fileio-${{ hashFiles( '**/packages/fileio/pnpm-lock.yaml', '**/packages/fileio/src/**', '**/packages/fileio/package.json' ) }}-${{ steps.fileio-version.outputs.version }}
 
       - name: Verify fileio build output exists
         if: needs.check-fileio.outputs.npm_version_exists == 'false'
@@ -108,7 +108,7 @@ jobs:
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         with:
           path: 'packages/ui/dist'
-          key: ${{ runner.os }}-build-output-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
+          key: ${{ runner.os }}-build-output-ui-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
 
       - name: Verify ui build output exists
         if: needs.check-ui.outputs.npm_version_exists == 'false'
