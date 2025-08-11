@@ -35,7 +35,7 @@
 		"install:browser": "pnpm exec playwright install chromium"
 	},
 	"dependencies": {
-		"@septkit/ui": "0.0.3",
+		"@septkit/ui": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
