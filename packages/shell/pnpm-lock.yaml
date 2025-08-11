@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@septkit/fileio':
-        specifier: 0.0.1
-        version: 0.0.1(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)
+        specifier: 0.0.2
+        version: 0.0.2(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)
       '@septkit/ui':
         specifier: 0.0.4
         version: 0.0.4(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.4(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1))
@@ -673,8 +673,8 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
-  '@septkit/fileio@0.0.1':
-    resolution: {integrity: sha512-HNIferrMeJvpUf5EpsklKVJqHLjCorD8Ve9K53azp3fA1E1uQQrN4/aclktQKyEPyWvXzMrOIzFjIq492a0ufg==}
+  '@septkit/fileio@0.0.2':
+    resolution: {integrity: sha512-KCRgslRVdvfvDt3MIhxoagVQIH7ntWRmVNmAR1xxMZjW5SH12lkGorO51nRKfviJ+ziGwWcraz6PAc+GUTVliQ==}
 
   '@septkit/ui@0.0.4':
     resolution: {integrity: sha512-AlnR+leZAiTiMkHERDxMaVoCSPhxh/4tb8xVTPVHQepTKX3zRUhtsA4ceLCUqiA/oWxcu8gFhBOZoNQPKn+diQ==}
@@ -2948,7 +2948,7 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@septkit/fileio@0.0.1(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)':
+  '@septkit/fileio@0.0.2(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)':
     dependencies:
       dexie: 4.0.11
       sax: 1.4.1
