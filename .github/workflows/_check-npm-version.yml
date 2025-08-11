@@ -1,4 +1,4 @@
-name: _check-version
+name: _check-npm-version
 
 on:
   workflow_call:

@@ -1,14 +1,14 @@
 # SET Monorepo
 
-This repository is the monorepo for the **SET project**. It contains all core applications, shared libraries, plugins, business logic, and documentation for the project.
+This repository is the monorepo for the **SET project**. It contains all core applications, shared libraries, extensions, business logic, and documentation for the project.
 
 ## Monorepo Structure
 
-- **shell/**: The main application shell. This is the entry point for the user interface and orchestrates the integration of plugins and UI components.
+- **shell/**: The main application shell. This is the entry point for the user interface and orchestrates the integration of extensions and UI components.
 - **ui/**: Shared UI component library. Contains reusable Vue 3 components, styles, and design tokens used across the project.
-- **plugins/**: Collection of plugins that extend the shell's functionality. Each plugin is isolated and can be developed and maintained independently.
+- **extensions/**: Collection of extensions that extend the shell's functionality. Each extension is isolated and can be developed and maintained independently.
 - **fileio/**: Handles file import features and provides utilities for translating XML data to IndexedDB storage.
-- **scdlsdk/**: Business logic packages. These modules manage the interaction between plugins and the database, encapsulating core domain logic.
+- **scdlsdk/**: Business logic packages. These modules manage the interaction between extensions and the database, encapsulating core domain logic.
 - **doc/**: Contains architectural decision records (ADR), SCL structure files, and other project documentation.
 
 ## Root Scripts
