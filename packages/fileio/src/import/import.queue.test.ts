@@ -19,13 +19,13 @@ describe('Async Queue', () => {
 				batchSize: 4,
 			},
 			{
-				desc: 'pushing less items then the batch size',
+				desc: 'pushing less items than the batch size',
 				itemsToPush: ['A', 'B', 'C', 'D'],
 				itemsToExpect: ['A', 'B', 'C', 'D'],
 				batchSize: 5,
 			},
 			{
-				desc: 'pushing more items then the batch size',
+				desc: 'pushing more items than the batch size',
 				itemsToPush: ['A', 'B', 'C', 'D'],
 				itemsToExpect: ['A', 'B', 'C', 'D'],
 				batchSize: 2,
