@@ -129,7 +129,7 @@ function openDropdown() {
 }
 
 // We use a more explicit way of toggling the
-// `isOpen` value to minizmie the places where change happens to it
+// `isOpen` value to minimize the places where change happens to it
 // this is needed to make sure we emit the right open and close events
 function toggleDropdown() {
 	if (!isOpen.value) {

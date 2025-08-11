@@ -12,14 +12,14 @@ export const useExtensionStore = defineStore('extension', () => {
 		setExtensions,
 		activeExtensionId,
 		setActiveExtension,
-		clearActivePluginSrc,
+		clearActiveExtension,
 	}
 
 	function setActiveExtension(id: string) {
 		activeExtensionId.value = id
 	}
 
-	function clearActivePluginSrc() {
+	function clearActiveExtension() {
 		activeExtensionId.value = null
 	}
 
