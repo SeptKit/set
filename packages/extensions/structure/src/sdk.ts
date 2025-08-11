@@ -43,7 +43,7 @@ export function useSDK(db: Dexie) {
 
 	async function ensureRelationship(parent: DatabaseRecord, child: DatabaseRecord) {
 		const parentHasChild = parent.children?.some(
-			(c) => c.id === child.id && c.tagName === c.tagName,
+			(c) => c.id === child.id && c.tagName === child.tagName,
 		)
 		const childHasParent =
 			child.parent?.id === parent.id && child.parent?.tagName === parent.tagName
@@ -92,9 +92,9 @@ export function useSDK(db: Dexie) {
 		const newUuid = crypto.randomUUID()
 		const uuidAttrIndex = record.attributes.findIndex((atr) => atr.name === 'uuid')
 
-		const hasUuid = uuidAttrIndex < 0
+		const hasUuid = uuidAttrIndex >= 0
 
-		if (!hasUuid) {
+		if (hasUuid) {
 			record.attributes[uuidAttrIndex].value = newUuid
 		} else {
 			record.attributes.push({ name: 'uuid', value: newUuid })
@@ -133,12 +133,17 @@ export async function findRecordByAttribute(
 	tagName: string,
 	attr: Attribute,
 ): Promise<DatabaseRecord | undefined> {
-	const wantedRecord = await db
-		.table<DatabaseRecord>(tagName)
-		.filter((record) =>
-			Boolean(record.attributes?.some((a) => a.name === attr.name && a.value === attr.value)),
-		)
-		.first()
+	try {
+		const wantedRecord = await db
+			.table<DatabaseRecord>(tagName)
+			.filter((record) =>
+				Boolean(record.attributes?.some((a) => a.name === attr.name && a.value === attr.value)),
+			)
+			.first()
+		return wantedRecord
+	} catch (err) {
+		console.error({ msg: 'could not find record by attribute', tagName, attr, err })
+	}
 
-	return wantedRecord
+	return undefined
 }
