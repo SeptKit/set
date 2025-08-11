@@ -16,16 +16,11 @@
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
 		"format": "prettier --write src/ e2e/",
 		"format:check": "prettier --check src/ e2e/",
-		"install:browser": "pnpm exec playwright install chromium",
-		"link:ui": "rm -rf ./node_modules/@septkit/ui && ln -s ../../../ui ./node_modules/@septkit/ui",
-		"link:ui:restore": "rm -rf ./node_modules/@septkit/ui && pnpm install",
-		"link:fileio": "rm -rf ./node_modules/@septkit/fileio && ln -s ../../../fileio ./node_modules/@septkit/fileio",
-		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install",
-		"link:restore": "rm -rf ./node_modules/@septkit && pnpm install"
+		"install:browser": "pnpm exec playwright install chromium"
 	},
 	"dependencies": {
-		"@septkit/fileio": "0.0.2",
-		"@septkit/ui": "0.0.3",
+		"@septkit/fileio": "catalog:",
+		"@septkit/ui": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
 		"@vueuse/core": "^13.5.0",
 		"pinia": "^3.0.3",

@@ -1,43 +1,33 @@
-name: Deploy PR preview
-
+name: _install
 on:
-  workflow_dispatch:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
-    paths:
-      - 'packages/shell/**'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
+    outputs:
+      cache-key:
+        description: 'Cache key for shell node_modules'
+        value: ${{ jobs.cache-and-install-shell.outputs.cache-key }}
 
 jobs:
-  install:
-    name: Install Dependencies
-    uses: ./.github/workflows/_install-shell.yml
-
-  test:
-    name: Run Tests
-    needs: install
-    uses: ./.github/workflows/_test.yml
-    with:
-      package-name: shell
-
-  lint:
-    name: Lint Code
-    needs: install
-    uses: ./.github/workflows/_lint.yml
-    with:
-      package-name: shell
-
-  # TODO: Extract these checks together with the restore build output part below into a separate custom action
   check-fileio:
     name: Check if fileio version exists in npm registry
     uses: ./.github/workflows/_check-if-npm-version-exists.yml
+    with:
+      package-name: fileio
+
+  install-fileio-dependencies:
+    name: Install fileio dependencies
+    needs: check-fileio
+    if: needs.check-fileio.outputs.npm_version_exists == 'false'
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: fileio
+
+  build-fileio:
+    name: Build fileio
+    needs:
+      - check-fileio
+      - install-fileio-dependencies
+    if: needs.check-fileio.outputs.npm_version_exists == 'false'
+    uses: ./.github/workflows/_build.yml
     with:
       package-name: fileio
 
@@ -47,29 +37,48 @@ jobs:
     with:
       package-name: ui
 
-  deploy-preview:
-    name: Deploy Preview
+  install-ui-dependencies:
+    name: Install ui dependencies
+    needs: check-ui
+    if: needs.check-ui.outputs.npm_version_exists == 'false'
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: ui
+
+  build-ui:
+    name: Build ui
     needs:
-      - install
-      - check-fileio
       - check-ui
+      - install-ui-dependencies
+    if: needs.check-ui.outputs.npm_version_exists == 'false'
+    uses: ./.github/workflows/_build.yml
+    with:
+      package-name: ui
+
+  cache-and-install-shell:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-      pull-requests: write
+    needs:
+      - check-fileio
+      - build-fileio
+      - check-ui
+      - build-ui
+    if: always()
+
+    outputs:
+      cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
           version: 10.10.0
           run_install: false
 
-      - name: Restore node_modules cache
+      - name: Setup node_modules Cache
+        id: cache-node-modules
         uses: actions/cache@v3
         with:
           path: packages/shell/node_modules
@@ -114,21 +123,23 @@ jobs:
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
 
-      - name: Build app
-        working-directory: ./packages/shell
-        if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
-        run: pnpm build --base=/pr-preview/pr-${{ github.event.number }}
+      - name: Install dependencies
+        run: pnpm install --filter=./packages/shell --ignore-scripts
+        if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
 
-      - name: Deploy shell as preview
-        uses: rossjrw/pr-preview-action@v1
-        id: preview-step
+      - name: Get Playwright Version
+        id: playwright-version
+        working-directory: packages/shell
+        run: echo "playwright_version=$(node -e "console.log(require('./package.json').devDependencies['playwright'])")" >>  $GITHUB_OUTPUT
+
+      - name: Setup Playwright Cache
+        uses: actions/cache@v3
+        id: cache-playwright
         with:
-          source-dir: packages/shell/dist
-          deploy-repository: 'SeptKit/septkit.github.io'
-          pages-base-url: 'septkit.github.io'
-          token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}
-          umbrella-dir: pr-preview
-          preview-branch: main
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.playwright_version }}
 
-      - if: steps.preview-step.outputs.deployment-action == 'deploy'
-        run: echo "Preview visible at ${{ steps.preview-step.outputs.preview-url }}"
+      - name: Install Playwright
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        working-directory: packages/shell
+        run: npx playwright install chromium --with-deps
