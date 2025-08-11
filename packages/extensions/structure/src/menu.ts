@@ -31,9 +31,9 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 	//
 	// Instansiate Functions
 	//
-	const functionToInstantiate = await fsdDB.table<DatabaseRecord>('Function').toArray()
+	const functionsToInstantiate = await fsdDB.table<DatabaseRecord>('Function').toArray()
 
-	for (const func of functionToInstantiate) {
+	for (const func of functionsToInstantiate) {
 		const path = await extractElementPathTilSCLRoot(fsdDB, func)
 
 		//
@@ -92,17 +92,13 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 async function ensureRecordByAttribute(
 	targetDB: Dexie,
 	record: DatabaseRecord,
-	sourceAttributeName: string,
-	targetAttributeName?: string,
+	attributeName: string,
 ): Promise<DatabaseRecord> {
-	let _targetAttributeName = targetAttributeName ?? sourceAttributeName
-
-	const attr = extractAttr(record, 'name')
+	const attr = extractAttr(record, attributeName)
 	if (!attr) {
 		console.error('could not find name of record', record)
 		throw new Error('could not find name of record')
 	}
-	attr.name = _targetAttributeName
 
 	const element = await findRecordByAttribute(targetDB, record.tagName, attr)
 
@@ -118,9 +114,14 @@ function isOf(record: DatabaseRecord, tagNames: string[]) {
 }
 
 async function findRootSCL(db: Dexie): Promise<DatabaseRecord> {
-	const scls = (await db.table('SCL').toArray()) as DatabaseRecord[]
-	if (scls.length === 0) throw new Error('no root scl found')
-	const firstSCL = scls[0]
+	const nrOfSCLs = await db.table<DatabaseRecord>('SCL').count()
+	if (nrOfSCLs === 0) throw new Error('there is no SCL element')
+	if (nrOfSCLs > 1) throw new Error('there are multiple SCL elements; there can be only one')
+
+	const sclElement = await db.table<DatabaseRecord>('SCL').orderBy('id').first()
+	if (!sclElement) throw new Error('no root scl found')
+
+	const firstSCL = sclElement
 
 	return firstSCL
 }
