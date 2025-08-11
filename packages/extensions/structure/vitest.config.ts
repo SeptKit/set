@@ -15,7 +15,7 @@ export default mergeConfig(
 			projects: [
 				{
 					resolve: viteConfig.resolve,
-					plugins: [vue(), tailwindcss()], //neccessary for vue files: github.com/vitest-dev/vitest/issues/6293
+					plugins: [vue(), tailwindcss()], //necessary for vue files: github.com/vitest-dev/vitest/issues/6293
 					test: {
 						name: 'unit',
 						browser: {

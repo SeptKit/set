@@ -3,15 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, type ComputedRef, type Ref } from 'vue'
 import { useMenuContributionsStore } from '../extension/extension-store'
-import { useMenuStore } from './menu.store'
 import type { ActionFn, NavBarItem } from './navbar/navbar-item'
 import Navbar from './navbar/navbar.vue'
 import { useFileStore } from '@/data-management/data-management.store'
 import type { MenuContribution } from '../extension/extension'
 import { storeToRefs } from 'pinia'
-import { type AsyncComputedOptions, computedAsync } from '@vueuse/core'
+import { computedAsync } from '@vueuse/core'
 
 const fileStore = useFileStore()
 // const menuStore = useMenuStore()
