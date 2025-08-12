@@ -79,11 +79,6 @@ jobs:
           sed -i 's/linkWorkspacePackages: true/linkWorkspacePackages: false/' pnpm-workspace.yaml
           cat pnpm-workspace.yaml
 
-      - name: Remove fileio from workspace from pnpm-workspace.yaml
-        run: |
-          sed -i '/- "packages\/fileio"/d' pnpm-workspace.yaml
-          cat pnpm-workspace.yaml
-
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -154,8 +149,8 @@ jobs:
       - name: Verify ui dist exist in node_modules
         run: ls -la 'packages/shell/node_modules/@septkit/ui/dist'
 
-      # - name: Verify fileio build output exists
-      #   run: ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
+      - name: Verify fileio build output exists
+        run: ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
 
       - name: Get Playwright Version
         id: playwright-version
