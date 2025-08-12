@@ -51,7 +51,7 @@ nav {
 import { computed, ref, type ComputedRef } from 'vue'
 import { Dropdown } from '@septkit/ui'
 import type { NavBarItem } from './navbar-item'
-import ActiveSCLfileInfo from './active-SCL-file-info.vue'
+import ActiveSCLfileInfo from './active-scl-file-info.vue'
 
 const dropdowns = ref<(typeof Dropdown)[]>([])
 
