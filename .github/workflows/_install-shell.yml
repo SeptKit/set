@@ -123,6 +123,11 @@ jobs:
           echo "Deleting ui folder to enforce fetching from npm registry"
           rm -rf packages/ui
 
+      - name: Print packages directory
+        if: needs.check-ui.outputs.npm_version_exists == 'true'
+        run: |
+          ls -la 'packages'
+
       - name: Extract ui version
         id: ui-version
         working-directory: packages/ui
