@@ -11,11 +11,14 @@
 		<dataflowNode type="receiver" />
 	</div>
 
+	<DataFlowCreation />
+
 	<!-- "Plus-button" component with modal for new conncetion here? -->
 </template>
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
+import DataFlowCreation from './dataflow-creation.vue'
 
 const props = defineProps<{
 	api: { [key: string]: any }
