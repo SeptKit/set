@@ -6,9 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@septkit/fileio':
-      specifier: 0.0.2
-      version: 0.0.2
     '@septkit/ui':
       specifier: 0.0.3
       version: 0.0.3
@@ -18,7 +15,7 @@ importers:
   .:
     dependencies:
       '@septkit/fileio':
-        specifier: 'catalog:'
+        specifier: 0.0.2
         version: link:../fileio
       '@septkit/ui':
         specifier: 'catalog:'
