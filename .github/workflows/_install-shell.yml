@@ -79,11 +79,19 @@ jobs:
           sed -i 's/linkWorkspacePackages: true/linkWorkspacePackages: false/' pnpm-workspace.yaml
           cat pnpm-workspace.yaml
 
+      - name: Remove fileio from workspace from pnpm-workspace.yaml
+        run: |
+          sed -i '/- "packages\/fileio"/d' pnpm-workspace.yaml
+          cat pnpm-workspace.yaml
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 10.10.0
           run_install: false
+
+      - name: Get linkWorkspacePackages setting
+        run: echo "linkWorkspacePackages=$(pnpm config get linkWorkspacePackages)"
 
       - name: Setup node_modules Cache
         id: cache-node-modules
