@@ -74,16 +74,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Disable pnpm linkWorkspacePackages
+        run: |
+          sed -i 's/linkWorkspacePackages: true/linkWorkspacePackages: false/' pnpm-workspace.yaml
+          cat pnpm-workspace.yaml
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 10.10.0
           run_install: false
-
-      - name: Disable pnpm linkWorkspacePackages
-        run: |
-          sed -i 's/linkWorkspacePackages: true/linkWorkspacePackages: false/' pnpm-workspace.yaml
-          cat pnpm-workspace.yaml
 
       - name: Setup node_modules Cache
         id: cache-node-modules
