@@ -13,24 +13,6 @@ jobs:
     with:
       package-name: fileio
 
-  delete-fileio:
-    name: Delete fileio folder if version exists to enforce fetching from npm registry
-    runs-on: ubuntu-latest
-    needs:
-      - check-fileio
-    permissions:
-      contents: write
-    if: needs.check-fileio.outputs.npm_version_exists == 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Delete fileio folder
-        run: |
-          echo "Fileio version exists in npm registry"
-          echo "Deleting fileio folder to enforce fetching from npm registry"
-          rm -rf packages/fileio
-
   install-fileio-dependencies:
     name: Install fileio dependencies
     needs: check-fileio
@@ -54,24 +36,6 @@ jobs:
     uses: ./.github/workflows/_check-if-npm-version-exists.yml
     with:
       package-name: ui
-
-  delete-ui:
-    name: Delete ui folder if version exists to enforce fetching from npm registry
-    runs-on: ubuntu-latest
-    needs:
-      - check-ui
-    permissions:
-      contents: write
-    if: needs.check-ui.outputs.npm_version_exists == 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Delete ui folder
-        run: |
-          echo "ui version exists in npm registry"
-          echo "Deleting ui folder to enforce fetching from npm registry"
-          rm -rf packages/ui
 
   install-ui-dependencies:
     name: Install ui dependencies
@@ -100,6 +64,9 @@ jobs:
       - build-ui
     if: always()
 
+    permissions:
+      contents: write
+
     outputs:
       cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
 
@@ -120,6 +87,14 @@ jobs:
           path: packages/shell/node_modules
           key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
 
+      # hacky way to enforce fetching from npm registry if fileio version exists in npm registry
+      - name: Delete fileio folder
+        if: needs.check-fileio.outputs.npm_version_exists == 'true'
+        run: |
+          echo "Fileio version exists in npm registry"
+          echo "Deleting fileio folder to enforce fetching from npm registry"
+          rm -rf packages/fileio
+
       # TODO: Extract the restore build output part into a separate custom action
       - name: Extract fileio version
         id: fileio-version
@@ -139,6 +114,14 @@ jobs:
       - name: Verify fileio build output exists
         if: needs.check-fileio.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/fileio/dist'
+
+      # hacky way to enforce fetching from npm registry if ui version exists in npm registry
+      - name: Delete ui folder
+        if: needs.check-ui.outputs.npm_version_exists == 'true'
+        run: |
+          echo "ui version exists in npm registry"
+          echo "Deleting ui folder to enforce fetching from npm registry"
+          rm -rf packages/ui
 
       - name: Extract ui version
         id: ui-version
