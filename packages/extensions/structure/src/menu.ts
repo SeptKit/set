@@ -28,65 +28,140 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 	await fsdDB.open()
 	const fsdSDK = useSDK(fsdDB)
 
-	//
-	// Instansiate Functions
-	//
-	const functionsToInstantiate = await fsdDB.table<DatabaseRecord>('Function').toArray()
+	await instantiateFunctions()
+	await transferDataTypeTemplates()
 
-	for (const func of functionsToInstantiate) {
-		const path = await extractElementPathTilSCLRoot(fsdDB, func)
+	// TODO: changes: UUID->TemplateUUID; UUI->New, Path->Recalculate, Add fsdReference
+	// TODO: Move + Merge Function Category
+	fsdDB.close()
+	asdDB.close()
 
-		//
-		// Ensure Parents exists in ASD
-		//
-		const newParentPath: DatabaseRecord[] = []
-		// Note: could run parallel
-		// Making sure every element exists in the other file
-		for (const record of path) {
-			if (isOf(record, ['Substation', 'VoltageLevel', 'Bay'])) {
-				const newParent = await ensureRecordByAttribute(asdDB, record, 'name')
-				newParentPath.push(newParent)
+	async function instantiateFunctions() {
+		const functionsToInstantiate = await fsdDB.table<DatabaseRecord>('Function').toArray()
+
+		for (const func of functionsToInstantiate) {
+			const path = await extractElementPathTilSCLRoot(fsdDB, func)
+
+			//
+			// Ensure Parents exists in ASD
+			//
+			const newParentPath: DatabaseRecord[] = []
+			// Note: could run parallel
+			// Making sure every element exists in the other file
+			for (const record of path) {
+				if (isOf(record, ['Substation', 'VoltageLevel', 'Bay'])) {
+					const newParent = await ensureRecordByAttribute(asdDB, record, 'name')
+					newParentPath.push(newParent)
+				}
 			}
-		}
 
-		//
-		// Instantiate and add Function to ASD
-		//
-		fsdSDK.templateify(func)
-		const newFunc = await asdSDK.addRecord(func)
+			//
+			// Instantiate and add Function to ASD
+			//
+			fsdSDK.templateify(func)
+			const funcInASD = await asdSDK.addRecord(func)
 
-		//
-		// Setup relationships in the full path
-		//
-		const fullPath = [newFunc, ...newParentPath]
-		for (let i = 0; i < fullPath.length; i++) {
-			const child = fullPath[i]
-			const parent = fullPath[i + 1]
-			if (parent) {
-				await asdSDK.ensureRelationship(parent, child)
+			//
+			// Transfer children
+			//
+			const childrenInFSD = await fsdSDK.findChildRecrods(func)
+			for (const childInFSD of childrenInFSD) {
+				const childInASD = await transferFromFSDToASDWithChildrenRecursively(childInFSD)
+				asdSDK.ensureRelationship(funcInASD, childInASD)
 			}
-		}
 
-		//
-		// Connect tha last parent to the SCL Root
-		//
-		const rootSCL = await findRootSCL(asdDB)
-		const lastItem = fullPath.at(-1)
-		if (rootSCL && lastItem) {
-			await asdSDK.ensureRelationship(rootSCL, lastItem)
+			//
+			// Setup relationships in the full path
+			//
+			const fullPath = [funcInASD, ...newParentPath]
+			for (let i = 0; i < fullPath.length; i++) {
+				const child = fullPath[i]
+				const parent = fullPath[i + 1]
+				if (parent) {
+					await asdSDK.ensureRelationship(parent, child)
+				}
+			}
+
+			//
+			// Connect tha last parent to the SCL Root
+			//
+			const rootSCL = await asdSDK.findRootSCL()
+			const lastItem = fullPath.at(-1)
+			if (rootSCL && lastItem) {
+				await asdSDK.ensureRelationship(rootSCL, lastItem)
+			}
 		}
 	}
 
-	// TODO: Move children
-	// for (const func of functionToInstantiate) {
-	// 	const childRecords = await fsdSDK.findChildRecrods(func)
-	// 	console.debug({ level: 'debug', msg: 'finding children', childRecords })
-	// }
-	// TODO: changes: UUID->TemplateUUID; UUI->New, Path->Recalculate, Add fsdReference
-	// TODO: Move + Merge Function Category
-	// TODO: Move DatatypeTemplates
-	fsdDB.close()
-	asdDB.close()
+	async function transferDataTypeTemplates() {
+		// Note: there should be only one `DataTypeTemplates` element
+		const dataTypeTemplatesRecord = await fsdDB
+			.table<DatabaseRecord>('DataTypeTemplates')
+			.orderBy('id')
+			.first()
+
+		if (!dataTypeTemplatesRecord) {
+			console.log('no data type templates, stopping')
+			return
+		}
+
+		//
+		// Ensure ASD has DataTypeTemplates
+		//
+		let dttInASD = await asdDB.table<DatabaseRecord>('DataTypeTemplates').orderBy('id').first()
+		if (!dttInASD) {
+			const newDTTRec: Omit<DatabaseRecord, 'id'> = {
+				tagName: 'DataTypeTemplates',
+				namespace: null,
+				attributes: null,
+				value: null,
+				parent: null,
+				children: null,
+			}
+			dttInASD = await asdSDK.addRecord(newDTTRec)
+			const sclRoot = await asdSDK.findRootSCL()
+			await asdSDK.ensureRelationship(sclRoot, dttInASD)
+		}
+
+		const templatesInFSD = await fsdSDK.findChildRecrods(dataTypeTemplatesRecord)
+		if (templatesInFSD.length === 0) {
+			console.log('DataTypeTemplates is empty, stopping.')
+			return
+		}
+
+		for (const templateInFSD of templatesInFSD) {
+			const idAttr = extractAttr(templateInFSD, 'id')
+			if (!idAttr) {
+				console.warn('id attribute not found, continuing', templateInFSD)
+				continue
+			}
+
+			// Note: we are skipping existing templates/types
+			const templateExistInASD = await asdSDK.findOneRecordByAttribute(
+				templateInFSD.tagName,
+				idAttr,
+			)
+			if (templateExistInASD) {
+				continue
+			}
+
+			const templateInASD = await transferFromFSDToASDWithChildrenRecursively(templateInFSD)
+			await asdSDK.ensureRelationship(dttInASD, templateInASD)
+		}
+	}
+
+	async function transferFromFSDToASDWithChildrenRecursively(
+		recordInFSD: DatabaseRecord,
+	): Promise<DatabaseRecord> {
+		const recordInASD = await asdSDK.addRecord(recordInFSD)
+		const childrenInFSD = await fsdSDK.findChildRecrods(recordInFSD)
+		for (const childInFSD of childrenInFSD) {
+			const childInASD = await transferFromFSDToASDWithChildrenRecursively(childInFSD)
+			asdSDK.ensureRelationship(recordInASD, childInASD)
+		}
+
+		return recordInASD
+	}
 }
 
 async function ensureRecordByAttribute(
@@ -111,19 +186,6 @@ async function ensureRecordByAttribute(
 
 function isOf(record: DatabaseRecord, tagNames: string[]) {
 	return tagNames.includes(record.tagName)
-}
-
-async function findRootSCL(db: Dexie): Promise<DatabaseRecord> {
-	const nrOfSCLs = await db.table<DatabaseRecord>('SCL').count()
-	if (nrOfSCLs === 0) throw new Error('there is no SCL element')
-	if (nrOfSCLs > 1) throw new Error('there are multiple SCL elements; there can be only one')
-
-	const sclElement = await db.table<DatabaseRecord>('SCL').orderBy('id').first()
-	if (!sclElement) throw new Error('no root scl found')
-
-	const firstSCL = sclElement
-
-	return firstSCL
 }
 
 async function findElement(

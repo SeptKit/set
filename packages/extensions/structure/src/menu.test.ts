@@ -52,8 +52,6 @@ describe('Menu: Instantiate Function', () => {
 						<Substation name="TEMPLATE">
 							<VoltageLevel name="TEMPLATE">
 								<Function name="Binary Output" uuid="fn-1">
-									<LNode iedName="none">
-									</LNode>
 								</Function>
 							</VoltageLevel>
 						</Substation>
@@ -64,9 +62,133 @@ describe('Menu: Instantiate Function', () => {
 						<Substation name="TEMPLATE">
 							<Function name="already existed" uuid="already-existed" />
 							<VoltageLevel name="TEMPLATE">
-								<Function name="Binary Output" uuid="8-0-0-0-0" templateUuid="fn-1" />
+								<Function name="Binary Output" uuid="7-0-0-0-0" templateUuid="fn-1" />
 							</VoltageLevel>
 						</Substation>
+					</SCL>
+				`,
+			},
+			{
+				desc: 'The content of the function is transfered',
+				asdContent: `
+					<SCL>
+					</SCL>
+				`,
+				fsdContent: `
+					<SCL>
+						<Substation name="TEMPLATE">
+							<VoltageLevel name="TEMPLATE">
+								<Function name="Binary Output" uuid="fn-1">
+									<LNode iedName="none">
+									</LNode>
+								</Function>
+							</VoltageLevel>
+						</Substation>
+					</SCL>
+				`,
+				epxectedASD: `
+					<SCL>
+						<Substation name="TEMPLATE">
+							<VoltageLevel name="TEMPLATE">
+								<Function name="Binary Output" uuid="6-0-0-0-0" templateUuid="fn-1" >
+									<LNode iedName="none" />
+								</Function>
+							</VoltageLevel>
+						</Substation>
+					</SCL>
+				`,
+			},
+			{
+				desc: 'DataTypeTemplates are trasfered',
+				asdContent: `
+					<SCL>
+					</SCL>
+				`,
+				fsdContent: `
+				<SCL>
+					<DataTypeTemplates>
+						<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
+							<DO desc="first-do" name="do-one" type="TEST"/>
+							<EnumVal desc="A²" ord="69">A²</EnumVal>
+						</LNodeType>
+					</DataTypeTemplates>
+				</SCL>
+				`,
+				epxectedASD: `
+					<SCL>
+						<DataTypeTemplates>
+							<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
+								<DO desc="first-do" name="do-one" type="TEST"/>
+								<EnumVal desc="A²" ord="69">A²</EnumVal>
+							</LNodeType>
+						</DataTypeTemplates>
+					</SCL>
+				`,
+			},
+			{
+				desc: 'new templates are added',
+				asdContent: `
+					<SCL>
+						<DataTypeTemplates>
+							<LNodeType id="existing-lnode-type" lnClass="LLN0">
+								<DO name="Mod" type="TEST"/>
+								<DO name="Beh" type="BehaviourModeKind"/>
+							</LNodeType>
+						</DataTypeTemplates>
+					</SCL>
+				`,
+				fsdContent: `
+				<SCL>
+					<DataTypeTemplates>
+						<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
+							<DO desc="first-do" name="do-one" type="TEST"/>
+							<EnumVal desc="A²" ord="69">A²</EnumVal>
+						</LNodeType>
+					</DataTypeTemplates>
+				</SCL>
+				`,
+				epxectedASD: `
+					<SCL>
+						<DataTypeTemplates>
+							<LNodeType id="existing-lnode-type" lnClass="LLN0">
+								<DO name="Mod" type="TEST"/>
+								<DO name="Beh" type="BehaviourModeKind"/>
+							</LNodeType>
+							<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
+								<DO desc="first-do" name="do-one" type="TEST"/>
+								<EnumVal desc="A²" ord="69">A²</EnumVal>
+							</LNodeType>
+						</DataTypeTemplates>
+					</SCL>
+				`,
+			},
+			{
+				desc: 'Existing types are skipped',
+				asdContent: `
+					<SCL>
+						<DataTypeTemplates>
+							<LNodeType id="existing-lnode-type" lnClass="LLN0">
+								<DO name="Mod" type="Existing Value"/>
+							</LNodeType>
+						</DataTypeTemplates>
+					</SCL>
+				`,
+				fsdContent: `
+				<SCL>
+					<DataTypeTemplates>
+						<LNodeType id="existing-lnode-type" lnClass="LLN0">
+							<DO name="Mod" type="New Value"/>
+						</LNodeType>
+					</DataTypeTemplates>
+				</SCL>
+				`,
+				epxectedASD: `
+					<SCL>
+						<DataTypeTemplates>
+							<LNodeType id="existing-lnode-type" lnClass="LLN0">
+								<DO name="Mod" type="Existing Value"/>
+							</LNodeType>
+						</DataTypeTemplates>
 					</SCL>
 				`,
 			},

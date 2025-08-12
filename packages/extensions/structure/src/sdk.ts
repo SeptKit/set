@@ -4,6 +4,7 @@ import type {
 	DatabaseRecord,
 	QualifiedAttribute,
 } from '../node_modules/@septkit/fileio/dist/common/common.types'
+import type { PartialBy } from './x/types/types'
 
 export function useSDK(db: Dexie) {
 	return {
@@ -11,18 +12,27 @@ export function useSDK(db: Dexie) {
 		templateify,
 		ensureRelationship,
 		addRecord,
+		findRootSCL,
+		recordExists,
+		findOneRecordByAttribute,
 	}
 
 	/**
 	 *
 	 * @param record the added record
 	 */
-	async function addRecord(record: DatabaseRecord): Promise<DatabaseRecord> {
+	async function addRecord(
+		originalRecord: PartialBy<DatabaseRecord, 'id'>,
+	): Promise<DatabaseRecord> {
+		const recordToAdd: DatabaseRecord = {
+			...originalRecord,
+			id: crypto.randomUUID(),
+		}
 		try {
-			const addedId = await db.table<DatabaseRecord>(record.tagName).add(record)
-			const addedRecord = await db.table<DatabaseRecord>(record.tagName).get(addedId)
+			const addedId = await db.table<DatabaseRecord>(recordToAdd.tagName).add(recordToAdd)
+			const addedRecord = await db.table<DatabaseRecord>(recordToAdd.tagName).get(addedId)
 			if (!addedRecord) {
-				const errMsg = { msg: 'could not find added record', table: record.tagName, addedId }
+				const errMsg = { msg: 'could not find added record', table: recordToAdd.tagName, addedId }
 				console.error(errMsg)
 				throw new Error(JSON.stringify(errMsg))
 			}
@@ -32,13 +42,23 @@ export function useSDK(db: Dexie) {
 			const errMsg = {
 				msg: 'could not add record',
 				db: db.name,
-				table: record.tagName,
-				record,
+				table: recordToAdd.tagName,
+				recordToAdd,
 				err,
 			}
 			console.error(errMsg)
 			throw new Error(JSON.stringify(errMsg))
 		}
+	}
+
+	async function recordExists(record: DatabaseRecord): Promise<boolean> {
+		const nrOfRecordsWithId = await db
+			.table<DatabaseRecord>(record.tagName)
+			.where({ id: record.id })
+			.count()
+		const exists = nrOfRecordsWithId > 0
+
+		return exists
 	}
 
 	async function ensureRelationship(parent: DatabaseRecord, child: DatabaseRecord) {
@@ -49,7 +69,10 @@ export function useSDK(db: Dexie) {
 			child.parent?.id === parent.id && child.parent?.tagName === parent.tagName
 
 		if (!parentHasChild) {
-			parent.children?.push({
+			if (!parent.children) {
+				parent.children = []
+			}
+			parent.children.push({
 				id: child.id,
 				tagName: child.tagName,
 			})
@@ -63,6 +86,19 @@ export function useSDK(db: Dexie) {
 			}
 			await db.table(child.tagName).update(child.id, child)
 		}
+	}
+
+	async function findRootSCL(): Promise<DatabaseRecord> {
+		const nrOfSCLs = await db.table<DatabaseRecord>('SCL').count()
+		if (nrOfSCLs === 0) throw new Error('tfindRootSCLhere is no SCL element')
+		if (nrOfSCLs > 1) throw new Error('there are multiple SCL elements; there can be only one')
+
+		const sclElement = await db.table<DatabaseRecord>('SCL').orderBy('id').first()
+		if (!sclElement) throw new Error('no root scl found')
+
+		const firstSCL = sclElement
+
+		return firstSCL
 	}
 
 	// TODO: fsdReference with file name
@@ -101,21 +137,25 @@ export function useSDK(db: Dexie) {
 		}
 	}
 
+	async function findOneRecordByAttribute(
+		tagName: string,
+		attr: Attribute,
+	): Promise<DatabaseRecord | undefined> {
+		return findRecordByAttribute(db, tagName, attr)
+	}
+
 	async function findChildRecrods(record: DatabaseRecord): Promise<DatabaseRecord[]> {
 		if (!record.children || record.children.length === 0) return []
 
-		const childRecords: DatabaseRecord[] = []
+		const childRecords = await Promise.all(
+			record.children.map(async (child) => {
+				const table = child.tagName
+				const id = child.id
 
-		for (const child of record.children) {
-			const table = child.tagName
-			const id = child.id
-
-			const childRecord = await db.table(table).get({ id })
-			childRecords.push(childRecord)
-
-			const recursiveChildren = await findChildRecrods(childRecord)
-			childRecords.push(...recursiveChildren)
-		}
+				const childRecord = await db.table(table).get({ id })
+				return childRecord
+			}),
+		)
 
 		return childRecords
 	}
