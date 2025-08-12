@@ -65,7 +65,7 @@ describe('Data Management', () => {
 							return new File([''], name, { type: 'text/plain' })
 						})
 
-						await fileStore.importFile()
+						await fileStore.importFiles()
 					}
 				}
 
