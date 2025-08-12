@@ -148,11 +148,15 @@ jobs:
 
       - name: Verify fileio dist exists
         if: needs.check-ui.outputs.npm_version_exists == 'true'
-        run: ls -la 'packages/shell/node_modules/fileio/dist'
+        run: |
+          ls -la 'packages/shell/node_modules/@septkit/fileio'
+          ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
 
       - name: Verify ui dist exists
         if: needs.check-ui.outputs.npm_version_exists == 'true'
-        run: ls -la 'packages/shell/node_modules/ui/dist'
+        run: |
+          ls -la 'packages/shell/node_modules/@septkit/ui'
+          ls -la 'packages/shell/node_modules/@septkit/ui/dist'
 
       - name: Get Playwright Version
         id: playwright-version
