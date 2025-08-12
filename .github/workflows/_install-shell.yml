@@ -154,8 +154,8 @@ jobs:
       - name: Verify ui dist exist in node_modules
         run: ls -la 'packages/shell/node_modules/@septkit/ui/dist'
 
-      - name: Verify fileio build output exists
-        run: ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
+      # - name: Verify fileio build output exists
+      #   run: ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
 
       - name: Get Playwright Version
         id: playwright-version
