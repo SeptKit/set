@@ -146,6 +146,14 @@ jobs:
         run: pnpm install --filter=./packages/shell --ignore-scripts
         if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
 
+      - name: Verify fileio dist exists
+        if: needs.check-ui.outputs.npm_version_exists == 'true'
+        run: ls -la 'packages/shell/node_modules/fileio/dist'
+
+      - name: Verify ui dist exists
+        if: needs.check-ui.outputs.npm_version_exists == 'true'
+        run: ls -la 'packages/shell/node_modules/ui/dist'
+
       - name: Get Playwright Version
         id: playwright-version
         working-directory: packages/shell
