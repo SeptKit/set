@@ -64,6 +64,9 @@ jobs:
       - build-ui
     if: always()
 
+    permissions:
+      contents: write
+
     outputs:
       cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
 
@@ -76,6 +79,9 @@ jobs:
         with:
           version: 10.10.0
           run_install: false
+
+      - name: Disable pnpm linkWorkspacePackages
+        run: pnpm config set linkWorkspacePackages=false
 
       - name: Setup node_modules Cache
         id: cache-node-modules
@@ -104,6 +110,10 @@ jobs:
         if: needs.check-fileio.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/fileio/dist'
 
+      - name: Add fileio dependency from workspace
+        if: needs.check-fileio.outputs.npm_version_exists == 'false'
+        run: pnpm add @septkit/fileio@workspace:${{ steps.fileio-version.outputs.version }}
+
       - name: Extract ui version
         id: ui-version
         working-directory: packages/ui
@@ -122,6 +132,10 @@ jobs:
       - name: Verify ui build output exists
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
+
+      - name: Add ui dependency from workspace
+        if: needs.check-ui.outputs.npm_version_exists == 'false'
+        run: pnpm add @septkit/ui@workspace:${{ steps.ui-version.outputs.version }}
 
       - name: Install dependencies
         run: pnpm install --filter=./packages/shell --ignore-scripts
