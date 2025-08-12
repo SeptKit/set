@@ -81,10 +81,12 @@ jobs:
           run_install: false
 
       - name: Disable pnpm linkWorkspacePackages
-        run: pnpm config set linkWorkspacePackages=false
+        run: pnpm config set link-workspace-packages false
 
       - name: Verify pnpm-workspace.yaml
-        run: cat pnpm-workspace.yaml
+        run: |
+          cat pnpm-workspace.yaml
+          cat .npmrc
 
       - name: Setup node_modules Cache
         id: cache-node-modules
