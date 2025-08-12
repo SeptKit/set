@@ -154,8 +154,7 @@ jobs:
       - name: Verify fileio dist exists
         if: needs.check-ui.outputs.npm_version_exists == 'true'
         run: |
-          ls -la 'packages/shell/node_modules/@septkit/fileio'
-          ls -la 'packages/shell/node_modules/@septkit/fileio/dist'
+          ls 'packages/shell/node_modules/@septkit/fileio'
 
       - name: Verify ui dist exists
         if: needs.check-ui.outputs.npm_version_exists == 'true'
