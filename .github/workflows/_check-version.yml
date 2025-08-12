@@ -39,13 +39,13 @@ jobs:
 
       - name: Checkout Main Branch
         uses: actions/checkout@v3
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true'
         with:
           ref: 'main'
 
       - name: Extract Current Version
         id: current_version
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true'
         working-directory: packages/${{ inputs.package-name }}
         run: |
           CURRENT_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
@@ -54,14 +54,14 @@ jobs:
 
       - name: Checkout Deployed App
         uses: actions/checkout@v3
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true'
         with:
           repository: 'SeptKit/septkit.github.io'
           ref: 'main'
 
       - name: Verify Deployed Folder Exists
         id: verify_deployed_folder
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true'
         run: |
           # For extensions, we check if the deployed folder for the specific version exists.
           # In this case, we do not set deployed_folder_exists, because version comparison is redundant:
@@ -88,7 +88,7 @@ jobs:
 
       - name: Extract Deployed Version
         id: get_version
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true'
         working-directory: ${{ inputs.deployed-folder }}
         run: |
           DEPLOYED_VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
@@ -97,7 +97,7 @@ jobs:
 
       - name: Compare Versions
         id: compare_versions
-        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }} && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true' }}
+        if: steps.verify_branch.outputs.deployment_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true'
         run: |
           if [ "${{ steps.get_version.outputs.deployed_version }}" != "${{ steps.current_version.outputs.current_version }}" ]; then
             echo "Version has changed: ${{ steps.get_version.outputs.deployed_version }} -> ${{ steps.current_version.outputs.current_version }}"

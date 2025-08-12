@@ -1,0 +1,36 @@
+name: _check-npm-version
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+    outputs:
+      npm_version_exists:
+        description: 'Whether the package version exists in NPM registry'
+        value: ${{ jobs.check.outputs.npm_version_exists }}
+
+jobs:
+  check:
+    name: Check If NPM Version Exists
+    runs-on: ubuntu-latest
+    outputs:
+      npm_version_exists: ${{ steps.check_npm_version.outputs.npm_version_exists }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check if version exists in npm registry
+        id: check_npm_version
+        working-directory: packages/${{ inputs.package-name }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+          if npm view "$PKG_NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "npm_version_exists=true" >> $GITHUB_OUTPUT
+            echo "npm_version_exists=true"
+          else
+            echo "npm_version_exists=false" >> $GITHUB_OUTPUT
+            echo "npm_version_exists=false"
+          fi
