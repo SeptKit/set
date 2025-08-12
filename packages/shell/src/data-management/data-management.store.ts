@@ -21,11 +21,11 @@ export const useFileStore = defineStore('file', () => {
 	//====== ACTIONS ======//
 
 	async function openFiles() {
+		const { promise, resolve } = Promise.withResolvers<void>()
+
 		const { open, onChange } = useFileDialog({
 			accept: 'asd',
 		})
-
-		//====== ACTIONS ======//
 
 		onChange(async (files) => {
 			if (!files || files.length === 0) return
@@ -36,9 +36,10 @@ export const useFileStore = defineStore('file', () => {
 			if (databaseNames.length) {
 				console.info(`Files imported successfully: ${databaseNames.join(', ')}`)
 			}
+			resolve()
 		})
-
-		return open()
+		open()
+		return promise
 	}
 
 	async function saveFile() {
@@ -46,14 +47,11 @@ export const useFileStore = defineStore('file', () => {
 			if (!currentActiveFileDatabaseName.value) {
 				throw new Error('No active file to save - please open a file first')
 			}
-
 			const response = await exportFile({
 				databaseName: currentActiveFileDatabaseName.value,
 			})
-
 			const serializer = new XMLSerializer()
 			const xmlString = serializer.serializeToString(response.xmlDocument)
-
 			const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
 			const xmlWithDeclaration = xmlDeclaration + xmlString
 
@@ -80,6 +78,8 @@ export const useFileStore = defineStore('file', () => {
 	}
 
 	async function importFiles() {
+		const { promise, resolve } = Promise.withResolvers<void>()
+
 		const { open, onChange } = useFileDialog({
 			accept: 'fsd',
 		})
@@ -90,9 +90,11 @@ export const useFileStore = defineStore('file', () => {
 			const filesArray = Array.from(files)
 			const databaseNames = await importXmlFiles({ files: filesArray })
 			currentImportedDatabaseNames.value = [...currentImportedDatabaseNames.value, ...databaseNames]
-		})
 
-		return open()
+			resolve()
+		})
+		open()
+		return promise
 	}
 
 	//====== RETURNED STORE PROPERTIES ======//

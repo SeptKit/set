@@ -54,7 +54,7 @@ describe('Data Management', () => {
 				for (const action of tc.actionsToPerform) {
 					if (action.type === 'open') {
 						files = action.fileNames.map((name) => {
-							return new File([''], name, { type: 'text/plain' })
+							return new File(['<SCL></SCL>'], name, { type: 'text/plain' })
 						})
 
 						await fileStore.openFiles()
@@ -62,7 +62,7 @@ describe('Data Management', () => {
 
 					if (action.type === 'import') {
 						files = action.fileNames.map((name) => {
-							return new File([''], name, { type: 'text/plain' })
+							return new File(['<SCL></SCL>'], name, { type: 'text/plain' })
 						})
 
 						await fileStore.importFiles()
@@ -84,6 +84,7 @@ vi.mock('@vueuse/core', () => ({
 		onChange: makeOnChangeMock(files),
 	}),
 	useStorage: () => ref<string>(''),
+	useObjectUrl: () => '',
 }))
 function makeOnChangeMock(files: File[]): (cb: OnChangeCallback) => void {
 	return function (callback: OnChangeCallback) {
