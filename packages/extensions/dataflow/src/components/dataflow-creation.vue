@@ -1,5 +1,4 @@
 <template>
-	<button class="btn" @click="showModal">+</button>
 	<dialog class="modal" :open="isOpen">
 		<div class="modal-box">
 			<h3 class="text-lg font-bold">Create Connection</h3>
@@ -120,6 +119,11 @@ import { openDatabase } from '../assets/openDb'
 const props = defineProps<{
 	sourceLNode: LNode
 	destinationLNode: LNode
+	isOpen: boolean
+}>()
+
+const emit = defineEmits<{
+	(e: 'update:isOpen', isOpenValue: boolean): void
 }>()
 
 const dataflowTypes = [
@@ -162,8 +166,6 @@ type DataflowCreationType = {
 	includeQuality: boolean
 	includeTimestamp: boolean
 }
-
-const isOpen = ref(false)
 
 const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
 	type: null,
@@ -247,13 +249,9 @@ function resetFields(
 	}
 }
 
-function showModal() {
-	isOpen.value = true
-}
-
 function closeModal() {
 	resetForm()
-	isOpen.value = false
+	emit('update:isOpen', false)
 }
 
 // TODO: extract to smaller functions

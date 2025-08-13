@@ -25,8 +25,13 @@
 		<dataflow-node :lnodes="LNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
 	</div>
 
-	<DataflowCreation
+	<button :disabled="!activeInputLNode || !activeOutputLNode" class="btn" @click="showModal">
+		+
+	</button>
+
+	<DataflowCreationDialog
 		v-if="activeInputLNode && activeOutputLNode"
+		v-model:isOpen="isCreationDialogOpen"
 		:sourceLNode="activeInputLNode"
 		:destinationLNode="activeOutputLNode"
 	/>
@@ -34,7 +39,7 @@
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
-import DataflowCreation from './dataflow-creation.vue'
+import DataflowCreationDialog from './dataflow-creation.vue'
 import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/types/lnode'
@@ -45,6 +50,7 @@ const activeInputLNodeId = ref<string | null>(null)
 const activeOutputLNodeId = ref<string | null>(null)
 const activeInputLNode = ref<LNode | null>(null)
 const activeOutputLNode = ref<LNode | null>(null)
+const isCreationDialogOpen = ref(false)
 
 onMounted(async () => {
 	LNodes.value = await getEnrichedLNodesFromDB()
@@ -63,6 +69,10 @@ watch(activeOutputLNodeId, (newId) => {
 
 function getActiveLNodeById(id: string | null) {
 	return LNodes.value.find((ln) => ln.id === id) ?? null
+}
+
+function showModal() {
+	isCreationDialogOpen.value = true
 }
 </script>
 
