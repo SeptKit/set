@@ -7,6 +7,7 @@
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Dataflow Type</legend>
 				<select
+					required
 					class="select"
 					v-model="dataflowToCreate.type"
 					@change="resetFields(['signal', 'attribute'])"
@@ -21,7 +22,7 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Source</legend>
-				<select disabled class="select" v-model="dataflowToCreate.sourceLNodeId">
+				<select required disabled class="select" v-model="dataflowToCreate.sourceLNodeId">
 					<option :value="sourceLNode.id">{{ sourceLNode.name }}</option>
 				</select>
 			</fieldset>
@@ -29,6 +30,7 @@
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Signal (DO)</legend>
 				<select
+					required
 					class="select"
 					v-model="dataflowToCreate.signal"
 					@change="resetFields(['attribute'])"
@@ -41,7 +43,7 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Attribute (DA)</legend>
-				<select class="select" v-model="dataflowToCreate.attribute">
+				<select required class="select" v-model="dataflowToCreate.attribute">
 					<option v-for="attribute of attributeOptions" :key="attribute" :value="attribute">
 						{{ attribute }}
 					</option>
@@ -52,7 +54,7 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Destination</legend>
-				<select disabled class="select" v-model="dataflowToCreate.destinationLNodeId">
+				<select required disabled class="select" v-model="dataflowToCreate.destinationLNodeId">
 					<option :value="destinationLNode.id">{{ destinationLNode.name }}</option>
 				</select>
 			</fieldset>
@@ -60,6 +62,7 @@
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Destination Input Name</legend>
 				<input
+					required
 					type="text"
 					placeholder="Input Name"
 					class="input"
@@ -70,6 +73,7 @@
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Input Instance</legend>
 				<input
+					required
 					disabled
 					type="text"
 					placeholder="Input Name"
@@ -251,9 +255,32 @@ function closeModal() {
 }
 
 function createConnection() {
-	// TODO: Logic to create the connection
+	if (!validateDataflowToCreate()) {
+		return
+	}
+
 	console.log('Creating connection with data:', dataflowToCreate.value)
 	closeModal()
+}
+
+function validateDataflowToCreate(): boolean {
+	if (!dataflowToCreate.value.type) {
+		alert('Please select a dataflow type.')
+		return false
+	}
+	if (!dataflowToCreate.value.signal) {
+		alert('Please select a signal (DO).')
+		return false
+	}
+	if (!dataflowToCreate.value.attribute) {
+		alert('Please select an attribute (DA).')
+		return false
+	}
+	if (!dataflowToCreate.value.destinationInputName) {
+		alert('Please enter a destination input name.')
+		return false
+	}
+	return true
 }
 
 function resetForm() {
