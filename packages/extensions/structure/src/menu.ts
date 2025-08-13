@@ -32,7 +32,6 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 	await transferDataTypeTemplates()
 	await instantiateFunctionCategories()
 
-	// TODO: Add fsdReference
 	fsdDB.close()
 	asdDB.close()
 
