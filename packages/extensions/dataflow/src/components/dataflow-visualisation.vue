@@ -1,9 +1,6 @@
 <!-- dataflow-visualisation.vue-->
 
 <template>
-	<!-- Button for testing the DB extraction -->
-	<button @click="logDB">Log DB</button>
-
 	<div
 		class="node-container"
 		style="display: flex; flex-direction: row; align-items: center; justify-content: center"
@@ -40,52 +37,21 @@
 import dataflowNode from './dataflow-node.vue'
 import testLNodes from '../assets/lnodeTestData' // Test data for logical nodes
 import type { LNodeObject } from '../assets/lnode.types'
-import { getAllLNodes, getLNodeWithChildren } from '../assets/useLNodeRecords'
+import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
 
-import { initializeDatabaseInstance } from '../assets/dbInit' //TEST
-
-import { ref } from 'vue'
-import { useStorage } from '@vueuse/core'
-
-// test function for database extraction setup
-async function logDB() {
-	//get the current active file database name from localStorage
-	const currentActiveFileDatabaseName = useStorage<string>(
-		'currentActiveFileDatabaseName',
-		'',
-		localStorage,
-	)
-	console.log('currentActiveFileDatabaseName:', currentActiveFileDatabaseName.value)
-	if (!currentActiveFileDatabaseName.value) {
-		console.error('No active file database name set.')
-		return
-	}
-
-	// Initialize the database instance with the current active file database name
-	const db = initializeDatabaseInstance(currentActiveFileDatabaseName.value)
-	console.log('database:', db)
-	if (!db) {
-		console.error('database is not initialized.')
-		return
-	}
-
-	// Get all LNodes from the database
-	const lnodes = await getAllLNodes(db)
-	console.log('LNodes:', lnodes)
-	if (lnodes.length === 0) {
-		console.warn('No LNodes found in the database.')
-		return
-	}
-
-	// WIP -Table query needs to be adapted-
-	// Get the first LNode with its children
-	const lnodeWithChildren = await getLNodeWithChildren(db, lnodes[0])
-	console.log('Children:', lnodeWithChildren.children)
-}
+import { onMounted, ref } from 'vue'
+import type { LNode } from '@/types/lnode'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
+
+const LNodes = ref<LNode[]>([])
+
+onMounted(async () => {
+	LNodes.value = await getEnrichedLNodesFromDB()
+	console.log('Enriched LNodes:', LNodes.value)
+})
 
 // active nodes for input and output
 const activeInputNode = ref<LNodeObject | null>(null)
