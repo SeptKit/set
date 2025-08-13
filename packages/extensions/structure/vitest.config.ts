@@ -8,7 +8,10 @@ export default mergeConfig(
 	viteConfig,
 	defineConfig({
 		optimizeDeps: {
-			include: ['@septkit/fileio'],
+			// We exclude our own libraries so we can use the local versions
+			// to debug. This is needed because vite and vitest caches and optimizes
+			// the dependencies and do not updated them real time
+			exclude: ['@septkit/fileio'],
 		},
 		test: {
 			watch: false,
@@ -23,6 +26,7 @@ export default mergeConfig(
 							enabled: true,
 							headless: true,
 							instances: [{ browser: 'chromium' }],
+							// instances: [{ browser: 'firefox' }],
 						},
 						include: ['src/**/*.test.{js,ts,jsx,tsx}'],
 						exclude: [...configDefaults.exclude],
