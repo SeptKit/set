@@ -14,7 +14,7 @@
 		</div>
 	</Layout>
 	<div class="flex flex-col items-center justify-center">
-		<DataflowVisualisation :api="api" />
+		<DataflowVisualisation />
 	</div>
 </template>
 
