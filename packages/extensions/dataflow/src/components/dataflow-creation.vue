@@ -114,6 +114,9 @@
 import { computed, ref, watch } from 'vue'
 import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
+import Dexie from 'dexie'
+import type { DatabaseRecord, Relationship } from '@septkit/fileio'
+import { openDatabase } from '../assets/openDb'
 
 const props = defineProps<{
 	sourceLNode: LNode
@@ -254,12 +257,122 @@ function closeModal() {
 	isOpen.value = false
 }
 
-function createConnection() {
+// TODO: extract to smaller functions
+async function createConnection() {
 	if (!validateDataflowToCreate()) {
 		return
 	}
 
 	console.log('Creating connection with data:', dataflowToCreate.value)
+
+	const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
+	if (!activeFile) {
+		throw new Error('no active file')
+	}
+
+	const fileDb = await openDatabase(activeFile)
+
+	const lNodeRecord = await fileDb
+		.table<DatabaseRecord>('LNode')
+		.get({ id: props.destinationLNode.id })
+
+	if (!lNodeRecord || !lNodeRecord.children || lNodeRecord.children.length == 0) {
+		console.error(`LNode with id ${props.destinationLNode.id} not found or empty`)
+		return
+	}
+
+	const privateRecord = await fileDb
+		.table<DatabaseRecord>(lNodeRecord.children[0].tagName)
+		.get({ id: lNodeRecord.children[0].id })
+
+	if (!privateRecord || !privateRecord.children || privateRecord.children.length == 0) {
+		console.error(`Private element with id ${lNodeRecord.children[0].id} not found or empty`)
+		return
+	}
+
+	let lNodeInputsElement: Relationship | null = null
+
+	for (const childElement of privateRecord.children) {
+		if (childElement.tagName == 'LNodeInputs') {
+			lNodeInputsElement = childElement
+			break
+		}
+	}
+
+	if (lNodeInputsElement) {
+		const lNodeInputsRecord = await fileDb
+			.table<DatabaseRecord>(lNodeInputsElement.tagName)
+			.get({ id: lNodeInputsElement.id })
+
+		if (!lNodeInputsRecord) {
+			console.error(`LNodeInputs element with id ${lNodeInputsElement.id} not found`)
+			return
+		}
+
+		const recordToAdd: DatabaseRecord = {
+			id: crypto.randomUUID(),
+			tagName: 'SourceRef',
+			namespace: lNodeInputsRecord.namespace,
+			attributes: [
+				{
+					name: 'input',
+					value: dataflowToCreate.value.destinationInputName,
+				},
+				{
+					name: 'inputInst',
+					value: dataflowToCreate.value.inputInstance,
+				},
+				{
+					name: 'service',
+					value: findDataflowTypeLabelByValue(dataflowToCreate.value.type as DataflowType),
+				},
+				{
+					name: 'sourceLNodeUuid',
+					value: props.sourceLNode.uuid,
+				},
+				{
+					name: 'sourceDoName',
+					value: dataflowToCreate.value.signal,
+				},
+				{
+					name: 'sourceDaName',
+					value: dataflowToCreate.value.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
+				},
+				// TODO resourceName, source, pDO, pLN, pDA, uuid, templateUUID attributes
+			],
+			parent: {
+				tagName: lNodeInputsRecord.tagName,
+				id: lNodeInputsRecord.id,
+			},
+			value: null,
+			children: null,
+		}
+
+		// Add SourceRef records for new connection
+		const addedId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
+		// TODO: add additional SourceRef for t and q if needed#
+
+		console.log('Added SourceRef with ID:', addedId.toString())
+
+		if (lNodeInputsRecord.children == null) {
+			lNodeInputsRecord.children = []
+		}
+
+		// Add SourceRef elements as a child to the LNodeInputs element
+		lNodeInputsRecord.children?.push({
+			id: addedId.toString(),
+			tagName: 'SourceRef',
+		})
+
+		await fileDb
+			.table<DatabaseRecord>(lNodeInputsRecord.tagName)
+			.update(lNodeInputsRecord.id, { children: lNodeInputsRecord.children })
+	}
+
+	// TODO: handle if LNodeInputsElement is not found
+
+	fileDb.close()
+
 	closeModal()
 }
 
@@ -281,6 +394,10 @@ function validateDataflowToCreate(): boolean {
 		return false
 	}
 	return true
+}
+
+function findDataflowTypeLabelByValue(dataflowType: DataflowType): string {
+	return dataflowTypes.find((type) => type.value === dataflowType)?.label ?? ''
 }
 
 function resetForm() {
