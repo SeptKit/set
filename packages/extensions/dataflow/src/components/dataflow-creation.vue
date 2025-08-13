@@ -6,8 +6,12 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Dataflow Type</legend>
-				<select class="select" v-model="dataflowToCreate.type">
-					<option v-for="type in dataFlowTypes" :key="type.value" :value="type.value">
+				<select
+					class="select"
+					v-model="dataflowToCreate.type"
+					@change="resetFields(['signal', 'attribute'])"
+				>
+					<option v-for="type in dataflowTypes" :key="type.value" :value="type.value">
 						{{ type.label }}
 					</option>
 				</select>
@@ -24,17 +28,23 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Signal (DO)</legend>
-				<select class="select" v-model="dataflowToCreate.signal">
-					<option key="signal1" value="signal1">Signal1</option>
-					<option key="signal2" value="signal2">Signal2</option>
+				<select
+					class="select"
+					v-model="dataflowToCreate.signal"
+					@change="resetFields(['attribute'])"
+				>
+					<option v-for="signal of signalOptions" :key="signal" :value="signal">
+						{{ signal }}
+					</option>
 				</select>
 			</fieldset>
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Attribute (DA)</legend>
 				<select class="select" v-model="dataflowToCreate.attribute">
-					<option key="attribute1" value="attribute1">Attribute1</option>
-					<option key="attribute2" value="attribute2">Attribute2</option>
+					<option v-for="attribute of attributeOptions" :key="attribute" :value="attribute">
+						{{ attribute }}
+					</option>
 				</select>
 			</fieldset>
 
@@ -49,10 +59,12 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Destination Input Name</legend>
-				<select class="select" v-model="dataflowToCreate.destinationInputName">
-					<option key="name1" value="name1">Name1</option>
-					<option key="name2" value="name2">Name2</option>
-				</select>
+				<input
+					type="text"
+					placeholder="Input Name"
+					class="input"
+					v-model="dataflowToCreate.destinationInputName"
+				/>
 			</fieldset>
 
 			<fieldset class="fieldset">
@@ -92,6 +104,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
 
@@ -159,6 +172,51 @@ const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
 
 const dataflowToCreate = ref<DataflowCreationType>(getDataflowToCreateDefault())
 
+const signalOptions = computed<string[]>(() => {
+	if (!dataflowToCreate.value.type) return []
+	return props.sourceLNode.dataObjects
+		.filter((doObj) =>
+			doObj.dataAttributes.some((attr) =>
+				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
+			),
+		)
+		.map((doObj) => doObj.name)
+})
+
+const attributeOptions = computed(() => {
+	if (!dataflowToCreate.value.type) return []
+	console.log(
+		props.sourceLNode.dataObjects
+			.find((doObj) => doObj.name === dataflowToCreate.value.signal)
+			?.dataAttributes.filter((attr) =>
+				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
+			)
+			.map((attr) => attr.name),
+	)
+	return (
+		props.sourceLNode.dataObjects
+			.find((doObj) => doObj.name === dataflowToCreate.value.signal)
+			?.dataAttributes.filter((attr) =>
+				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
+			)
+			.map((attr) => attr.name) || []
+	)
+})
+
+watch(
+	() => dataflowToCreate.value.signal,
+	(newSignal, _) => {
+		dataflowToCreate.value.destinationInputName = newSignal
+	},
+)
+
+function resetFields(
+	fieldNames: Exclude<keyof DataflowCreationType, 'type' | 'includeQuality' | 'includeTimestamp'>[],
+) {
+	for (const fieldName of fieldNames) {
+		dataflowToCreate.value[fieldName] = ''
+	}
+}
 
 function showModal() {
 	isOpen.value = true
