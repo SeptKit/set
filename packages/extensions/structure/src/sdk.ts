@@ -8,10 +8,12 @@ import type { PartialBy } from './x/types/types'
 
 export function useSDK(db: Dexie) {
 	return {
-		findChildRecrods,
-		templateify,
-		ensureRelationship,
 		addRecord,
+		updateRecord,
+		findChildRecords,
+		findChildRecordsByTagName,
+		instantiate,
+		ensureRelationship,
 		findRootSCL,
 		recordExists,
 		findOneRecordByAttribute,
@@ -48,6 +50,21 @@ export function useSDK(db: Dexie) {
 			}
 			console.error(errMsg)
 			throw new Error(JSON.stringify(errMsg))
+		}
+	}
+
+	async function updateRecord(record: DatabaseRecord): Promise<void> {
+		try {
+			const nrOfUpdatedRecords = await db
+				.table<DatabaseRecord>(record.tagName)
+				.update(record.id, record)
+			if (nrOfUpdatedRecords < 1) {
+				const err = { msg: 'nothing has been updated', record }
+				console.error(err)
+				throw new Error(JSON.stringify(err))
+			}
+		} catch (err) {
+			console.error(err)
 		}
 	}
 
@@ -102,7 +119,8 @@ export function useSDK(db: Dexie) {
 	}
 
 	// TODO: fsdReference with file name
-	function templateify(record: DatabaseRecord) {
+	// TODO: make it return a new record instead of changing the uuids in place
+	function instantiate(record: DatabaseRecord) {
 		const uuid = extractUuid(record)
 		if (!uuid) {
 			console.error('record does not have a "uuid" to move to "templateUUID"', record)
@@ -144,7 +162,7 @@ export function useSDK(db: Dexie) {
 		return findRecordByAttribute(db, tagName, attr)
 	}
 
-	async function findChildRecrods(record: DatabaseRecord): Promise<DatabaseRecord[]> {
+	async function findChildRecords(record: DatabaseRecord): Promise<DatabaseRecord[]> {
 		if (!record.children || record.children.length === 0) return []
 
 		const childRecords = await Promise.all(
@@ -159,6 +177,27 @@ export function useSDK(db: Dexie) {
 
 		return childRecords
 	}
+
+	async function findChildRecordsByTagName(
+		record: DatabaseRecord,
+		tagName: string,
+	): Promise<DatabaseRecord[]> {
+		if (!record.children || record.children.length === 0) return []
+
+		const childRecords = await Promise.all(
+			record.children
+				.filter((child) => child.tagName === tagName)
+				.map(async (child) => {
+					const table = child.tagName
+					const id = child.id
+
+					const childRecord = await db.table(table).get({ id })
+					return childRecord
+				}),
+		)
+
+		return childRecords
+	}
 }
 
 export function extractAttr(
@@ -166,6 +205,21 @@ export function extractAttr(
 	name: string,
 ): Attribute | QualifiedAttribute | undefined {
 	return record.attributes?.find((attr) => attr.name === name)
+}
+
+export function updateAttr(record: DatabaseRecord, name: string, value: string) {
+	if (!record.attributes) {
+		record.attributes = []
+	}
+
+	const attrIndex = record.attributes?.findIndex((attr) => attr.name === name)
+	const hasAttr = attrIndex >= 0
+
+	if (!hasAttr) {
+		record.attributes.push({ name, value })
+	} else {
+		record.attributes[attrIndex].value = value
+	}
 }
 
 export async function findRecordByAttribute(
