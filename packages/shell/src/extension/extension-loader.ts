@@ -118,7 +118,13 @@ export async function fetchWidgetStartFn(url: string): Promise<Optional<StartFn>
 }
 
 function generateEntrypointUrl(relativeStartFnUrl: string, baseUrl: string): string {
-	const startFnUrl = new URL(relativeStartFnUrl, baseUrl).toString()
+	const baseUrlObj = new URL(baseUrl)
 
-	return startFnUrl
+	const startFnFile = relativeStartFnUrl.replace('/', '')
+	const pathParts = baseUrlObj.pathname.split('/').filter(Boolean)
+	pathParts.push(startFnFile)
+	pathParts.unshift(baseUrlObj.origin)
+	const fullPath = pathParts.join('/')
+
+	return fullPath
 }

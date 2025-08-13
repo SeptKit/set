@@ -1,6 +1,6 @@
 {
 	"name": "@septkit/shell",
-	"version": "3",
+	"version": "4",
 	"private": true,
 	"type": "module",
 	"scripts": {
