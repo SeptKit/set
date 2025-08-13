@@ -71,14 +71,14 @@ jobs:
       cache-key: ${{ steps.cache-node-modules.outputs.cache-hit }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+    - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           version: 10.10.0
           run_install: false
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup node_modules Cache
         id: cache-node-modules
