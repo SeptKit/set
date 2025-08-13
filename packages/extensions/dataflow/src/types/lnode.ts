@@ -15,5 +15,6 @@ export type DataAttribute = {
 export type LNode = {
 	id: string
 	name: string
+	lnType?: string
 	dataObjects: DataObject[]
 }

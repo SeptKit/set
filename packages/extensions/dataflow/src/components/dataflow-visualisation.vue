@@ -41,12 +41,20 @@ import dataflowNode from './dataflow-node.vue'
 import DataflowCreation from './dataflow-creation.vue'
 import testLNodes from '../assets/lnodeTestData' // Test data for logical nodes
 import type { LNodeObject } from '../assets/lnode.types'
-import { ref } from 'vue'
+import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
+import { onMounted, ref } from 'vue'
 import type { LNode } from '@/types/lnode'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
+
+const LNodes = ref<LNode[]>([])
+
+onMounted(async () => {
+	LNodes.value = await getEnrichedLNodesFromDB()
+	console.log('Enriched LNodes:', LNodes.value)
+})
 
 // active nodes for input and output
 const activeInputNode = ref<LNodeObject | null>(null)
