@@ -1,5 +1,6 @@
 export type DataObject = {
 	id: string
+	uuid: string
 	name: string
 	dataAttributes: DataAttribute[]
 	lNodeId: string
@@ -7,6 +8,7 @@ export type DataObject = {
 
 export type DataAttribute = {
 	id: string
+	uuid: string
 	name: string
 	dataObjectId: string
 	fc: string
@@ -14,6 +16,7 @@ export type DataAttribute = {
 
 export type LNode = {
 	id: string
+	uuid: string
 	name: string
 	lnType?: string
 	dataObjects: DataObject[]

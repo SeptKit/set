@@ -26,6 +26,7 @@ async function getAllLNodes(db: Dexie): Promise<LNode[]> {
 	const lnodeRecords = await db.table<DatabaseRecord>('LNode').toArray()
 	return lnodeRecords.map((record) => ({
 		id: record.id,
+		uuid: getAttribute(record, 'uuid') ?? '',
 		name: getAttribute(record, 'iedName') ?? record.id, // Fallback auf id
 		lnType: getAttribute(record, 'lnType'),
 		dataObjects: [],
@@ -50,6 +51,7 @@ async function enrichLNodesWithDataObjects(db: Dexie, lnodes: LNode[]): Promise<
 					if (!doRecord) continue
 					dataObjects.push({
 						id: doRecord.id,
+						uuid: getAttribute(doRecord, 'uuid') ?? '',
 						name: doRecord.attributes?.find((a) => a.name === 'name')?.value ?? doRecord.id,
 						lNodeId: lnode.id,
 						dataAttributes: [],
@@ -89,6 +91,7 @@ async function enrichLNodesWithDataAttributes(db: Dexie, lnodes: LNode[]): Promi
 						const daFc = getAttribute(daRecord, 'fc') ?? ''
 						dataAttributes.push({
 							id: daRecord.id,
+							uuid: getAttribute(daRecord, 'uuid') ?? '',
 							name: daName,
 							dataObjectId: dataObject.id,
 							fc: daFc,
