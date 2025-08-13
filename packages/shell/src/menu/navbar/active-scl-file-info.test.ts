@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import { createPinia } from 'pinia'
 import { useFileStore } from '@/data-management/data-management.store'
-import ActiveSCLfileInfo from './active-SCL-file-info.vue'
+import ActiveSCLfileInfo from './active-scl-file-info.vue'
 import { nextTick } from 'vue'
 
 describe('ActiveFile.vue', () => {

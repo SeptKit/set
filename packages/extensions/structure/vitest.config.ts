@@ -7,6 +7,9 @@ import tailwindcss from '@tailwindcss/vite'
 export default mergeConfig(
 	viteConfig,
 	defineConfig({
+		optimizeDeps: {
+			include: ['@septkit/fileio'],
+		},
 		test: {
 			watch: false,
 			projects: [

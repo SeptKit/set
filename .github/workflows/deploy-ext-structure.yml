@@ -12,6 +12,7 @@ jobs:
   install:
     name: Install Dependencies
     uses: ./.github/workflows/_install-ext-structure.yml
+
   build:
     name: Build Project
     needs: install
