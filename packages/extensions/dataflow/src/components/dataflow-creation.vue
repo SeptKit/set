@@ -196,6 +196,7 @@ const attributeOptions = computed(() => {
 			?.dataAttributes.filter((attr) =>
 				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
 			)
+			.filter((attr) => attr.name !== 't' && attr.name !== 'q')
 			.map((attr) => attr.name) || []
 	)
 })
@@ -305,6 +306,22 @@ async function createConnection() {
 			namespace: lNodeInputsRecord.namespace,
 			attributes: [
 				{
+					name: 'pDO',
+					value: dataflowToCreate.value.signal,
+				},
+				{
+					name: 'pLN',
+					value: props.sourceLNode.lnClass,
+				},
+				{
+					name: 'pDA',
+					value: dataflowToCreate.value.attribute,
+				},
+				{
+					name: 'uuid',
+					value: crypto.randomUUID(), // TODO: random or generate UUID based on some logic
+				},
+				{
 					name: 'input',
 					value: dataflowToCreate.value.inputName,
 				},
@@ -328,7 +345,7 @@ async function createConnection() {
 					name: 'sourceDaName',
 					value: dataflowToCreate.value.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
 				},
-				// TODO resourceName, source, pDO, pLN, pDA, uuid, templateUUID attributes
+				// TODO resourceName, source, templateUUID attributes
 			],
 			parent: {
 				tagName: lNodeInputsRecord.tagName,
