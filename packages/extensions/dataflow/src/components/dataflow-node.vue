@@ -11,7 +11,7 @@
 		"
 	>
 		<!-- Dropdown -->
-		<div class="dataflow-dropdown" style="margin-bottom: 20px">
+		<div class="dataflow-dropdown" style="margin-bottom: 20px; margin-top: 20px">
 			<Dropdown>
 				<template #label>
 					{{ activeLNode ? activeLNode.name : 'Select LNode' }}
@@ -19,7 +19,7 @@
 				<template #items>
 					<li
 						v-for="ln in lnodes"
-						:key="ln.name"
+						:key="ln.id"
 						@click="selectLNode(ln)"
 						style="cursor: pointer; padding: 4px 12px"
 					>
@@ -35,22 +35,22 @@
 			style="
 				width: 240px;
 				height: 400px;
-				background-color: orange;
+				background-color: lightgray;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				position: relative;
-				border-radius: 16px;
+				border-radius: 8px;
 			"
 		>
-			<!-- Title -->
+			<!-- Node title -->
 			<div
 				style="
 					width: 100%;
 					text-align: center;
 					font-size: 20px;
 					font-weight: bold;
-					padding: 20px 0 10px 0;
+					padding: 10px 0 10px 0;
 					position: absolute;
 					top: 0;
 					left: 0;
@@ -60,40 +60,17 @@
 			>
 				{{ activeLNode ? activeLNode.name : 'Logical Node' }}
 			</div>
-
-			<!-- Ports LEFT (output) -->
-			<template v-if="type === 'output' && activeLNode">
-				<div
-					v-for="(port, idx) in activeLNode.destinationPorts"
-					:key="idx"
-					:style="getPortPositionStyle(idx, activeLNode.destinationPorts.length, 'left')"
-					style="position: absolute; display: flex; align-items: center"
-				>
-					<div
-						style="
-							width: 18px;
-							height: 18px;
-							border-radius: 50%;
-							background: #111;
-							margin-right: 8px;
-						"
-					></div>
-					<div style="font-size: 15px; white-space: nowrap; text-align: left">
-						{{ getDestPortLabel(port) }}
-					</div>
-				</div>
-			</template>
-
-			<!-- Ports RIGHT (input) -->
+			<!-- Ports right (only for input LN) -->
 			<template v-if="type === 'input' && activeLNode">
 				<div
-					v-for="(port, idx) in activeLNode.sourcePorts"
-					:key="idx"
-					:style="getPortPositionStyle(idx, activeLNode.sourcePorts.length, 'right')"
+					v-for="(dataObject, idx) in activeLNode.dataObjects"
+					:key="dataObject.id"
+					:style="getPortPositionStyle(idx, activeLNode.dataObjects.length, 'right')"
 					style="position: absolute; display: flex; align-items: center"
 				>
 					<div style="font-size: 15px; white-space: nowrap; text-align: right; margin-right: 8px">
-						{{ getSourcePortLabel(port) }}
+						<!-- {{ dataObject.name }} -->
+						{{ getPortLabel(dataObject) }}
 					</div>
 					<div style="width: 18px; height: 18px; border-radius: 50%; background: #111"></div>
 				</div>
@@ -103,44 +80,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue'
+import { ref, watch, defineEmits, computed } from 'vue'
 import { Dropdown } from '@septkit/ui'
-import type { LNodeObject } from '../assets/lnode.types'
+import type { LNode } from '@/types/lnode'
 
 const props = defineProps<{
-	lnodes: LNodeObject[]
+	lnodes: LNode[]
 	type: 'input' | 'output'
+	activeLNodeId?: string | null
 }>()
 
 const emit = defineEmits<{
-	(e: 'update:activeLNode', value: LNodeObject | null): void
+	(e: 'update:activeLNodeId', value: string | null): void
 }>()
 
-const activeLNode = ref<LNodeObject | null>(null)
-function selectLNode(ln: LNodeObject) {
-	activeLNode.value = ln
-	emit('update:activeLNode', ln)
+const activeLNodeId = ref<string | null>(props.activeLNodeId ?? null)
+
+// Sync prop → local ref
+watch(
+	() => props.activeLNodeId,
+	(id) => {
+		activeLNodeId.value = id ?? null
+	},
+)
+
+// On Dropdown select
+function selectLNode(ln: LNode) {
+	activeLNodeId.value = ln.id
+	emit('update:activeLNodeId', ln.id)
 }
 
-function getSourcePortLabel(port: any) {
-	return `${port.do || 'DO'}.${port.da || 'DA'}`
-}
-function getDestPortLabel(port: any) {
-	return `${port.destinationInputName || 'IN'}.${port.inputInstance ?? ''}`
+// Get the label for the port (e.g., "DataObject.Name.DataAttribute.Name")
+function getPortLabel(dataObject: any): string {
+	const daNames = (dataObject.dataAttributes ?? []).map((da: any) => da.name)
+	return [dataObject.name, ...daNames].join('.')
 }
 
-// Returns an inline style that absolutely positions each port with even vertical spacing.
-// `side` is 'left' or 'right'
+const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === activeLNodeId.value) ?? null)
+
 function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right') {
 	const nodeHeight = 400
-	const portHeight = 24 // render "zone"
+	const portHeight = 24
 	const paddingTop = 60
 	const availableSpace = nodeHeight - 2 * paddingTop
 	const spacing = total > 1 ? availableSpace / (total - 1) : 0
 	const top = paddingTop + spacing * idx - portHeight / 2
 
 	return {
-		[side]: '-8px', //not final
+		[side]: '-8px',
 		top: `${top}px`,
 		height: `${portHeight}px`,
 		zIndex: 1,
