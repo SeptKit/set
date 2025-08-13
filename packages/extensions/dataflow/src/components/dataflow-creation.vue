@@ -356,20 +356,77 @@ async function createConnection() {
 		}
 
 		// Add SourceRef records for new connection
+		const addedSourceRefIds: string[] = []
+
 		const addedId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
+		if (!addedId) {
+			console.error('Failed to add SourceRef record')
+			return
+		}
+
+		addedSourceRefIds.push(addedId.toString())
+
+		if (dataflowToCreate.value.includeQuality) {
+			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
+				(attr) => attr.name === 'sourceDaName',
+			)
+			if (sourceDaNameIndex === undefined || sourceDaNameIndex < 0) {
+				console.error('sourceDaName attribute not found in SourceRef record')
+				return
+			}
+
+			recordToAdd.id = crypto.randomUUID()
+			setAttributeValue(recordToAdd, 'uuid', crypto.randomUUID())
+			setAttributeValue(recordToAdd, 'sourceDaName', 'q') // Set to 'q' for Quality
+			setAttributeValue(recordToAdd, 'pDA', 'q') // Set to 'q' for Quality
+
+			const addedQualityId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
+			if (!addedQualityId) {
+				console.error('Failed to add SourceRef record for quality')
+				return
+			}
+
+			addedSourceRefIds.push(addedQualityId.toString())
+		}
+
+		if (dataflowToCreate.value.includeTimestamp) {
+			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
+				(attr) => attr.name === 'sourceDaName',
+			)
+			if (sourceDaNameIndex === undefined || sourceDaNameIndex < 0) {
+				console.error('sourceDaName attribute not found in SourceRef record')
+				return
+			}
+
+			recordToAdd.id = crypto.randomUUID()
+			setAttributeValue(recordToAdd, 'uuid', crypto.randomUUID())
+			setAttributeValue(recordToAdd, 'sourceDaName', 't') // Set to 't' for timestamp
+			setAttributeValue(recordToAdd, 'pDA', 't')
+
+			const addedTimestampId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
+			if (!addedTimestampId) {
+				console.error('Failed to add SourceRef record for timestamp')
+				return
+			}
+
+			addedSourceRefIds.push(addedTimestampId.toString())
+		}
+
 		// TODO: add additional SourceRef for t and q if needed#
 
-		console.log('Added SourceRef with ID:', addedId.toString())
+		console.log('Added SourceRef with ID:', addedSourceRefIds)
 
 		if (lNodeInputsRecord.children == null) {
 			lNodeInputsRecord.children = []
 		}
 
 		// Add SourceRef elements as a child to the LNodeInputs element
-		lNodeInputsRecord.children?.push({
-			id: addedId.toString(),
-			tagName: 'SourceRef',
-		})
+		for (const sourceRefId of addedSourceRefIds) {
+			lNodeInputsRecord.children.push({
+				id: sourceRefId.toString(),
+				tagName: 'SourceRef',
+			})
+		}
 
 		await fileDb
 			.table<DatabaseRecord>(lNodeInputsRecord.tagName)
@@ -409,6 +466,18 @@ function findDataflowTypeLabelByValue(dataflowType: DataflowType): string {
 
 function resetForm() {
 	dataflowToCreate.value = getDataflowToCreateDefault()
+}
+
+function setAttributeValue(record: DatabaseRecord, attributeName: string, value: string) {
+	const attribute = record.attributes?.find((attr) => attr.name === attributeName)
+	if (!record.attributes) {
+		record.attributes = []
+	}
+	if (attribute) {
+		attribute.value = value
+	} else {
+		record.attributes.push({ name: attributeName, value })
+	}
 }
 </script>
 
