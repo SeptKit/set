@@ -69,10 +69,13 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Input Instance</legend>
-				<select class="select" v-model="dataflowToCreate.inputInstance">
-					<option key="instance1" value="instance1">Instance1</option>
-					<option key="instance2" value="instance2">Instance2</option>
-				</select>
+				<input
+					disabled
+					type="text"
+					placeholder="Input Name"
+					class="input"
+					v-model="dataflowToCreate.inputInstance"
+				/>
 			</fieldset>
 
 			<hr class="solid" />
@@ -185,14 +188,7 @@ const signalOptions = computed<string[]>(() => {
 
 const attributeOptions = computed(() => {
 	if (!dataflowToCreate.value.type) return []
-	console.log(
-		props.sourceLNode.dataObjects
-			.find((doObj) => doObj.name === dataflowToCreate.value.signal)
-			?.dataAttributes.filter((attr) =>
-				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
-			)
-			.map((attr) => attr.name),
-	)
+
 	return (
 		props.sourceLNode.dataObjects
 			.find((doObj) => doObj.name === dataflowToCreate.value.signal)
@@ -207,6 +203,33 @@ watch(
 	() => dataflowToCreate.value.signal,
 	(newSignal, _) => {
 		dataflowToCreate.value.destinationInputName = newSignal
+	},
+)
+
+watch(
+	() => dataflowToCreate.value.destinationInputName,
+	() => {
+		dataflowToCreate.value.inputInstance = '1'
+	},
+)
+
+watch(
+	() => dataflowToCreate.value.type,
+	() => {
+		switch (dataflowToCreate.value.type) {
+			case DataflowType.GOOSE:
+			case DataflowType.SMV:
+				dataflowToCreate.value.includeQuality = true
+				dataflowToCreate.value.includeTimestamp = false
+				break
+			case DataflowType.REPORTING:
+				dataflowToCreate.value.includeQuality = true
+				dataflowToCreate.value.includeTimestamp = true
+				break
+			default:
+				dataflowToCreate.value.includeQuality = false
+				dataflowToCreate.value.includeTimestamp = false
+		}
 	},
 )
 
