@@ -81,9 +81,9 @@
 				/>
 			</fieldset>
 
-			<hr class="solid" />
+			<hr class="solid mb-3" />
 
-			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 mb-3">
 				<legend></legend>
 				<label class="label">
 					<input type="checkbox" v-model="dataflowToCreate.includeQuality" class="checkbox" />
@@ -91,7 +91,7 @@
 				</label>
 			</fieldset>
 
-			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 mb-3">
 				<legend></legend>
 				<label class="label">
 					<input type="checkbox" v-model="dataflowToCreate.includeTimestamp" class="checkbox" />
@@ -103,7 +103,7 @@
 
 			<div class="modal-action">
 				<button class="btn" @click="closeModal">Close</button>
-				<button class="btn" @click="createConnection">Create Connection</button>
+				<button class="btn" @click="createConnection">Save</button>
 			</div>
 		</div>
 	</dialog>
