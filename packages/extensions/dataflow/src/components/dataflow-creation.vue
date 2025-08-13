@@ -21,8 +21,8 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Source</legend>
-				<select required disabled class="select" v-model="dataflowToCreate.sourceLNodeId">
-					<option :value="sourceLNode.id">{{ sourceLNode.name }}</option>
+				<select required disabled class="select" v-model="props.sourceLNode.id">
+					<option :value="props.sourceLNode.id">{{ getLNodeLabel(sourceLNode) }}</option>
 				</select>
 			</fieldset>
 
@@ -53,8 +53,8 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Destination</legend>
-				<select required disabled class="select" v-model="dataflowToCreate.destinationLNodeId">
-					<option :value="destinationLNode.id">{{ destinationLNode.name }}</option>
+				<select required disabled class="select" v-model="props.destinationLNode.id">
+					<option :value="props.destinationLNode.id">{{ getLNodeLabel(destinationLNode) }}</option>
 				</select>
 			</fieldset>
 
@@ -65,7 +65,7 @@
 					type="text"
 					placeholder="Input Name"
 					class="input"
-					v-model="dataflowToCreate.destinationInputName"
+					v-model="dataflowToCreate.inputName"
 				/>
 			</fieldset>
 
@@ -115,6 +115,7 @@ import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
 import type { DatabaseRecord, Relationship } from '@septkit/fileio'
 import { openDatabase } from '../assets/openDb'
+import { getLNodeLabel } from '@/types/lnode'
 
 const props = defineProps<{
 	sourceLNode: LNode
@@ -155,13 +156,9 @@ const dataflowTypes = [
 
 type DataflowCreationType = {
 	type: DataflowType | null
-	sourceLNodeId: string
-	sourceLNodeName: string
 	signal: string
 	attribute: string
-	destinationLNodeId: string
-	destinationLNodeName: string
-	destinationInputName: string
+	inputName: string
 	inputInstance: string
 	includeQuality: boolean
 	includeTimestamp: boolean
@@ -169,13 +166,9 @@ type DataflowCreationType = {
 
 const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
 	type: null,
-	sourceLNodeId: props.sourceLNode.id,
-	sourceLNodeName: props.sourceLNode.name,
 	signal: '',
 	attribute: '',
-	destinationLNodeId: props.destinationLNode.id,
-	destinationLNodeName: props.destinationLNode.name,
-	destinationInputName: '',
+	inputName: '',
 	inputInstance: '',
 	includeQuality: false,
 	includeTimestamp: false,
@@ -210,12 +203,12 @@ const attributeOptions = computed(() => {
 watch(
 	() => dataflowToCreate.value.signal,
 	(newSignal, _) => {
-		dataflowToCreate.value.destinationInputName = newSignal
+		dataflowToCreate.value.inputName = newSignal
 	},
 )
 
 watch(
-	() => dataflowToCreate.value.destinationInputName,
+	() => dataflowToCreate.value.inputName,
 	() => {
 		dataflowToCreate.value.inputInstance = '1'
 	},
@@ -313,7 +306,7 @@ async function createConnection() {
 			attributes: [
 				{
 					name: 'input',
-					value: dataflowToCreate.value.destinationInputName,
+					value: dataflowToCreate.value.inputName,
 				},
 				{
 					name: 'inputInst',
@@ -386,8 +379,8 @@ function validateDataflowToCreate(): boolean {
 		alert('Please select an attribute (DA).')
 		return false
 	}
-	if (!dataflowToCreate.value.destinationInputName) {
-		alert('Please enter a destination input name.')
+	if (!dataflowToCreate.value.inputName) {
+		alert('Please enter a input name.')
 		return false
 	}
 	return true
