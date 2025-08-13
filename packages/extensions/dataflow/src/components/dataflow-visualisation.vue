@@ -6,12 +6,11 @@
 		style="display: flex; flex-direction: row; align-items: center; justify-content: center"
 	>
 		<dataflow-node
-			:lnodes="testLNodes"
+			:lnodes="LNodes"
 			type="input"
-			@update:activeLNode="onActiveInputNodeChange"
+			:activeLNodeId="activeInputLNodeId"
+			@update:activeLNodeId="(val) => (activeInputLNodeId = val)"
 		/>
-
-		<!-- Connection Component here? -->
 		<div
 			style="
 				width: 200px;
@@ -23,48 +22,42 @@
 		>
 			- Connections -
 		</div>
-
 		<dataflow-node
-			:lnodes="testLNodes"
+			:lnodes="LNodes"
 			type="output"
-			@update:activeLNode="onActiveOutputNodeChange"
+			:activeLNodeId="activeOutputLNodeId"
+			@update:activeLNodeId="(val) => (activeOutputLNodeId = val)"
 		/>
 	</div>
-	<!-- "Plus-button" component with modal for new connection here? -->
 </template>
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
-import testLNodes from '../assets/lnodeTestData' // Test data for logical nodes
-import type { LNodeObject } from '../assets/lnode.types'
 import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
-
 import { onMounted, ref } from 'vue'
 import type { LNode } from '@/types/lnode'
 
-const props = defineProps<{
-	api: { [key: string]: any }
-}>()
-
 const LNodes = ref<LNode[]>([])
+
+const activeInputLNodeId = ref<string | null>(null)
+const activeOutputLNodeId = ref<string | null>(null)
 
 onMounted(async () => {
 	LNodes.value = await getEnrichedLNodesFromDB()
-	console.log('Enriched LNodes:', LNodes.value)
+	console.log('LNodes loaded:', LNodes.value)
 })
 
-// active nodes for input and output
-const activeInputNode = ref<LNodeObject | null>(null)
-const activeOutputNode = ref<LNodeObject | null>(null)
-
-function onActiveInputNodeChange(node: LNodeObject | null) {
-	activeInputNode.value = node
-	console.log('activeInputNode:', activeInputNode.value)
+// get active input and output LNodes
+function getActiveLNodes() {
+	const activeInputLNode = getActiveLNodeById(activeInputLNodeId.value)
+	const activeOutputLNode = getActiveLNodeById(activeOutputLNodeId.value)
+	console.log('Active Input LNode:', activeInputLNode)
+	console.log('Active Output LNode:', activeOutputLNode)
+	return { activeInputLNode, activeOutputLNode }
 }
-
-function onActiveOutputNodeChange(node: LNodeObject | null) {
-	activeOutputNode.value = node
-	console.log('activeOutputNode:', activeOutputNode.value)
+// helper function to get active LNode by ID
+function getActiveLNodeById(id: string | null) {
+	return LNodes.value.find((ln) => ln.id === id) ?? null
 }
 </script>
 
