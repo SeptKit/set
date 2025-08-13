@@ -143,17 +143,6 @@ jobs:
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
 
-      - name: Delete pnpm lock file # File was causing issues with workspace links and prevented fetching packages from npm registry
-        working-directory: packages/shell
-        if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            echo "Deleting pnpm-lock.yaml to enforce fetching from npm registry"
-            rm pnpm-lock.yaml
-          else
-            echo "pnpm-lock.yaml does not exist, skipping deletion"
-          fi
-
       - name: Install dependencies
         run: pnpm install --filter=./packages/shell --ignore-scripts
         if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
