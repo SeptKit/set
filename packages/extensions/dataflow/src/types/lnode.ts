@@ -17,8 +17,11 @@ export type DataAttribute = {
 export type LNode = {
 	id: string
 	uuid: string
-	name: string
+	iedName: string
 	lnType?: string
+	prefix: string
+	lnClass: string
+	lnInst: string
 	dataObjects: DataObject[]
 }
 
@@ -30,4 +33,8 @@ export type Connection = {
 	dataflowType: 'goose' | 'smv' | 'reporting' | 'internal' | 'wired' | 'control'
 	inputInstance: string
 	inputName: string
+}
+
+export function getLNodeLabel(lnode: LNode): string {
+	return `${lnode.prefix} ${lnode.lnClass} ${lnode.lnInst}`
 }

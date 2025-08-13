@@ -14,7 +14,7 @@
 		<div class="dataflow-dropdown" style="margin-bottom: 20px; margin-top: 20px">
 			<Dropdown>
 				<template #label>
-					{{ activeLNode ? activeLNode.name : 'Select LNode' }}
+					{{ activeLNode ? getLNodeLabel(activeLNode) : 'Select LNode' }}
 				</template>
 				<template #items>
 					<li
@@ -23,7 +23,7 @@
 						@click="selectLNode(ln)"
 						style="cursor: pointer; padding: 4px 12px"
 					>
-						{{ ln.name }}
+						{{ getLNodeLabel(ln) }}
 					</li>
 				</template>
 			</Dropdown>
@@ -58,7 +58,7 @@
 					background: transparent;
 				"
 			>
-				{{ activeLNode ? activeLNode.name : 'Logical Node' }}
+				{{ activeLNode ? getLNodeLabel(activeLNode) : 'Logical Node' }}
 			</div>
 			<!-- Ports right (only for input LN) -->
 			<template v-if="type === 'input' && activeLNode">
@@ -83,6 +83,7 @@
 import { ref, watch, defineEmits, computed } from 'vue'
 import { Dropdown } from '@septkit/ui'
 import type { LNode } from '@/types/lnode'
+import { getLNodeLabel } from '@/types/lnode'
 
 const props = defineProps<{
 	lnodes: LNode[]
