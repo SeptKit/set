@@ -86,6 +86,14 @@ jobs:
             fi
           fi
 
+      # unblock main branch of deployment repository
+      - name: Checkout Main Branch
+        uses: actions/checkout@v3
+        if: ${{ steps.verify_branch.outputs.deployment_branch_exists == 'true' }}
+        with:
+          repository: 'SeptKit/set'
+          ref: 'main'
+
       - name: Extract Deployed Version
         id: get_version
         if: steps.verify_branch.outputs.deployment_branch_exists == 'true' && steps.verify_deployed_folder.outputs.deployed_folder_exists == 'true'
