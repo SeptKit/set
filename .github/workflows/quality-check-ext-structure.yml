@@ -10,8 +10,6 @@ jobs:
   install:
     name: Install Dependencies
     uses: ./.github/workflows/_install-ext-structure.yml
-    with:
-      package-name: extensions/structure
 
   test:
     name: Run Tests
