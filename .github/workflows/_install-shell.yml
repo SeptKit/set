@@ -81,7 +81,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Delete all pnpm lock files
-        run: -r --include-workspace-root exec rm -rf pnpm-lock.yaml
+        run: pnpm -r --include-workspace-root exec rm -rf pnpm-lock.yaml
 
       - name: Setup node_modules Cache
         id: cache-node-modules
