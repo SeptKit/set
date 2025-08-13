@@ -4,7 +4,7 @@ on:
     outputs:
       cache-key:
         description: 'Cache key for extensions/structure node_modules'
-        value: ${{ jobs.cache-and-install-extensions/structure.outputs.cache-key }}
+        value: ${{ jobs.cache-and-install-ext-structure.outputs.cache-key }}
 
 jobs:
   check-fileio:
