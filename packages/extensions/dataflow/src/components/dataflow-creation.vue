@@ -17,9 +17,8 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Source</legend>
-				<select class="select" v-model="dataflowToCreate.source">
-					<option key="node1" value="ln1">LN1</option>
-					<option key="node2" value="ln2">LN2</option>
+				<select disabled class="select" v-model="dataflowToCreate.sourceLNodeId">
+					<option :value="sourceLNode.id">{{ sourceLNode.name }}</option>
 				</select>
 			</fieldset>
 
@@ -43,9 +42,8 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend font-extrabold">Destination</legend>
-				<select class="select" v-model="dataflowToCreate.destination">
-					<option key="node1" value="ln1">LN1</option>
-					<option key="node2" value="ln2">LN2</option>
+				<select disabled class="select" v-model="dataflowToCreate.destinationLNodeId">
+					<option :value="destinationLNode.id">{{ destinationLNode.name }}</option>
 				</select>
 			</fieldset>
 
@@ -94,41 +92,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
+import type { LNode } from '@/types/lnode'
 
-const dataFlowTypes = [
+const props = defineProps<{
+	sourceLNode: LNode
+	destinationLNode: LNode
+}>()
+
+const dataflowTypes = [
 	{
 		label: 'Goose',
-		value: 'goose',
+		value: DataflowType.GOOSE,
 	},
 	{
 		label: 'SMV',
-		value: 'smv',
+		value: DataflowType.SMV,
 	},
 	{
 		label: 'Reporting',
-		value: 'reporting',
+		value: DataflowType.REPORTING,
 	},
 	{
 		label: 'Internal',
-		value: 'internal',
+		value: DataflowType.INTERNAL,
 	},
 	{
 		label: 'Wired',
-		value: 'wired',
+		value: DataflowType.WIRED,
 	},
 	{
 		label: 'Control',
-		value: 'control',
+		value: DataflowType.CONTROL,
 	},
 ] as const
 
-type DataFlowCreationType = {
-	type: (typeof dataFlowTypes)[number]['value'] | null
-	source: string
+type DataflowCreationType = {
+	type: DataflowType | null
+	sourceLNodeId: string
+	sourceLNodeName: string
 	signal: string
 	attribute: string
-	destination: string
+	destinationLNodeId: string
+	destinationLNodeName: string
 	destinationInputName: string
 	inputInstance: string
 	includeQuality: boolean
@@ -136,17 +142,23 @@ type DataFlowCreationType = {
 }
 
 const isOpen = ref(false)
-const dataflowToCreate = ref<DataFlowCreationType>({
+
+const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
 	type: null,
-	source: '',
+	sourceLNodeId: props.sourceLNode.id,
+	sourceLNodeName: props.sourceLNode.name,
 	signal: '',
 	attribute: '',
-	destination: '',
+	destinationLNodeId: props.destinationLNode.id,
+	destinationLNodeName: props.destinationLNode.name,
 	destinationInputName: '',
 	inputInstance: '',
 	includeQuality: false,
 	includeTimestamp: false,
 })
+
+const dataflowToCreate = ref<DataflowCreationType>(getDataflowToCreateDefault())
+
 
 function showModal() {
 	isOpen.value = true
@@ -164,17 +176,7 @@ function createConnection() {
 }
 
 function resetForm() {
-	dataflowToCreate.value = {
-		type: null,
-		source: '',
-		signal: '',
-		attribute: '',
-		destination: '',
-		destinationInputName: '',
-		inputInstance: '',
-		includeQuality: false,
-		includeTimestamp: false,
-	}
+	dataflowToCreate.value = getDataflowToCreateDefault()
 }
 </script>
 

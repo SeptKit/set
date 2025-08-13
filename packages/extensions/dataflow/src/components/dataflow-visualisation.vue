@@ -31,17 +31,18 @@
 		/>
 	</div>
 
-	<DataFlowCreation />
+	<DataflowCreation :sourceLNode="sourceLNode" :destinationLNode="destinationLNode" />
 
 	<!-- "Plus-button" component with modal for new conncetion here? -->
 </template>
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
-import DataFlowCreation from './dataflow-creation.vue'
+import DataflowCreation from './dataflow-creation.vue'
 import testLNodes from '../assets/lnodeTestData' // Test data for logical nodes
 import type { LNodeObject } from '../assets/lnode.types'
 import { ref } from 'vue'
+import type { LNode } from '@/types/lnode'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -59,6 +60,51 @@ function onActiveInputNodeChange(node: LNodeObject | null) {
 function onActiveOutputNodeChange(node: LNodeObject | null) {
 	activeOutputNode.value = node
 	console.log('activeOutputNode:', activeOutputNode.value)
+}
+
+const sourceLNode: LNode = {
+	id: '7aca07b3-2ade-4e72-b922-d0d9d5fd7dca',
+	name: 'LN1',
+	dataObjects: [
+		{
+			id: 'a0d283ff-a407-4787-9df6-0189d3570fd6',
+			name: 'Signal1',
+			dataAttributes: [
+				{
+					id: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6',
+					dataObjectId: 'a0d283ff-a407-4787-9df6-0189d3570fd6',
+					name: 'Attribute1',
+					fc: 'SP',
+				},
+				{
+					id: 'c2d3e4f5-a6b7-8c9d-0e1f-2a3b4c5d6e7f',
+					dataObjectId: 'a0d283ff-a407-4787-9df6-0189d3570fd6',
+					name: 'Attribute2',
+					fc: 'SV',
+				},
+			],
+			lNodeId: '7aca07b3-2ade-4e72-b922-d0d9d5fd7dca',
+		},
+		{
+			id: 'b0d283ff-a407-4787-9df6-0189d3570fd6',
+			name: 'Signal2',
+			dataAttributes: [
+				{
+					id: 'd1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6',
+					dataObjectId: 'a0d283ff-a407-4787-9df6-0189d3570fd6',
+					name: 'Attribute1',
+					fc: 'SV',
+				},
+			],
+			lNodeId: '7aca07b3-2ade-4e72-b922-d0d9d5fd7dca',
+		},
+	],
+}
+
+const destinationLNode: LNode = {
+	id: 'f1344fee-bb66-4525-bc18-6264c7220435',
+	name: 'LN2',
+	dataObjects: [],
 }
 </script>
 
