@@ -22,12 +22,7 @@
 		>
 			- Connections -
 		</div>
-		<dataflow-node
-			:lnodes="LNodes"
-			type="output"
-			:activeLNodeId="activeOutputLNodeId"
-			@update:activeLNodeId="(val) => (activeOutputLNodeId = val)"
-		/>
+		<dataflow-node :lnodes="LNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
 	</div>
 
 	<DataflowCreation

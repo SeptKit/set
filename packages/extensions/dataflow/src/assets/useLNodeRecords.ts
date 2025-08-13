@@ -30,7 +30,10 @@ async function getAllLNodes(db: Dexie): Promise<LNode[]> {
 	return lnodeRecords.map((record) => ({
 		id: record.id,
 		uuid: getAttribute(record, 'uuid') ?? '',
-		name: getAttribute(record, 'iedName') ?? record.id, // Fallback auf id
+		iedName: getAttribute(record, 'iedName') ?? '',
+		prefix: getAttribute(record, 'prefix') ?? '',
+		lnClass: getAttribute(record, 'lnClass') ?? '',
+		lnInst: getAttribute(record, 'lnInst') ?? '',
 		lnType: getAttribute(record, 'lnType'),
 		dataObjects: [],
 	}))

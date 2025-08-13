@@ -12,21 +12,16 @@
 	>
 		<!-- Dropdown -->
 		<div class="dataflow-dropdown" style="margin-bottom: 20px; margin-top: 20px">
-			<Dropdown>
-				<template #label>
-					{{ activeLNode ? activeLNode.name : 'Select LNode' }}
-				</template>
-				<template #items>
-					<li
-						v-for="ln in lnodes"
-						:key="ln.id"
-						@click="selectLNode(ln)"
-						style="cursor: pointer; padding: 4px 12px"
-					>
-						{{ ln.name }}
-					</li>
-				</template>
-			</Dropdown>
+			<select
+				class="select"
+				:value="props.activeLNodeId"
+				@change="(e) => onSelect((e.target as HTMLSelectElement).value)"
+			>
+				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+					{{ getLNodeLabel(ln) }}
+				</option>
+				<option key="null" :value="null">Select LNode</option>
+			</select>
 		</div>
 
 		<!-- LNode card -->
@@ -58,7 +53,7 @@
 					background: transparent;
 				"
 			>
-				{{ activeLNode ? activeLNode.name : 'Logical Node' }}
+				{{ activeLNode ? getLNodeLabel(activeLNode) : 'Logical Node' }}
 			</div>
 			<!-- Ports right (only for input LN) -->
 			<template v-if="type === 'input' && activeLNode">
@@ -80,9 +75,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineEmits, computed } from 'vue'
-import { Dropdown } from '@septkit/ui'
+import { defineEmits, computed } from 'vue'
 import type { LNode } from '@/types/lnode'
+import { getLNodeLabel } from '@/types/lnode'
 
 const props = defineProps<{
 	lnodes: LNode[]
@@ -94,20 +89,8 @@ const emit = defineEmits<{
 	(e: 'update:activeLNodeId', value: string | null): void
 }>()
 
-const activeLNodeId = ref<string | null>(props.activeLNodeId ?? null)
-
-// Sync prop → local ref
-watch(
-	() => props.activeLNodeId,
-	(id) => {
-		activeLNodeId.value = id ?? null
-	},
-)
-
-// On Dropdown select
-function selectLNode(ln: LNode) {
-	activeLNodeId.value = ln.id
-	emit('update:activeLNodeId', ln.id)
+function onSelect(lnodeId: string) {
+	emit('update:activeLNodeId', lnodeId)
 }
 
 // Get the label for the port (e.g., "DataObject.Name.DataAttribute.Name")
@@ -116,7 +99,7 @@ function getPortLabel(dataObject: any): string {
 	return [dataObject.name, ...daNames].join('.')
 }
 
-const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === activeLNodeId.value) ?? null)
+const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === props.activeLNodeId) ?? null)
 
 function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right') {
 	const nodeHeight = 400

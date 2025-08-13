@@ -17,7 +17,14 @@ export type DataAttribute = {
 export type LNode = {
 	id: string
 	uuid: string
-	name: string
+	iedName: string
 	lnType?: string
+	prefix: string
+	lnClass: string
+	lnInst: string
 	dataObjects: DataObject[]
+}
+
+export function getLNodeLabel(lnode: LNode): string {
+	return `${lnode.prefix} ${lnode.lnClass} ${lnode.lnInst}`
 }
