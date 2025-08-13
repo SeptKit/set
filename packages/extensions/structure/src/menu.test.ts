@@ -10,30 +10,36 @@ describe('Menu: Instantiate Function', () => {
 			asdContent: string
 			fsdContent: string
 			epxectedASD: string
+			only?: boolean
 		}
 
 		const featureTests: TestCase[] = [
 			{
 				desc: 'All of the parents of the function exist',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<Function name="already existed" uuid="already-existed" />
 						</Substation>
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+						<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 						<Substation name="TEMPLATE">
 							<Function name="Binary Output" uuid="fn-1"></Function>
 						</Substation>
 					</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<Function name="already existed" uuid="already-existed" />
-							<Function name="Binary Output" uuid="6-0-0-0-0" templateUuid="fn-1" />
+							<Function name="Binary Output" uuid="7-0-0-0-0" templateUuid="fn-1" >
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 						</Substation>
 					</SCL>
 				`,
@@ -41,28 +47,32 @@ describe('Menu: Instantiate Function', () => {
 			{
 				desc: 'Missing parent elements (Voltage Level) are transfered',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<Function name="already existed" uuid="already-existed" />
 						</Substation>
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+						<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 						<Substation name="TEMPLATE">
 							<VoltageLevel name="TEMPLATE">
-								<Function name="Binary Output" uuid="fn-1">
-								</Function>
+								<Function name="Binary Output" uuid="fn-1" />
 							</VoltageLevel>
 						</Substation>
 					</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<Function name="already existed" uuid="already-existed" />
 							<VoltageLevel name="TEMPLATE">
-								<Function name="Binary Output" uuid="7-0-0-0-0" templateUuid="fn-1" />
+								<Function name="Binary Output" uuid="8-0-0-0-0" templateUuid="fn-1" >
+									<Private type="eIEC61850-6-100">
+										<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+									</Private>
+								</Function>
 							</VoltageLevel>
 						</Substation>
 					</SCL>
@@ -71,11 +81,12 @@ describe('Menu: Instantiate Function', () => {
 			{
 				desc: 'The content of the function is transfered',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+						<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 						<Substation name="TEMPLATE">
 							<VoltageLevel name="TEMPLATE">
 								<Function name="Binary Output" uuid="fn-1">
@@ -87,11 +98,14 @@ describe('Menu: Instantiate Function', () => {
 					</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<VoltageLevel name="TEMPLATE">
-								<Function name="Binary Output" uuid="6-0-0-0-0" templateUuid="fn-1" >
+								<Function name="Binary Output" uuid="7-0-0-0-0" templateUuid="fn-1" >
 									<LNode iedName="none" />
+									<Private type="eIEC61850-6-100">
+										<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+									</Private>
 								</Function>
 							</VoltageLevel>
 						</Substation>
@@ -101,11 +115,12 @@ describe('Menu: Instantiate Function', () => {
 			{
 				desc: 'DataTypeTemplates are trasfered',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-				<SCL>
+				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<DataTypeTemplates>
 						<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
 							<DO desc="first-do" name="do-one" type="TEST"/>
@@ -115,7 +130,7 @@ describe('Menu: Instantiate Function', () => {
 				</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<DataTypeTemplates>
 							<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
 								<DO desc="first-do" name="do-one" type="TEST"/>
@@ -128,7 +143,7 @@ describe('Menu: Instantiate Function', () => {
 			{
 				desc: 'new templates are added',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<DataTypeTemplates>
 							<LNodeType id="existing-lnode-type" lnClass="LLN0">
 								<DO name="Mod" type="TEST"/>
@@ -138,7 +153,8 @@ describe('Menu: Instantiate Function', () => {
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-				<SCL>
+				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<DataTypeTemplates>
 						<LNodeType id="tctr_7_4_B2007" lnClass="TCTR">
 							<DO desc="first-do" name="do-one" type="TEST"/>
@@ -148,7 +164,7 @@ describe('Menu: Instantiate Function', () => {
 				</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<DataTypeTemplates>
 							<LNodeType id="existing-lnode-type" lnClass="LLN0">
 								<DO name="Mod" type="TEST"/>
@@ -165,7 +181,7 @@ describe('Menu: Instantiate Function', () => {
 			{
 				desc: 'Existing types are skipped',
 				asdContent: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<DataTypeTemplates>
 							<LNodeType id="existing-lnode-type" lnClass="LLN0">
 								<DO name="Mod" type="Existing Value"/>
@@ -174,7 +190,8 @@ describe('Menu: Instantiate Function', () => {
 					</SCL>
 				`,
 				fsdContent: /*xml*/ `
-				<SCL>
+				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<DataTypeTemplates>
 						<LNodeType id="existing-lnode-type" lnClass="LLN0">
 							<DO name="Mod" type="New Value"/>
@@ -183,7 +200,7 @@ describe('Menu: Instantiate Function', () => {
 				</SCL>
 				`,
 				epxectedASD: /*xml*/ `
-					<SCL>
+					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<DataTypeTemplates>
 							<LNodeType id="existing-lnode-type" lnClass="LLN0">
 								<DO name="Mod" type="Existing Value"/>
@@ -202,9 +219,10 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
+						<Function name="Binary Output" uuid="a-new-function" />
 						<Private type="eIEC61850-6-100">
-							<Function name="Binary Output" uuid="a-new-function" />
 							<eIEC61850-6-100:FunctionCategory name="new function category" uuid="new-function-category">
 								<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="a-new-function"/>
 							</eIEC61850-6-100:FunctionCategory>
@@ -215,10 +233,14 @@ describe('Menu: Instantiate Function', () => {
 				epxectedASD: /*xml*/ `
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
-							<Function name="Binary Output" uuid="8-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="9-0-0-0-0" templateUuid="a-new-function">
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
-								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="10-0-0-0-0" templateUuid="new-function-category">
-										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="8-0-0-0-0"/>
+								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="14-0-0-0-0" templateUuid="new-function-category">
+										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="9-0-0-0-0"/>
 								</eIEC61850-6-100:FunctionCategory>
 							</Private>
 						</Substation>
@@ -235,6 +257,7 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
 						<Private type="eIEC61850-6-100">
 							<Function name="Binary Output" uuid="a-new-function" />
@@ -250,11 +273,15 @@ describe('Menu: Instantiate Function', () => {
 				epxectedASD: /*xml*/ `
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
-							<Function name="Binary Output" uuid="9-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="10-0-0-0-0" templateUuid="a-new-function" >
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
-								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="11-0-0-0-0" templateUuid="new-function-category">
-									<eIEC61850-6-100:SubCategory name="new function subcategory" uuid="13-0-0-0-0" templateUuid="new-function-sub-category">
-										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="9-0-0-0-0"/>
+								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="15-0-0-0-0" templateUuid="new-function-category">
+									<eIEC61850-6-100:SubCategory name="new function subcategory" uuid="17-0-0-0-0" templateUuid="new-function-sub-category">
+										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="10-0-0-0-0"/>
 									</eIEC61850-6-100:SubCategory>
 								</eIEC61850-6-100:FunctionCategory>
 							</Private>
@@ -272,6 +299,7 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
 						<Function name="Binary Output" uuid="a-new-function" />
 						<Private type="eIEC61850-6-100">
@@ -288,13 +316,17 @@ describe('Menu: Instantiate Function', () => {
 				epxectedASD: /*xml*/ `
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
-							<Function name="Binary Output" uuid="10-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="11-0-0-0-0" templateUuid="a-new-function">
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
-								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="12-0-0-0-0" templateUuid="new-function-category">
-									<eIEC61850-6-100:SubCategory name="new function subcategory" uuid="15-0-0-0-0" templateUuid="new-function-sub-category">
-										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="10-0-0-0-0"/>
+								<eIEC61850-6-100:FunctionCategory name="new function category" uuid="16-0-0-0-0" templateUuid="new-function-category">
+									<eIEC61850-6-100:SubCategory name="new function subcategory" uuid="19-0-0-0-0" templateUuid="new-function-sub-category">
+										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="11-0-0-0-0"/>
 									</eIEC61850-6-100:SubCategory>
-									<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="10-0-0-0-0"/>
+									<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="11-0-0-0-0"/>
 								</eIEC61850-6-100:FunctionCategory>
 							</Private>
 						</Substation>
@@ -311,6 +343,7 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
 						<Function name="Binary Output" uuid="a-new-function" />
 						<Private type="eIEC61850-6-100">
@@ -330,13 +363,17 @@ describe('Menu: Instantiate Function', () => {
 				epxectedASD: /*xml*/ `
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
-							<Function name="Binary Output" uuid="11-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="12-0-0-0-0" templateUuid="a-new-function">
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
-								<eIEC61850-6-100:FunctionCategory name="Main Function Category" uuid="13-0-0-0-0" templateUuid="main-function-category">
-									<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="15-0-0-0-0" templateUuid="sub-category-level-1">
-										<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="17-0-0-0-0" templateUuid="sub-category-level-2">
-											<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="19-0-0-0-0" templateUuid="sub-category-level-3">
-												<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="11-0-0-0-0"/>
+								<eIEC61850-6-100:FunctionCategory name="Main Function Category" uuid="17-0-0-0-0" templateUuid="main-function-category">
+									<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="19-0-0-0-0" templateUuid="sub-category-level-1">
+										<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="21-0-0-0-0" templateUuid="sub-category-level-2">
+											<eIEC61850-6-100:SubCategory name="Sub Category Level 1" uuid="23-0-0-0-0" templateUuid="sub-category-level-3">
+												<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="12-0-0-0-0"/>
 											</eIEC61850-6-100:SubCategory>
 										</eIEC61850-6-100:SubCategory>
 									</eIEC61850-6-100:SubCategory>
@@ -364,6 +401,7 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
 						<Function name="Binary Output" uuid="a-new-function" />
 						<Private type="eIEC61850-6-100">
@@ -380,14 +418,18 @@ describe('Menu: Instantiate Function', () => {
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
 							<Function name="Existing Function" uuid="an-existing-function" templateUuid="irrelevant-for-the-test-case" />
-							<Function name="Binary Output" uuid="14-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="15-0-0-0-0" templateUuid="a-new-function">
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
 								<eIEC61850-6-100:FunctionCategory name="Existing Funtion Category" uuid="81ff2b17-5701-486a-a974-74c28389810a" templateUuid="existing-function-category">
 									<eIEC61850-6-100:SubCategory name="Existing Sub Category" uuid="5bafbac9-7603-452b-accd-24cf1d1e295d" templateUuid="existing-sub-category">
 										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Existing Function" functionUuid="an-existing-function"/>
 									</eIEC61850-6-100:SubCategory>
-									<eIEC61850-6-100:SubCategory name="A new Sub Category" uuid="16-0-0-0-0" templateUuid="a-new-sub-category">
-										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="14-0-0-0-0"/>
+									<eIEC61850-6-100:SubCategory name="A new Sub Category" uuid="19-0-0-0-0" templateUuid="a-new-sub-category">
+										<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="15-0-0-0-0"/>
 									</eIEC61850-6-100:SubCategory>
 								</eIEC61850-6-100:FunctionCategory>
 							</Private>
@@ -405,6 +447,7 @@ describe('Menu: Instantiate Function', () => {
 				`,
 				fsdContent: /*xml*/ `
 				<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+					<Header id="Binary_Output_FSD" nameStructure="IEDName" revision="2" toolID="SeptKit 0" version="1" uuid="binary-output-fsd-uuid" />
 					<Substation name="TEMPLATE">
 						<Private type="eIEC61850-6-100">
 							<eIEC61850-6-100:FunctionCategory name="Main Function Category" uuid="main-function-category">
@@ -418,10 +461,14 @@ describe('Menu: Instantiate Function', () => {
 				epxectedASD: /*xml*/ `
 					<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
 						<Substation name="TEMPLATE">
-							<Function name="Binary Output" uuid="8-0-0-0-0" templateUuid="a-new-function" />
+							<Function name="Binary Output" uuid="9-0-0-0-0" templateUuid="a-new-function">
+								<Private type="eIEC61850-6-100">
+									<eIEC61850-6-100:SclFileReference fileType="FSD" fileUuid="binary-output-fsd-uuid" version="1" revision="2"/>
+								</Private>
+							</Function>
 							<Private type="eIEC61850-6-100">
-								<eIEC61850-6-100:FunctionCategory name="Main Function Category" uuid="10-0-0-0-0" templateUuid="main-function-category">
-									<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="8-0-0-0-0"/>
+								<eIEC61850-6-100:FunctionCategory name="Main Function Category" uuid="14-0-0-0-0" templateUuid="main-function-category">
+									<eIEC61850-6-100:FunctionCatRef function="TEMPLATE/Binary Output" functionUuid="9-0-0-0-0"/>
 								</eIEC61850-6-100:FunctionCategory>
 							</Private>
 
@@ -431,7 +478,13 @@ describe('Menu: Instantiate Function', () => {
 			},
 		]
 
-		featureTests.forEach(testFeature)
+		let testCases = featureTests
+		let runOnlyTestCases = featureTests.filter((tc) => tc.only)
+		if (runOnlyTestCases.length) {
+			testCases = runOnlyTestCases
+		}
+
+		testCases.forEach(testFeature)
 
 		function testFeature(tc: TestCase) {
 			it(tc.desc, async () => {
@@ -475,7 +528,7 @@ describe('Menu: Instantiate Function', () => {
 					.serializeToString(expectedASDXml)
 					.replace(/>\s+</g, '>\n<')
 					.trim()
-				expect(xmlAsString).toEqual(expectedASDAsString)
+				expect(xmlAsString, 'generatedXML: \n' + xmlAsString).toEqual(expectedASDAsString)
 			})
 		}
 	})

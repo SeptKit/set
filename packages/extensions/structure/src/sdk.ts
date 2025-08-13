@@ -17,6 +17,7 @@ export function useSDK(db: Dexie) {
 		findRootSCL,
 		recordExists,
 		findOneRecordByAttribute,
+		db,
 	}
 
 	/**
@@ -199,6 +200,8 @@ export function useSDK(db: Dexie) {
 		return childRecords
 	}
 }
+
+export type SDK = ReturnType<typeof useSDK>
 
 export function extractAttr(
 	record: DatabaseRecord,

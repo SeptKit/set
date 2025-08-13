@@ -38,6 +38,7 @@
 		"test": "vitest --project unit",
 		"test:watch": "pnpm test --watch",
 		"test:debug": "npm run test -- --browser.headless=false --browser.devtools=true --testTimeout 10000000",
+		"test:debug:watch": "npm run test:debug -- --watch",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",

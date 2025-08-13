@@ -3,7 +3,7 @@ import { importXmlFiles } from '@septkit/fileio'
 // TODO: only this seems to work
 import type { DatabaseRecord } from '../node_modules/@septkit/fileio/dist/common/common.types'
 import Dexie from 'dexie'
-import { extractAttr, findRecordByAttribute, updateAttr, useSDK } from './sdk'
+import { extractAttr, findRecordByAttribute, updateAttr, useSDK, type SDK } from './sdk'
 
 export default async function menuActionFn() {
 	const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
@@ -37,6 +37,39 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 	asdDB.close()
 
 	async function instantiateFunctions() {
+		//
+		// Extract File attributes for SCLReferenc
+		//
+		const header = await fsdDB.table<DatabaseRecord>('Header').orderBy('id').first()
+		if (!header) {
+			const err = { msg: 'Header element is missing in FSD' }
+			console.error(err)
+			throw new Error(JSON.stringify(err))
+		}
+		const fileUuidAttr = extractAttr(header, 'uuid')
+		if (!fileUuidAttr) {
+			const err = { msg: 'uuid is missing in Header element', header }
+			console.error(err)
+			throw new Error(JSON.stringify(err))
+		}
+
+		const versionAttr = extractAttr(header, 'version')
+		if (!versionAttr) {
+			const err = { msg: 'version is missing in Header element', header }
+			console.error(err)
+			throw new Error(JSON.stringify(err))
+		}
+
+		const revisionAttr = extractAttr(header, 'revision')
+		if (!revisionAttr) {
+			const err = { msg: 'revision is missing in Header element', header }
+			console.error(err)
+			throw new Error(JSON.stringify(err))
+		}
+
+		//
+		// Function Instantiation
+		//
 		const functionsToInstantiate = await fsdDB.table<DatabaseRecord>('Function').toArray()
 
 		for (const func of functionsToInstantiate) {
@@ -60,6 +93,47 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 			//
 			fsdSDK.instantiate(func)
 			const funcInASD = await asdSDK.addRecord(func)
+
+			//
+			// Add SCL Reference
+			//
+
+			// ensure private element
+			const privateElements = await fsdSDK.findChildRecordsByTagName(funcInASD, 'Private')
+
+			let private6_100 = privateElements
+				.filter((el) => extractAttr(el, 'type')?.value === 'eIEC61850-6-100')
+				.at(0)
+
+			if (!private6_100) {
+				const newPrivateRecord: Omit<DatabaseRecord, 'id'> = {
+					tagName: 'Private',
+					attributes: [{ name: 'type', value: 'eIEC61850-6-100' }],
+					value: null,
+					parent: null,
+					namespace: null,
+					children: [],
+				}
+				private6_100 = await asdSDK.addRecord(newPrivateRecord)
+				await asdSDK.ensureRelationship(funcInASD, private6_100)
+			}
+
+			// SCLFileReference
+			const newSCLRef: Omit<DatabaseRecord, 'id'> = {
+				tagName: 'SclFileReference',
+				namespace: { prefix: 'eIEC61850-6-100', uri: 'http://www.iec.ch/61850/2019/SCL/6-100' },
+				attributes: [
+					{ name: 'fileType', value: 'FSD' },
+					{ name: 'fileUuid', value: fileUuidAttr.value },
+					{ name: 'version', value: versionAttr.value },
+					{ name: 'revision', value: revisionAttr.value },
+				],
+				value: null,
+				parent: null,
+				children: [],
+			}
+			const sclRefInASD = await asdSDK.addRecord(newSCLRef)
+			await asdSDK.ensureRelationship(private6_100, sclRefInASD)
 
 			//
 			// Transfer children
@@ -101,7 +175,7 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 			.first()
 
 		if (!dataTypeTemplatesRecord) {
-			console.log('no data type templates, stopping')
+			console.info('no data type templates, stopping')
 			return
 		}
 
@@ -125,7 +199,7 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 
 		const templatesInFSD = await fsdSDK.findChildRecords(dataTypeTemplatesRecord)
 		if (templatesInFSD.length === 0) {
-			console.log('DataTypeTemplates is empty, stopping.')
+			console.info('DataTypeTemplates is empty, stopping.')
 			return
 		}
 
@@ -157,21 +231,35 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 
 		for (const funcCategoryInFSD of functionCategoriesToInstantiate) {
 			const path = await extractElementPathTilSCLRoot(fsdDB, funcCategoryInFSD)
-
 			//
 			// Ensure Parents exist in ASD
 			//
 			const newParentPath: DatabaseRecord[] = []
 			// Note: could run parallel
 			// Making sure every element exists in the other file
-			for (const record of path) {
+			// Note: We reverse the path so we add the parents first so
+			// we can use their new IDs by `ensurePrivateRecordByParent`
+			for (const record of path.reverse()) {
 				if (isOf(record, ['Substation', 'VoltageLevel', 'Bay'])) {
 					const newParent = await ensureRecordByAttribute(asdDB, record, 'name')
-					newParentPath.push(newParent)
+					newParentPath.unshift(newParent)
 				}
 				if (isOf(record, ['Private'])) {
-					const newParent = await ensureRecordByAttribute(asdDB, record, 'type')
-					newParentPath.push(newParent)
+					const newGrandParent = newParentPath[newParentPath.length - 1]
+					if (!newGrandParent) {
+						const err = {
+							msg: 'in the case of function category instantiation private field without a parent (so beeing under SCL root) is considered an error',
+							record,
+							path,
+							newGrandParent,
+							newParentPath,
+						}
+						console.error(err)
+						throw new Error(JSON.stringify(err))
+					}
+
+					const newParent = await ensurePrivateRecordByParent(asdSDK, record, newGrandParent)
+					newParentPath.unshift(newParent)
 				}
 			}
 
@@ -189,6 +277,7 @@ export async function instantiateFSD(asdName: string, fsdFileNames: string[]) {
 			// Setup relationships in the full path
 			//
 			const fullPath = [funcCategoryInASD, ...newParentPath]
+
 			for (let i = 0; i < fullPath.length; i++) {
 				const child = fullPath[i]
 				const parent = fullPath[i + 1]
@@ -308,6 +397,36 @@ async function ensureRecordByAttribute(
 	}
 	await targetDB.table(record.tagName).add(record)
 	return record
+}
+
+async function ensurePrivateRecordByParent(
+	targetSDK: SDK,
+	record: DatabaseRecord,
+	parentRecord: DatabaseRecord,
+): Promise<DatabaseRecord> {
+	const typeAttr = extractAttr(record, 'type')
+	if (!typeAttr || !typeAttr.value) {
+		const err = { msg: 'type attribute is required but it is missing or empty', typeAttr, record }
+		console.error(err)
+		throw new Error(JSON.stringify(err))
+	}
+
+	const existingElement = await targetSDK.db
+		.table<DatabaseRecord>(record.tagName)
+		.where('parent.id')
+		.equals(parentRecord.id)
+		.filter((record) =>
+			Boolean(record.attributes?.some((a) => a.name === 'type' && a.value === typeAttr.value)),
+		)
+		.first()
+
+	if (existingElement) {
+		return existingElement
+	}
+
+	const newElement = await targetSDK.addRecord(record)
+
+	return newElement
 }
 
 function isOf(record: DatabaseRecord, tagNames: string[]) {
