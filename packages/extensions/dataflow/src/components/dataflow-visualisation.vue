@@ -30,35 +30,42 @@
 		/>
 	</div>
 
-	<DataflowCreation :sourceLNode="sourceLNode" :destinationLNode="destinationLNode" />
+	<DataflowCreation
+		v-if="activeInputLNode && activeOutputLNode"
+		:sourceLNode="activeInputLNode"
+		:destinationLNode="activeOutputLNode"
+	/>
 </template>
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
 import DataflowCreation from './dataflow-creation.vue'
 import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/types/lnode'
 
 const LNodes = ref<LNode[]>([])
 
 const activeInputLNodeId = ref<string | null>(null)
 const activeOutputLNodeId = ref<string | null>(null)
+const activeInputLNode = ref<LNode | null>(null)
+const activeOutputLNode = ref<LNode | null>(null)
 
 onMounted(async () => {
 	LNodes.value = await getEnrichedLNodesFromDB()
 	console.log('LNodes loaded:', LNodes.value)
 })
 
-// get active input and output LNodes
-function getActiveLNodes() {
-	const activeInputLNode = getActiveLNodeById(activeInputLNodeId.value)
-	const activeOutputLNode = getActiveLNodeById(activeOutputLNodeId.value)
-	console.log('Active Input LNode:', activeInputLNode)
-	console.log('Active Output LNode:', activeOutputLNode)
-	return { activeInputLNode, activeOutputLNode }
-}
-// helper function to get active LNode by ID
+watch(activeInputLNodeId, (newId) => {
+	activeInputLNode.value = getActiveLNodeById(newId)
+	console.log('Active Input LNode changed:', activeInputLNode.value)
+})
+
+watch(activeOutputLNodeId, (newId) => {
+	activeOutputLNode.value = getActiveLNodeById(newId)
+	console.log('Active Output LNode changed:', activeOutputLNode.value)
+})
+
 function getActiveLNodeById(id: string | null) {
 	return LNodes.value.find((ln) => ln.id === id) ?? null
 }
