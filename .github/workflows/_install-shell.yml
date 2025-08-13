@@ -80,9 +80,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Delete all pnpm lock files
-        run: pnpm -r --include-workspace-root exec rm -rf pnpm-lock.yaml
-
       - name: Setup node_modules Cache
         id: cache-node-modules
         uses: actions/cache@v3
@@ -149,6 +146,16 @@ jobs:
       - name: Verify ui build output exists
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
+
+      - name: Delete pnpm lock file
+        working-directory: packages/shell
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "Deleting pnpm-lock.yaml to enforce fetching from npm registry"
+            rm pnpm-lock.yaml
+          else
+            echo "pnpm-lock.yaml does not exist, skipping deletion"
+          fi
 
       - name: Install dependencies
         run: pnpm install --filter=./packages/shell --ignore-scripts
