@@ -18,6 +18,9 @@ export async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
 	if (!lnodes.length) return []
 	const lnodesWithDOs = await enrichLNodesWithDataObjects(db, lnodes)
 	const lnodesFullyEnriched = await enrichLNodesWithDataAttributes(db, lnodesWithDOs)
+
+	db.close()
+
 	return lnodesFullyEnriched
 }
 
