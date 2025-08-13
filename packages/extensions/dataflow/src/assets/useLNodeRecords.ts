@@ -2,7 +2,7 @@ import type { DataAttribute, DataObject, LNode } from '@/types/lnode'
 import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
 import Dexie from 'dexie'
 import { useStorage } from '@vueuse/core'
-import { initializeDatabaseInstance } from '../assets/dbInit'
+import { openDatabase } from './openDb'
 
 //Main function to get enriched LNodes from the database
 export async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
@@ -12,7 +12,7 @@ export async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
 		localStorage,
 	)
 	if (!currentActiveFileDatabaseName.value) throw new Error('No active file database name set.')
-	const db = initializeDatabaseInstance(currentActiveFileDatabaseName.value)
+	const db = await openDatabase(currentActiveFileDatabaseName.value)
 	if (!db) throw new Error('database is not initialized.')
 	const lnodes = await getAllLNodes(db)
 	if (!lnodes.length) return []
