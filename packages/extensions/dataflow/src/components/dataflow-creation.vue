@@ -114,7 +114,6 @@
 import { computed, ref, watch } from 'vue'
 import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
-import Dexie from 'dexie'
 import type { DatabaseRecord, Relationship } from '@septkit/fileio'
 import { openDatabase } from '../assets/openDb'
 
