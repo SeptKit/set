@@ -6,12 +6,26 @@ export type DataObject = {
 	lNodeId: string
 }
 
+export type DataObjectSpecification = {
+	id: string
+	name: string
+	desc: string
+	dataAttributeSpecification: DataAttributeSpecification[]
+	lNodeId: string
+}
+
 export type DataAttribute = {
 	id: string
 	uuid: string
 	name: string
 	dataObjectId: string
 	fc: string
+}
+
+export type DataAttributeSpecification = {
+	id: string
+	name: string
+	dataObjectSpecificationId: string
 }
 
 export type LNode = {
@@ -23,6 +37,7 @@ export type LNode = {
 	lnClass: string
 	lnInst: string
 	dataObjects: DataObject[]
+	dataObjectSpecifications?: DataObjectSpecification[]
 }
 
 export type Connection = {
