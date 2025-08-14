@@ -3,8 +3,8 @@ on:
   workflow_call:
     outputs:
       cache-key:
-        description: 'Cache key for shell node_modules'
-        value: ${{ jobs.cache-and-install-shell.outputs.cache-key }}
+        description: 'Cache key for extensions/structure node_modules'
+        value: ${{ jobs.cache-and-install-ext-structure.outputs.cache-key }}
 
 jobs:
   check-fileio:
@@ -55,7 +55,7 @@ jobs:
     with:
       package-name: ui
 
-  cache-and-install-shell:
+  cache-and-install-ext-structure:
     runs-on: ubuntu-latest
 
     needs:
@@ -85,8 +85,8 @@ jobs:
         id: cache-node-modules
         uses: actions/cache@v3
         with:
-          path: packages/shell/node_modules
-          key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
+          path: packages/extensions/structure/node_modules
+          key: ${{ runner.os }}-node-modules-extensions/structure-${{ hashFiles( '**/packages/extensions/structure/pnpm-lock.yaml' ) }}
 
       # hacky way to enforce fetching from npm registry if fileio version exists in npm registry
       - name: Delete fileio folder
@@ -143,8 +143,8 @@ jobs:
         if: needs.check-ui.outputs.npm_version_exists == 'false'
         run: ls -la 'packages/ui/dist'
 
-      - name: Delete pnpm lock file # File was causing issues with workspace links and prevented fetching packages from npm registry
-        working-directory: packages/shell
+      - name: Delete pnpm lock file # Temporary solution as file was causing issues with workspace links and prevented fetching packages from npm registry
+        working-directory: packages/extensions/structure
         if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
         run: |
           if [ -f pnpm-lock.yaml ]; then
@@ -155,12 +155,12 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: pnpm install --filter=./packages/shell --ignore-scripts
+        run: pnpm install --filter=./packages/extensions/structure --ignore-scripts
         if: steps.cache-node-modules.outputs.cache-hit != 'true' || needs.check-fileio.outputs.npm_version_exists == 'false' || needs.check-ui.outputs.npm_version_exists == 'false'
 
       - name: Get Playwright Version
         id: playwright-version
-        working-directory: packages/shell
+        working-directory: packages/extensions/structure
         run: echo "playwright_version=$(node -e "console.log(require('./package.json').devDependencies['playwright'])")" >>  $GITHUB_OUTPUT
 
       - name: Setup Playwright Cache
@@ -172,5 +172,5 @@ jobs:
 
       - name: Install Playwright
         if: steps.cache-playwright.outputs.cache-hit != 'true'
-        working-directory: packages/shell
+        working-directory: packages/extensions/structure
         run: npx playwright install chromium --with-deps
