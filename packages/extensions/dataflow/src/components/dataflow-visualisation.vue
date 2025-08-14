@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
-import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
+import { getEnrichedLNodesFromDB } from '../assets/use-lnode-records'
 import { onMounted, ref } from 'vue'
 import type { LNode } from '@/types/lnode'
 

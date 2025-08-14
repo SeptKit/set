@@ -2,7 +2,7 @@ import type { DataAttribute, DataObject, LNode } from '@/types/lnode'
 import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
 import Dexie from 'dexie'
 import { useStorage } from '@vueuse/core'
-import { openDatabase } from './openDb'
+import { openDatabase } from './open-db'
 
 //Main function to get enriched LNodes from the database
 export async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
