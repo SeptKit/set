@@ -14,13 +14,13 @@
 		<div class="dataflow-dropdown" style="margin-bottom: 20px; margin-top: 20px">
 			<select
 				class="select"
-				:value="props.activeLNodeId"
+				:value="props.activeLNodeId ?? ''"
 				@change="(e) => onSelect((e.target as HTMLSelectElement).value)"
 			>
+				<option key="null" value="">Select LNode</option>
 				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
 					{{ getLNodeLabel(ln) }}
 				</option>
-				<option key="null" :value="null">Select LNode</option>
 			</select>
 		</div>
 
