@@ -1,3 +1,5 @@
-h1 {
-	text-decoration: underline;
-}
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@source "../../node_modules/@septkit/ui";
+@import '@septkit/ui/configcss';

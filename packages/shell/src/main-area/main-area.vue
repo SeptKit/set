@@ -22,10 +22,7 @@ const store = useMainAreaWidgetStore()
 
 const dummyExtensionLocationList = [
 	'https://septkit.github.io/extensions/structure/2/',
-	// 'http://127.0.0.1:51003/',
-	// 'http://localhost:54944/',
-	// 'http://localhost:54945/', //__TEMPLATE__
-	// 'http://localhost:54945/',
+	'http://localhost:54944/',
 ]
 
 onMounted(() => loadExtensions(dummyExtensionLocationList))
