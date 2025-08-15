@@ -28,8 +28,18 @@ async function fetchExtensionDefinitions(
 						version: extDef.version,
 						label: extDef.displayName,
 						contributions: [
-							...(extDef.contributes.customEditors?.map((def) => mapCustomEditors(def, extUrl)) ??
-								[]),
+							...(extDef.contributes.customEditors?.map((def) =>
+								mapWidgets(def, extUrl, 'mainArea'),
+							) ?? []),
+
+							...(extDef.contributes.primarySidebars?.map((def) =>
+								mapWidgets(def, extUrl, 'primarySidebar'),
+							) ?? []),
+
+							...(extDef.contributes.secondarySidebars?.map((def) =>
+								mapWidgets(def, extUrl, 'secondarySidebar'),
+							) ?? []),
+
 							...(extDef.contributes.menu?.map((def) => mapMenu(def, extUrl)) ?? []),
 						],
 					}
@@ -42,13 +52,17 @@ async function fetchExtensionDefinitions(
 	return extensions
 }
 
-function mapCustomEditors(def: CustomEditorDefinition, extUrl: string): WidgetContribution {
+function mapWidgets(
+	def: CustomEditorDefinition | SidebarWidgetDefinition,
+	extUrl: string,
+	location: WidgetContribution['location'],
+): WidgetContribution {
 	return {
 		id: def.id,
 		type: 'widget',
 		label: def.displayName,
 		icon: def.icon,
-		location: 'mainArea',
+		location: location,
 		startFnUrl: generateEntrypointUrl(def.entryPoint, extUrl),
 	}
 }
@@ -89,6 +103,8 @@ export type ExtensionDefinition = {
 	description: string
 	contributes: {
 		customEditors?: CustomEditorDefinition[]
+		primarySidebars?: SidebarWidgetDefinition[]
+		secondarySidebars?: SidebarWidgetDefinition[]
 		menu?: MenuDefinition[]
 	}
 }
@@ -99,6 +115,13 @@ type CustomEditorDefinition = {
 	icon: string // a relative path to package.json
 	entryPoint: string // relative to package.json
 	fileSelectors: string[] // eg.: SSD, ASD, SCD
+}
+
+type SidebarWidgetDefinition = {
+	id: string
+	displayName: string
+	icon: string
+	entryPoint: string
 }
 
 type MenuDefinition = {

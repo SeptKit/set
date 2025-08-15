@@ -30,7 +30,7 @@ export const useExtensionStore = defineStore('extension', () => {
 
 export type ExtensionStore = ReturnType<typeof useExtensionStore>
 
-export const useMainAreaWidgetStore = defineStore('mainAreaExtensions', () => {
+export const useMainAreaWidgetStore = defineStore('mainAreaWidgets', () => {
 	const extensionStore = useExtensionStore()
 	const activeWidget = ref<Optional<WidgetContribution>>()
 
@@ -70,5 +70,32 @@ export const useMenuContributionsStore = defineStore('menuContributionStore', ()
 
 	return {
 		contributions: _contributions,
+	}
+})
+
+export const usePrimarySidebarWidgetStore = defineStore('primarySidebarWidgets', () => {
+	const extensionStore = useExtensionStore()
+	const activeWidget = ref<Optional<WidgetContribution>>()
+
+	const widgets: ComputedRef<WidgetContribution[]> = computed(() => {
+		return extensionStore.extensions
+			.map((ext) =>
+				ext.contributions
+					.filter((cont) => cont.type === 'widget' && cont.location === 'primarySidebar')
+					.map((c) => c as WidgetContribution),
+			)
+			.flat()
+	})
+
+	return {
+		widgets,
+		get activeWidget() {
+			return activeWidget
+		},
+		activateWidget,
+	}
+
+	function activateWidget(widget: WidgetContribution) {
+		activeWidget.value = widget
 	}
 })
