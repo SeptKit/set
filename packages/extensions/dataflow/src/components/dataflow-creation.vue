@@ -481,4 +481,6 @@ function setAttributeValue(record: DatabaseRecord, attributeName: string, value:
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+@import '@/assets/main.css';
+</style>
