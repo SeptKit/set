@@ -1,5 +1,3 @@
-<!-- dataflow-node.vue -->
-
 <template>
 	<div
 		style="
@@ -10,8 +8,7 @@
 			position: relative;
 		"
 	>
-		<!-- Dropdown -->
-		<div class="dataflow-dropdown" style="margin-bottom: 20px; margin-top: 20px">
+		<div style="margin-bottom: 20px; margin-top: 20px">
 			<select
 				class="select"
 				:value="props.activeLNodeId ?? ''"
@@ -26,7 +23,6 @@
 
 		<!-- LNode card -->
 		<div
-			class="dataflow-node"
 			style="
 				width: 240px;
 				height: 400px;
@@ -38,7 +34,6 @@
 				border-radius: 8px;
 			"
 		>
-			<!-- Node title -->
 			<div
 				style="
 					width: 100%;
@@ -64,7 +59,6 @@
 					style="position: absolute; display: flex; align-items: center"
 				>
 					<div style="font-size: 15px; white-space: nowrap; text-align: right; margin-right: 8px">
-						<!-- {{ dataObject.name }} -->
 						{{ getPortLabel(dataObject) }}
 					</div>
 					<div style="width: 18px; height: 18px; border-radius: 50%; background: #111"></div>
@@ -118,9 +112,4 @@ function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right'
 }
 </script>
 
-<style scoped>
-.dataflow-dropdown {
-}
-.dataflow-node {
-}
-</style>
+<style scoped></style>

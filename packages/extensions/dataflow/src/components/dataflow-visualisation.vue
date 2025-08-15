@@ -1,12 +1,7 @@
-<!-- dataflow-visualisation.vue-->
-
 <template>
-	<div
-		class="node-container"
-		style="display: flex; flex-direction: row; align-items: center; justify-content: center"
-	>
+	<div style="display: flex; flex-direction: row; align-items: center; justify-content: center">
 		<dataflow-node
-			:lnodes="LNodes"
+			:lnodes="lNodes"
 			type="input"
 			:activeLNodeId="activeInputLNodeId"
 			@update:activeLNodeId="(val) => (activeInputLNodeId = val)"
@@ -22,7 +17,7 @@
 		>
 			- Connections -
 		</div>
-		<dataflow-node :lnodes="LNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
+		<dataflow-node :lnodes="lNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
 	</div>
 
 	<button :disabled="!activeInputLNode || !activeOutputLNode" class="btn" @click="showModal">
@@ -40,11 +35,11 @@
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
 import DataflowCreationDialog from './dataflow-creation.vue'
-import { getEnrichedLNodesFromDB } from '../assets/useLNodeRecords'
+import { getEnrichedLNodesFromDB } from '../assets/use-lnode-records'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/types/lnode'
 
-const LNodes = ref<LNode[]>([])
+const lNodes = ref<LNode[]>([])
 
 const activeInputLNodeId = ref<string | null>(null)
 const activeOutputLNodeId = ref<string | null>(null)
@@ -53,8 +48,7 @@ const activeOutputLNode = ref<LNode | null>(null)
 const isCreationDialogOpen = ref(false)
 
 onMounted(async () => {
-	LNodes.value = await getEnrichedLNodesFromDB()
-	console.log('LNodes loaded:', LNodes.value)
+	lNodes.value = await getEnrichedLNodesFromDB()
 })
 
 watch(activeInputLNodeId, (newId) => {
@@ -68,7 +62,7 @@ watch(activeOutputLNodeId, (newId) => {
 })
 
 function getActiveLNodeById(id: string | null) {
-	return LNodes.value.find((ln) => ln.id === id) ?? null
+	return lNodes.value.find((ln) => ln.id === id) ?? null
 }
 
 function showModal() {
@@ -78,6 +72,4 @@ function showModal() {
 
 <style scoped>
 @reference "@/assets/main.css";
-.node-container {
-}
 </style>
