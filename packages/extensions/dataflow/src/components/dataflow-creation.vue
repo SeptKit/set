@@ -114,7 +114,7 @@ import { computed, ref, watch } from 'vue'
 import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
 import type { DatabaseRecord, Relationship } from '@septkit/fileio'
-import { openDatabase } from '../assets/openDb'
+import { openDatabase } from '../assets/open-db.ts'
 import { getLNodeLabel } from '@/types/lnode'
 
 const props = defineProps<{
