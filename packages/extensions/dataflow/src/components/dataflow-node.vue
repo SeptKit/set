@@ -112,4 +112,6 @@ function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right'
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+@import '@/assets/main.css';
+</style>

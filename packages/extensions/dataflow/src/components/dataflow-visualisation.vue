@@ -1,11 +1,6 @@
 <template>
 	<div style="display: flex; flex-direction: row; align-items: center; justify-content: center">
-		<dataflow-node
-			:lnodes="lNodes"
-			type="input"
-			:activeLNodeId="activeInputLNodeId"
-			@update:activeLNodeId="(val) => (activeInputLNodeId = val)"
-		/>
+		<dataflow-node :lnodes="lNodes" type="input" v-model:activeLNodeId="activeInputLNodeId" />
 		<div
 			style="
 				width: 200px;
@@ -71,5 +66,5 @@ function showModal() {
 </script>
 
 <style scoped>
-@reference "@/assets/main.css";
+@import '@/assets/main.css';
 </style>
