@@ -1,5 +1,3 @@
-// src/assets/dbInit.ts
-
 import Dexie from 'dexie'
 
 export async function openDatabase(dbName: string): Promise<Dexie> {

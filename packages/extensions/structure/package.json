@@ -1,6 +1,6 @@
 {
 	"name": "@septkit/ext-structure",
-	"version": "1",
+	"version": "2",
 	"description": "SeptKit extension to manage structures in SCL",
 	"private": true,
 	"type": "module",
@@ -23,7 +23,7 @@
 				"id": "sprinteins.structure.menu-import-fsd",
 				"displayName": "Function",
 				"path": [
-					"Import"
+					"Instantiate"
 				],
 				"entryPoint": "/menu.js"
 			}
@@ -32,21 +32,27 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "run-p type-check \"build-only {@}\" --",
-		"build:watch": "npm run build -- --watch",
+		"build:watch": "vite build --watch",
 		"build:serve": "concurrently \"npm run preview\" \"npm run build:watch\"",
 		"preview": "vite preview --port 54945",
 		"test": "vitest --project unit",
 		"test:watch": "pnpm test --watch",
+		"test:debug": "npm run test -- --browser.headless=false --browser.devtools=true --testTimeout 10000000",
+		"test:debug:watch": "npm run test:debug -- --watch",
 		"build-only": "vite build",
 		"type-check": "vue-tsc --build",
 		"lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
 		"format": "prettier --write src/",
 		"format:check": "prettier --check src/",
-		"install:browser": "pnpm exec playwright install chromium"
+		"link:fileio": "rm -rf ./node_modules/@septkit/fileio && ln -s ../../../../fileio ./node_modules/@septkit/fileio",
+		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install"
 	},
 	"dependencies": {
 		"@septkit/ui": "catalog:",
+		"@septkit/fileio": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
+		"@vueuse/core": "^13.5.0",
+		"dexie": "^4.0.11",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
 		"vite-plugin-static-copy": "^3.1.1",
@@ -62,6 +68,7 @@
 		"@vitest/browser": "^3.2.4",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.7.0",
+		"concurrently": "^9.2.0",
 		"daisyui": "^5.0.46",
 		"jiti": "^2.4.2",
 		"npm-run-all2": "^8.0.4",
@@ -72,7 +79,6 @@
 		"vite": "^7.0.0",
 		"vite-plugin-vue-devtools": "^7.7.7",
 		"vitest": "^3.2.4",
-		"vue-tsc": "^2.2.10",
-		"concurrently": "^9.2.0"
+		"vue-tsc": "^2.2.10"
 	}
 }

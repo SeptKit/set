@@ -31,6 +31,8 @@ export type DatabaseRecord = {
 	attributes: Array<Attribute | QualifiedAttribute> | null
 	value: string | null
 	parent: Relationship | null
+	// TODO: this should nut be nullable. an empty arry is sufficient and
+	// we don't have to work around the null
 	children: Relationship[] | null
 }
 
