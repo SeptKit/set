@@ -1,7 +1,7 @@
 <template>
 	<Layout>
 		<div
-			class="min-h-screen flex flex-col items-center justify-center wip-sign"
+			class="min-h-screen flex flex-col items-center justify-center"
 			:style="{
 				background: 'repeating-linear-gradient(45deg, #ffe066, #ffe066 30px, #fff 30px, #fff 60px)',
 			}"
@@ -45,9 +45,5 @@ onUnmounted(() => {
 	We import it here and not on the top so it is scoped and does not affect
 	the rest of the ui
 */
-@reference "./assets/main.css";
-
-.wip-sign {
-	border: red 20px solid;
-}
+@import '@/assets/main.css';
 </style>

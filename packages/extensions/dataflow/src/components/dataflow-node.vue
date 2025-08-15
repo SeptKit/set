@@ -136,6 +136,7 @@ function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right'
 </script>
 
 <style scoped>
+@import '@/assets/main.css';
 .dataflow-dropdown {
 }
 .dataflow-node {
