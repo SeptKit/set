@@ -13,13 +13,16 @@ importers:
         version: link:../../fileio
       '@septkit/ui':
         specifier: 0.0.1
-        version: 0.0.1(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
+        version: 0.0.1(daisyui@5.0.46)(tailwindcss@4.1.12)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
       '@vueuse/core':
         specifier: ^13.5.0
         version: 13.5.0(vue@3.5.17(typescript@5.8.3))
+      daisyui:
+        specifier: ^5.0.46
+        version: 5.0.46
       dexie:
         specifier: ^4.0.11
         version: 4.0.11
@@ -27,8 +30,11 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
       tailwindcss:
-        specifier: ^4.1.11
-        version: 4.1.11
+        specifier: ^4.1.12
+        version: 4.1.12
+      vite-plugin-css-injected-by-js:
+        specifier: ^3.5.2
+        version: 3.5.2(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
       vite-plugin-static-copy:
         specifier: ^3.1.1
         version: 3.1.1(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
@@ -66,9 +72,6 @@ importers:
       concurrently:
         specifier: ^9.2.0
         version: 9.2.0
-      daisyui:
-        specifier: ^5.0.46
-        version: 5.0.46
       jiti:
         specifier: ^2.4.2
         version: 2.4.2
@@ -1908,6 +1911,9 @@ packages:
   tailwindcss@4.1.11:
     resolution: {integrity: sha512-2E9TBm6MDD/xKYe+dvJZAmg3yxIEDNRc0jwlNyDg/4Fil2QcSLjFKGVff0lAf1jjeaArlG/M75Ey/EYr/OJtBA==}
 
+  tailwindcss@4.1.12:
+    resolution: {integrity: sha512-DzFtxOi+7NsFf7DBtI3BJsynR+0Yp6etH+nRPTbpWnS2pZBaSksv/JGctNwSWzbFjp0vxSqknaUylseZqMDGrA==}
+
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
     engines: {node: '>=6'}
@@ -1984,6 +1990,11 @@ packages:
     resolution: {integrity: sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
+
+  vite-plugin-css-injected-by-js@3.5.2:
+    resolution: {integrity: sha512-2MpU/Y+SCZyWUB6ua3HbJCrgnF0KACAsmzOQt1UvRVJCGF6S8xdA3ZUhWcWdM9ivG4I5az8PnQmwwrkC2CAQrQ==}
+    peerDependencies:
+      vite: '>2.0.0-0'
 
   vite-plugin-inspect@0.8.9:
     resolution: {integrity: sha512-22/8qn+LYonzibb1VeFZmISdVao5kC22jmEKm24vfFE8siEn47EpVcCLYMv6iKOYMJfjSvSJfueOwcFCkUnV3A==}
@@ -2592,14 +2603,14 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@septkit/ui@0.0.1(daisyui@5.0.46)(tailwindcss@4.1.11)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@septkit/ui@0.0.1(daisyui@5.0.46)(tailwindcss@4.1.12)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))':
     dependencies:
       '@tailwindcss/vite': 4.1.11(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
       '@vueuse/components': 13.5.0(vue@3.5.17(typescript@5.8.3))
       '@vueuse/core': 13.5.0(vue@3.5.17(typescript@5.8.3))
       daisyui: 5.0.46
       pinia: 3.0.3(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
-      tailwindcss: 4.1.11
+      tailwindcss: 4.1.12
       vue: 3.5.17(typescript@5.8.3)
     transitivePeerDependencies:
       - typescript
@@ -3964,6 +3975,8 @@ snapshots:
 
   tailwindcss@4.1.11: {}
 
+  tailwindcss@4.1.12: {}
+
   tapable@2.2.2: {}
 
   tar@7.4.3:
@@ -4038,6 +4051,10 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-css-injected-by-js@3.5.2(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1)):
+    dependencies:
+      vite: 7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1)
 
   vite-plugin-inspect@0.8.9(rollup@4.45.1)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1)):
     dependencies:

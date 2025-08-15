@@ -77,7 +77,7 @@ function showModal() {
 </script>
 
 <style scoped>
-@reference "@/assets/main.css";
+@import '@/assets/main.css';
 .node-container {
 }
 </style>

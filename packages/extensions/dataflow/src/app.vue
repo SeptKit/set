@@ -33,5 +33,5 @@ onUnmounted(() => {
 	the rest of the ui
 */
 
-@reference "@/assets/main.css";
+@import '@/assets/main.css';
 </style>
