@@ -1,29 +1,33 @@
 <template>
 	<div>
-		<div>
-			<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
-			<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
-		</div>
+		<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
+		<!-- <div ref="widget-root" id="main-area-widget-root">&nbsp;</div> -->
+		<div ref="widget-root" :id="props.rootId">&nbsp;</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { useTemplateRef, watch } from 'vue'
+import { onMounted, useTemplateRef, watch } from 'vue'
 import type { Optional } from '../../x/types'
 import type { WidgetContribution } from '../extension'
 import { fetchWidgetStartFn } from '../extension-loader'
-import { useExtensionAPI } from '../extension-api'
+import { useExtensionAPI, type API } from '../extension-api'
+import { useSecondarySidebarWidgetStore } from '../extension-store'
 
 const props = defineProps<{
 	widget: Optional<WidgetContribution>
+	rootId: string
 }>()
 
-const api = useExtensionAPI()
+let api: API = useExtensionAPI()
+let secondarySidebarStore = useSecondarySidebarWidgetStore()
 const widgetRoot = useTemplateRef<HTMLDivElement>('widget-root')
 let previousETag: string = ''
 
 watch(() => props.widget, watchPluginChange)
+// onMounted(() => (api = useExtensionAPI()))
 
+// TODO: only reload in dev mode
 async function watchPluginChange() {
 	await reloadPluginIfNeeded()
 	setTimeout(watchPluginChange, 3_000)
@@ -82,7 +86,8 @@ async function loadAndStartExtension(startFnUrl: Optional<string>) {
 		return
 	}
 	widgetRoot.value.innerHTML = ''
-	startFn('main-area-widget-root', api)
+	// const api = useExtensionAPI()
+	startFn(props.rootId, api)
 }
 
 function addCachBusterToURL(url: string): string {

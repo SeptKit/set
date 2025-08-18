@@ -11,7 +11,7 @@ export default defineConfig({
 	plugins: [
 		vue(),
 		vueDevTools(),
-		cssInjectedByJsPlugin(),
+		cssInjectedByJsPlugin({ relativeCSSInjection: true }),
 		viteStaticCopy({
 			targets: [
 				{
@@ -27,10 +27,17 @@ export default defineConfig({
 		},
 	},
 	build: {
+		cssCodeSplit: true,
 		lib: {
-			entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+			// entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+			entry: {
+				shell: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
+				'sidebar-primary': fileURLToPath(new URL('./src/sidebar-primary.js', import.meta.url)),
+				'sidebar-secondary': fileURLToPath(new URL('./src/sidebar-secondary.js', import.meta.url)),
+				// menu: fileURLToPath(new URL('./src/menu.js', import.meta.url)),
+			},
 			formats: ['es'],
-			fileName: () => `shell.js`,
+			fileName: (_, entry) => `${entry}.js`,
 		},
 	},
 	define: {

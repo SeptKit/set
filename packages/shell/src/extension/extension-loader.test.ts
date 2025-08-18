@@ -83,6 +83,74 @@ describe('Extension Loader', () => {
 					],
 				},
 			},
+			{
+				desc: 'primary sidebar widget',
+				extDefinition: {
+					name: 'test-extension',
+					description: 'a test extension to test the primary sidebar',
+					displayName: 'A Test Extension For Primary Sidebar',
+					version: '0.0.1-test-primary',
+					contributes: {
+						primarySidebars: [
+							{
+								id: 'extension.test.primary-sidebar',
+								displayName: 'A Test Primary Sidebar Widget',
+								icon: '',
+								entryPoint: '/sidebar-primary.js',
+							},
+						],
+					},
+				},
+				expectedExtension: {
+					id: 'test-extension',
+					label: 'A Test Extension For Primary Sidebar',
+					version: '0.0.1-test-primary',
+					contributions: [
+						{
+							id: 'extension.test.primary-sidebar',
+							label: 'A Test Primary Sidebar Widget',
+							type: 'widget',
+							icon: '',
+							location: 'primarySidebar',
+							startFnUrl: 'http://localhost/sidebar-primary.js',
+						},
+					],
+				},
+			},
+			{
+				desc: 'secondary sidebar widget',
+				extDefinition: {
+					name: 'test-extension',
+					description: 'a test extension to test the secondary sidebar',
+					displayName: 'A Test Extension For Secondary Sidebar',
+					version: '0.0.1-test-secondary',
+					contributes: {
+						secondarySidebars: [
+							{
+								id: 'extension.test.secondary-sidebar',
+								displayName: 'A Test Secondary Sidebar Widget',
+								icon: '',
+								entryPoint: '/sidebar-secondary.js',
+							},
+						],
+					},
+				},
+				expectedExtension: {
+					id: 'test-extension',
+					label: 'A Test Extension For Secondary Sidebar',
+					version: '0.0.1-test-secondary',
+					contributions: [
+						{
+							id: 'extension.test.secondary-sidebar',
+							label: 'A Test Secondary Sidebar Widget',
+							type: 'widget',
+							icon: '',
+							location: 'secondarySidebar',
+							startFnUrl: 'http://localhost/sidebar-secondary.js',
+						},
+					],
+				},
+			},
 		]
 
 		featureTests.forEach(testFeature)

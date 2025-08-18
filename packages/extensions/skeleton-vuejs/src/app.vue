@@ -19,11 +19,25 @@ onMounted(() => {
 	unsubscribe = props.api.activeFileName.subscribe((newFile, oldFile) => {
 		fileName.value = newFile
 	})
+
+	activateSidebarWidget()
 })
 
 onUnmounted(() => {
 	unsubscribe()
 })
+
+function activateSidebarWidget() {
+	const id = 'sprinteins.ext-skeleton-vuejs.secondary-sidebar'
+	const widget = props.api.secondarySidebar.findWidgetById(id)
+	if (!widget) {
+		const err = { msg: 'could not find secondary sidebar widget by id', id }
+		console.error(err)
+		throw new Error(JSON.stringify(err))
+	}
+
+	props.api.secondarySidebar.activateWidget(widget)
+}
 </script>
 
 <style scoped>
