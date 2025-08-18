@@ -2,7 +2,7 @@
 	<div class="root">
 		sidebar widget
 		<div class="content">
-			<WidgetSite :widget="store.activeWidget" />
+			<WidgetSite :widget="store.activeWidget" rootId="sidebar-primary-widget-root" />
 		</div>
 	</div>
 </template>

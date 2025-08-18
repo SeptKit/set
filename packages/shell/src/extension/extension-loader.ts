@@ -49,6 +49,7 @@ async function fetchExtensionDefinitions(
 	)
 		.filter((p) => p.status === 'fulfilled')
 		.map((p) => p.value)
+
 	return extensions
 }
 

@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import App from './app.vue'
+import App from './sidebar-secondary.vue'
 
 export default function start(rootId, api) {
 	const root = document.getElementById(rootId)

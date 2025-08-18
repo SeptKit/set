@@ -5,7 +5,7 @@
 		</template>
 
 		<template #activity-bar>
-			<span></span>
+			<ActivityBar />
 		</template>
 
 		<template #primary-sidebar>
@@ -17,7 +17,7 @@
 		</template>
 
 		<template #secondary-sidebar>
-			<span></span>
+			<SidebarSecondary />
 		</template>
 	</Layout>
 </template>
@@ -27,6 +27,8 @@ import Layout from './layout.vue'
 import MainArea from './main-area/main-area.vue'
 import SidebarPrimary from './sidebar-primary/sidebar-primary.vue'
 import Menu from './menu/menu.vue'
+import SidebarSecondary from './sidebar-secondary/sidebar-secondary.vue'
+import ActivityBar from './activity-bar/activity-bar.vue'
 </script>
 
 <style>

@@ -30,33 +30,9 @@ export const useExtensionStore = defineStore('extension', () => {
 
 export type ExtensionStore = ReturnType<typeof useExtensionStore>
 
-export const useMainAreaWidgetStore = defineStore('mainAreaWidgets', () => {
-	const extensionStore = useExtensionStore()
-	const activeWidget = ref<Optional<WidgetContribution>>()
-
-	const widgets: ComputedRef<WidgetContribution[]> = computed(() => {
-		return extensionStore.extensions
-			.map((ext) =>
-				ext.contributions
-					.filter((cont) => cont.type === 'widget' && cont.location === 'mainArea')
-					.map((c) => c as WidgetContribution),
-			)
-			.flat()
-	})
-
-	return {
-		widgets,
-		get activeWidget() {
-			return activeWidget
-		},
-		activateWidget,
-	}
-
-	function activateWidget(widget: WidgetContribution) {
-		activeWidget.value = widget
-	}
-})
-
+export const useMainAreaWidgetStore = makeWidgetStore('mainArea')
+export const usePrimarySidebarWidgetStore = makeWidgetStore('primarySidebar')
+export const useSecondarySidebarWidgetStore = makeWidgetStore('secondarySidebar')
 export const useMenuContributionsStore = defineStore('menuContributionStore', () => {
 	const _extensionStore = useExtensionStore()
 
@@ -73,29 +49,31 @@ export const useMenuContributionsStore = defineStore('menuContributionStore', ()
 	}
 })
 
-export const usePrimarySidebarWidgetStore = defineStore('primarySidebarWidgets', () => {
-	const extensionStore = useExtensionStore()
-	const activeWidget = ref<Optional<WidgetContribution>>()
+function makeWidgetStore(location: WidgetContribution['location']) {
+	return defineStore(`${location}Store`, () => {
+		const _extensionStore = useExtensionStore()
+		const _activeWidget = ref<Optional<WidgetContribution>>()
 
-	const widgets: ComputedRef<WidgetContribution[]> = computed(() => {
-		return extensionStore.extensions
-			.map((ext) =>
-				ext.contributions
-					.filter((cont) => cont.type === 'widget' && cont.location === 'primarySidebar')
-					.map((c) => c as WidgetContribution),
-			)
-			.flat()
+		const widgets: ComputedRef<WidgetContribution[]> = computed(() => {
+			return _extensionStore.extensions
+				.map((ext) =>
+					ext.contributions
+						.filter((cont) => cont.type === 'widget' && cont.location === location)
+						.map((c) => c as WidgetContribution),
+				)
+				.flat()
+		})
+
+		return {
+			widgets,
+			get activeWidget() {
+				return _activeWidget
+			},
+			activateWidget,
+		}
+
+		function activateWidget(widget: WidgetContribution) {
+			_activeWidget.value = widget
+		}
 	})
-
-	return {
-		widgets,
-		get activeWidget() {
-			return activeWidget
-		},
-		activateWidget,
-	}
-
-	function activateWidget(widget: WidgetContribution) {
-		activeWidget.value = widget
-	}
-})
+}
