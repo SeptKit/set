@@ -1,9 +1,7 @@
 <template>
-	<div>
-		<div>
-			<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
-			<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
-		</div>
+	<div class="root" name="widget-site">
+		<div v-if="widget">loading: {{ widget.label }} {{ widget.startFnUrl }}</div>
+		<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
 	</div>
 </template>
 
@@ -92,4 +90,9 @@ function addCachBusterToURL(url: string): string {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.root {
+	height: 100%;
+	width: 100%;
+}
+</style>

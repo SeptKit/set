@@ -31,7 +31,7 @@
 	},
 	"scripts": {
 		"dev": "vite",
-		"build": "run-p type-check \"build-only {@}\" --",
+		"build": "vite build",
 		"build:watch": "vite build --watch",
 		"build:serve": "concurrently \"npm run preview\" \"npm run build:watch\"",
 		"preview": "vite preview --port 54945",
@@ -48,13 +48,19 @@
 		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install"
 	},
 	"dependencies": {
-		"@septkit/ui": "catalog:",
 		"@septkit/fileio": "catalog:",
+		"@septkit/ui": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
+		"@vue-flow/background": "^1.3.2",
+		"@vue-flow/controls": "^1.1.3",
+		"@vue-flow/core": "^1.46.0",
+		"@vue-flow/minimap": "^1.5.4",
+		"@vue-flow/node-resizer": "^1.5.0",
 		"@vueuse/core": "^13.5.0",
 		"dexie": "^4.0.11",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
+		"vite-plugin-css-injected-by-js": "^3.5.2",
 		"vite-plugin-static-copy": "^3.1.1",
 		"vitest-browser-vue": "^1.0.0",
 		"vue": "^3.5.17"
