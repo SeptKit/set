@@ -2,7 +2,7 @@ import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
 import type { PartialBy } from '@/types/types.ts'
 import type { DataflowType } from '@/types/connection'
-import { useSDK, type SDK } from './sdk.ts'
+import { extractAttr, useSDK, type SDK } from './sdk.ts'
 import type { LNode } from './types/lnode.ts'
 import { openDatabase } from './assets/open-db.ts'
 
@@ -57,11 +57,14 @@ async function getLNodeInputsElement(db: Dexie, sdk: SDK, destinationLNode: LNod
 	}
 
 	const privateRecords = await sdk.findChildRecordsByTagName(lNodeRecord, 'Private')
+	let private6_100 = privateRecords
+		.filter((el) => extractAttr(el, 'type')?.value === 'eIEC61850-6-100')
+		.at(0)
 
-	// TODO: Do we have to create a Private element if it does not exist?
-	if (privateRecords.length != 1) {
+	// TODO: Do we have to create a Private element if it does not exist or does LNodeInputs have to be inside a Private element?
+	if (!private6_100) {
 		const err = {
-			msg: `Private element not found or more than one element found in LNode with uuid ${destinationLNode.uuid}`,
+			msg: `Private element of type 'eIEC61850-6-100' not found in LNode with uuid ${destinationLNode.uuid}`,
 		}
 		console.error(err)
 		throw new Error(JSON.stringify(err))
@@ -96,10 +99,11 @@ async function addSourceRefElements(
 	await sdk.ensureRelationship(lNodeInputsRecord, addedSourceRef)
 
 	if (dataflowCreationFormFields.includeQuality) {
-		dataflowCreationFormFields.attribute = 'q' // Set to 'q' for Quality
+		let formFieldsForQuality = structuredClone(dataflowCreationFormFields)
+		formFieldsForQuality.attribute = 'q' // Set to 'q' for Quality
 		const addedQualitySourceRef = await addSourceRefElement(
 			sdk,
-			dataflowCreationFormFields,
+			formFieldsForQuality,
 			sourceLNode,
 			lNodeInputsRecord.namespace,
 		)
@@ -107,10 +111,11 @@ async function addSourceRefElements(
 	}
 
 	if (dataflowCreationFormFields.includeTimestamp) {
-		dataflowCreationFormFields.attribute = 't' // Set to 't' for Quality
+		let formFieldsForTimestamp = structuredClone(dataflowCreationFormFields)
+		formFieldsForTimestamp.attribute = 't' // Set to 't' for Quality
 		const addedTimeStampSourceRef = await addSourceRefElement(
 			sdk,
-			dataflowCreationFormFields,
+			formFieldsForTimestamp,
 			sourceLNode,
 			lNodeInputsRecord.namespace,
 		)

@@ -1,6 +1,11 @@
 <template>
 	<div style="display: flex; flex-direction: row; align-items: center; justify-content: center">
-		<dataflow-node :lnodes="lNodes" type="input" v-model:activeLNodeId="activeInputLNodeId" />
+		<dataflow-node
+			:lnodes="lNodes"
+			type="input"
+			:activeLNodeId="activeInputLNodeId"
+			@update:activeLNodeId="onActiveInputLNodeChange"
+		/>
 		<div
 			style="
 				width: 200px;
@@ -12,7 +17,12 @@
 		>
 			- Connections -
 		</div>
-		<dataflow-node :lnodes="lNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
+		<dataflow-node
+			:lnodes="lNodes"
+			type="output"
+			:activeLNodeId="activeOutputLNodeId"
+			@update:activeLNodeId="onActiveOutputLNodeChange"
+		/>
 	</div>
 
 	<button :disabled="!activeInputLNode || !activeOutputLNode" class="btn" @click="showModal">
@@ -31,7 +41,7 @@
 import dataflowNode from './dataflow-node.vue'
 import DataflowCreationForm from './dataflow-creation-form.vue'
 import { getEnrichedLNodesFromDB } from '../assets/use-lnode-records'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { LNode } from '@/types/lnode'
 
 const lNodes = ref<LNode[]>([])
@@ -46,15 +56,17 @@ onMounted(async () => {
 	lNodes.value = await getEnrichedLNodesFromDB()
 })
 
-watch(activeInputLNodeId, (newId) => {
+function onActiveInputLNodeChange(newId: string | null) {
+	activeInputLNodeId.value = newId
 	activeInputLNode.value = getActiveLNodeById(newId)
 	console.log('Active Input LNode changed:', activeInputLNode.value)
-})
+}
 
-watch(activeOutputLNodeId, (newId) => {
+function onActiveOutputLNodeChange(newId: string | null) {
+	activeOutputLNodeId.value = newId
 	activeOutputLNode.value = getActiveLNodeById(newId)
 	console.log('Active Output LNode changed:', activeOutputLNode.value)
-})
+}
 
 function getActiveLNodeById(id: string | null) {
 	return lNodes.value.find((ln) => ln.id === id) ?? null

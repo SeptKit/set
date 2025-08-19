@@ -1,5 +1,5 @@
 import type Dexie from 'dexie'
-import type { DatabaseRecord } from '@septkit/fileio'
+import type { Attribute, DatabaseRecord, QualifiedAttribute } from '@septkit/fileio'
 import type { PartialBy } from './types/types'
 
 export function useSDK(db: Dexie) {
@@ -90,3 +90,10 @@ export function useSDK(db: Dexie) {
 }
 
 export type SDK = ReturnType<typeof useSDK>
+
+export function extractAttr(
+	record: DatabaseRecord,
+	name: string,
+): Attribute | QualifiedAttribute | undefined {
+	return record.attributes?.find((attr) => attr.name === name)
+}
