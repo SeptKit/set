@@ -1,6 +1,8 @@
 <template>
 	<div>
-		<h1>Vue Extension Widget A</h1>
+		<h1 class="text-5xl font-bold">Vue Extension Widget A</h1>
+		<div class="badge badge-soft badge-primary">Primary</div>
+		<button class="btn btn-dash btn-secondary">Secondary</button>
 		<span>file: {{ fileName }}</span>
 	</div>
 </template>
@@ -32,6 +34,10 @@ onUnmounted(() => {
 	the rest of the ui
 */
 @import './assets/main.css';
+
+h1 {
+	color: blue;
+}
 
 header {
 	line-height: 1.5;
