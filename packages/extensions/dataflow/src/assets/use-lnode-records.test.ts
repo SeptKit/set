@@ -1,150 +1,98 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import Dexie from 'dexie'
-import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
 import {
-	enrichLNodesWithDataObjectSpecifications,
 	enrichLNodesWithDataObjects,
 	enrichLNodesWithDataAttributes,
+	enrichLNodesWithDataObjectSpecifications,
 } from '../assets/use-lnode-records'
 import type { LNode } from '@/types/lnode'
+import { importXmlFiles, type DatabaseRecord } from '@septkit/fileio'
 
-describe('use-lnode-records helpers', () => {
+// XML Test Data
+const sclData = `
+<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
+  <LNode id="l1" iedName="PIU" ldInst="CB" lnClass="XCBR" lnInst="1" lnType="LT1" prefix="P1">
+    <Private type="eIEC61850-6-100">
+      <eIEC61850-6-100:DOS desc="DOS Description" name="AmpSv"/>
+    </Private>
+  </LNode>
+  <DataTypeTemplates>
+    <LNodeType id="LT1" lnClass="XCBR">
+      <DO id="do1" name="Beh" type="DOType1"/>
+      <DO id="do2" name="Pos" type="DOType2"/>
+    </LNodeType>
+    <DOType id="DOType1">
+      <DA id="da1" name="stVal" fc="ST" />
+      <DA id="da2" name="q" fc="ST" />
+    </DOType>
+    <DOType id="DOType2">
+      <DA id="da3" name="ctlVal" fc="CO" />
+    </DOType>
+  </DataTypeTemplates>
+</SCL>
+`
+
+async function loadMinimalTestDB() {
+	const sclFile = new File([sclData], 'test.ssd', { type: 'text/xml' })
+	const [fileName] = await importXmlFiles({ files: [sclFile] })
+	localStorage.setItem('currentActiveFileDatabaseName', fileName)
+
+	const db = new Dexie(fileName)
+	db.version(1).stores({
+		LNode: 'id',
+		LNodeType: 'id',
+		DO: 'id',
+		DOType: 'id',
+		DA: 'id',
+		Private: 'id',
+		DOS: 'id',
+	})
+	await db.open()
+	return db
+}
+
+function mapToLNode(r: DatabaseRecord): LNode {
+	return {
+		id: r.id ?? '',
+		uuid: '',
+		iedName: r.attributes?.find((a) => a.name === 'iedName')?.value ?? '',
+		lnType: r.attributes?.find((a) => a.name === 'lnType')?.value ?? '',
+		prefix: r.attributes?.find((a) => a.name === 'prefix')?.value ?? '',
+		lnClass: r.attributes?.find((a) => a.name === 'lnClass')?.value ?? '',
+		lnInst: r.attributes?.find((a) => a.name === 'lnInst')?.value ?? '',
+		dataObjects: [],
+	}
+}
+
+describe('use-lnode-records to map the XML', () => {
 	let db: Dexie
-
+	let lnodes: LNode[]
 	beforeEach(async () => {
-		// Set up a fresh in-memory DB for every test
-		db = new Dexie('test-db')
-		db.version(1).stores({
-			LNode: 'id',
-			LNodeType: 'id',
-			DO: 'id',
-			DOType: 'id',
-			DA: 'id',
-			Private: 'id',
-			DOS: 'id',
-		})
-		await db.open()
+		db = await loadMinimalTestDB()
+		const lnodeRecs = await db.table('LNode').toArray()
+		expect(lnodeRecs.length).toBeGreaterThan(0)
+		lnodes = lnodeRecs.map(mapToLNode)
 	})
 
-	it('enrichLNodesWithDataObjectSpecifications populates DataObjectSpecifications from Private/DOS', async () => {
-		// Minimal LNode
-		await db.table('LNode').add({
-			id: 'l1',
-			attributes: [{ name: 'uuid', value: 'l1uuid' }],
-		} as DatabaseRecord)
-		// Private child to LNode
-		await db.table('Private').add({
-			id: 'priv1',
-			parent: { id: 'l1', tagName: 'LNode' },
-			children: [{ id: 'dos1', tagName: 'DOS' }],
-		} as DatabaseRecord)
-		// DOS
-		await db.table('DOS').add({
-			id: 'dos1',
-			attributes: [
-				{ name: 'name', value: 'SpecName' },
-				{ name: 'desc', value: 'SpecDesc' },
-			],
-		} as DatabaseRecord)
-		const lnodes: LNode[] = [
-			{
-				id: 'l1',
-				uuid: 'l1uuid',
-				iedName: '',
-				lnType: '',
-				prefix: '',
-				lnClass: '',
-				lnInst: '',
-				dataObjects: [],
-			},
-		]
-		const result = await enrichLNodesWithDataObjectSpecifications(db, lnodes)
-		expect(result[0].dataObjectSpecifications?.length).toBe(1)
-		expect(result[0].dataObjectSpecifications?.[0].name).toBe('SpecName')
-		expect(result[0].dataObjectSpecifications?.[0].desc).toBe('SpecDesc')
-	})
-
-	it('enrichLNodesWithDataObjects populates DataObjects from LNodeType/DO', async () => {
-		// LNode with lnType 't1'
-		await db.table('LNode').add({
-			id: 'l2',
-			attributes: [
-				{ name: 'uuid', value: 'l2uuid' },
-				{ name: 'lnType', value: 't1' },
-			],
-		} as DatabaseRecord)
-		await db.table('LNodeType').add({
-			id: 'typerec',
-			attributes: [{ name: 'id', value: 't1' }],
-			children: [{ id: 'do1', tagName: 'DO' }],
-		} as DatabaseRecord)
-		await db.table('DO').add({
-			id: 'do1',
-			attributes: [{ name: 'name', value: 'DOTest' }],
-		} as DatabaseRecord)
-		const lnodes: LNode[] = [
-			{
-				id: 'l2',
-				uuid: 'l2uuid',
-				iedName: '',
-				lnType: 't1',
-				prefix: '',
-				lnClass: '',
-				lnInst: '',
-				dataObjects: [],
-			},
-		]
+	it('enrichLNodesWithDataObjects finds DOs by LNodeType', async () => {
 		const result = await enrichLNodesWithDataObjects(db, lnodes)
-		expect(result[0].dataObjects.length).toBe(1)
-		expect(result[0].dataObjects[0].name).toBe('DOTest')
+		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Beh')
+		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Pos')
 	})
 
-	it('enrichLNodesWithDataAttributes populates DataAttributes from DOType/DA', async () => {
-		// LNode and DataObject setup
-		await db.table('LNode').add({
-			id: 'l3',
-			attributes: [{ name: 'uuid', value: 'l3uuid' }],
-		} as DatabaseRecord)
-		await db.table('DO').add({
-			id: 'do2',
-			attributes: [{ name: 'type', value: 'dot1' }],
-		} as DatabaseRecord)
-		await db.table('DOType').add({
-			id: 'dotyper',
-			attributes: [{ name: 'id', value: 'dot1' }],
-			children: [{ id: 'da1', tagName: 'DA' }],
-		} as DatabaseRecord)
-		await db.table('DA').add({
-			id: 'da1',
-			attributes: [
-				{ name: 'name', value: 'DAName' },
-				{ name: 'fc', value: 'ST' },
-			],
-		} as DatabaseRecord)
-		// LNode with one DataObject (like after DO-enrichment)
-		const lnodes: LNode[] = [
-			{
-				id: 'l3',
-				uuid: 'l3uuid',
-				iedName: '',
-				lnType: '',
-				prefix: '',
-				lnClass: '',
-				lnInst: '',
-				dataObjects: [
-					{
-						id: 'do2',
-						uuid: '',
-						name: '',
-						dataAttributes: [],
-						lNodeId: 'l3',
-					},
-				],
-			},
-		]
-		const result = await enrichLNodesWithDataAttributes(db, lnodes)
-		expect(result[0].dataObjects[0].dataAttributes.length).toBe(1)
-		expect(result[0].dataObjects[0].dataAttributes[0].name).toBe('DAName')
-		expect(result[0].dataObjects[0].dataAttributes[0].fc).toBe('ST')
+	it('enrichLNodesWithDataAttributes finds DAs by DOType', async () => {
+		const lnodesWithDOs = await enrichLNodesWithDataObjects(db, lnodes)
+		const result = await enrichLNodesWithDataAttributes(db, lnodesWithDOs)
+		expect(result[0].dataObjects[0].dataAttributes.map((daj) => daj.name)).toEqual(
+			expect.arrayContaining(['stVal', 'q']),
+		)
+		expect(result[0].dataObjects[1].dataAttributes[0].name).toBe('ctlVal')
+	})
+
+	it('enrichLNodesWithDataObjectSpecifications finds DOS in Private', async () => {
+		const result = await enrichLNodesWithDataObjectSpecifications(db, lnodes)
+		expect(result[0].dataObjectSpecifications?.length).toBeGreaterThanOrEqual(1)
+		expect(result[0].dataObjectSpecifications?.[0].name).toBe('AmpSv')
+		expect(result[0].dataObjectSpecifications?.[0].desc).toBe('DOS Description')
 	})
 })

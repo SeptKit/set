@@ -17,7 +17,7 @@ let fileName = ref('')
 let unsubscribe = () => {}
 
 onMounted(() => {
-	unsubscribe = props.api.activeFileName.subscribe((newFile: string, oldFile: any) => {
+	unsubscribe = props.api?.activeFileName.subscribe((newFile: string, oldFile: any) => {
 		fileName.value = newFile
 	})
 })
