@@ -8,7 +8,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import Diagram from './diagram/diagram.vue'
-import '@/assets/vueflow.css'
 import { initialEdges, initialNodes } from './initial-elements'
 
 const props = defineProps<{
@@ -29,12 +28,15 @@ onUnmounted(() => {
 })
 </script>
 
+<style>
+@import './app.css';
+</style>
+
 <style scoped>
 /*
 	We import it here and not on the top so it is scoped and does not affect
 	the rest of the ui
 */
-@import '@/assets/main.css';
 
 .root {
 	height: 100%;

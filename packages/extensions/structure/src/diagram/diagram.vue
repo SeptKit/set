@@ -17,7 +17,7 @@
 				<Icon name="reset" />
 			</ControlButton>
 
-			<ControlButton title="Shuffle Node Positions" @click="updatePos">
+			<ControlButton title="Custom Control" @click="updatePos">
 				<Icon name="update" />
 			</ControlButton>
 
@@ -101,15 +101,16 @@ onConnect((connection) => {
  * 3. Create a new array of nodes and pass it to the `nodes` ref
  */
 function updatePos() {
-	nodes.value = nodes.value.map((node) => {
-		return {
-			...node,
-			position: {
-				x: Math.random() * 400,
-				y: Math.random() * 400,
-			},
-		}
-	})
+	console.debug({ level: 'debug', msg: 'put your custom logic here' })
+	// nodes.value = nodes.value.map((node) => {
+	// 	return {
+	// 		...node,
+	// 		position: {
+	// 			x: Math.random() * 400,
+	// 			y: Math.random() * 400,
+	// 		},
+	// 	}
+	// })
 }
 
 /**
@@ -131,4 +132,9 @@ function toggleDarkMode() {
 }
 </script>
 
-<style scoped></style>
+<style>
+@import '@vue-flow/core/dist/style.css';
+@import '@vue-flow/core/dist/theme-default.css';
+@import '@vue-flow/controls/dist/style.css';
+@import '@vue-flow/minimap/dist/style.css';
+</style>
