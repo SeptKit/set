@@ -112,7 +112,7 @@
 
 			<div class="modal-action">
 				<button class="btn" @click="closeModal">Close</button>
-				<button class="btn" @click="createDataflow">Save</button>
+				<button class="btn" @click="createConnection">Save</button>
 			</div>
 		</div>
 	</dialog>
@@ -122,9 +122,12 @@
 import { computed, ref, watch } from 'vue'
 import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
 import type { LNode } from '@/types/lnode'
-import type { DatabaseRecord, Relationship } from '@septkit/fileio'
-import { openDatabase } from '../assets/open-db.ts'
 import { getLNodeLabel } from '@/types/lnode'
+import {
+	useDataflow,
+	type DataflowCreationForm,
+	type ValidatedDataflowCreationForm,
+} from '../dataflow.ts'
 
 const props = defineProps<{
 	sourceLNode: LNode
@@ -135,16 +138,6 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: 'update:isOpen', isOpenValue: boolean): void
 }>()
-
-type DataflowCreationForm = {
-	type: DataflowType | null
-	signal: string
-	attribute: string
-	inputName: string
-	inputInstance: string
-	includeQuality: boolean
-	includeTimestamp: boolean
-}
 
 const dataflowCreationFormFields = ref<DataflowCreationForm>(getDataflowCreationFormDefaultValues())
 
@@ -239,200 +232,29 @@ function closeModal() {
 }
 
 // TODO: extract to smaller functions
-async function createDataflow() {
-	if (!validateDataflowCreationForm(dataflowCreationFormFields.value)) {
-		return
-	}
-
-	console.log('Creating dataflow with data:', dataflowCreationFormFields.value)
-
-	const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
-	if (!activeFile) {
-		throw new Error('no active file')
-	}
-
-	const fileDb = await openDatabase(activeFile)
-
-	const lNodeRecord = await fileDb
-		.table<DatabaseRecord>('LNode')
-		.get({ id: props.destinationLNode.id })
-
-	if (!lNodeRecord || !lNodeRecord.children || lNodeRecord.children.length == 0) {
-		console.error(`LNode with id ${props.destinationLNode.id} not found or empty`)
-		return
-	}
-
-	const privateRecord = await fileDb
-		.table<DatabaseRecord>(lNodeRecord.children[0].tagName)
-		.get({ id: lNodeRecord.children[0].id })
-
-	if (!privateRecord || !privateRecord.children || privateRecord.children.length == 0) {
-		console.error(`Private element with id ${lNodeRecord.children[0].id} not found or empty`)
-		return
-	}
-
-	let lNodeInputsElement: Relationship | null = null
-
-	for (const childElement of privateRecord.children) {
-		if (childElement.tagName == 'LNodeInputs') {
-			lNodeInputsElement = childElement
-			break
-		}
-	}
-
-	if (lNodeInputsElement) {
-		const lNodeInputsRecord = await fileDb
-			.table<DatabaseRecord>(lNodeInputsElement.tagName)
-			.get({ id: lNodeInputsElement.id })
-
-		if (!lNodeInputsRecord) {
-			console.error(`LNodeInputs element with id ${lNodeInputsElement.id} not found`)
+async function createConnection() {
+	try {
+		if (!validateDataflowCreationForm(dataflowCreationFormFields.value)) {
 			return
 		}
 
-		const recordToAdd: DatabaseRecord = {
-			id: crypto.randomUUID(),
-			tagName: 'SourceRef',
-			namespace: lNodeInputsRecord.namespace,
-			attributes: [
-				{
-					name: 'pDO',
-					value: dataflowCreationFormFields.value.signal,
-				},
-				{
-					name: 'pLN',
-					value: props.sourceLNode.lnClass,
-				},
-				{
-					name: 'pDA',
-					value: dataflowCreationFormFields.value.attribute,
-				},
-				{
-					name: 'uuid',
-					value: crypto.randomUUID(), // TODO: random or generate UUID based on some logic
-				},
-				{
-					name: 'input',
-					value: dataflowCreationFormFields.value.inputName,
-				},
-				{
-					name: 'inputInst',
-					value: dataflowCreationFormFields.value.inputInstance,
-				},
-				{
-					name: 'service',
-				value: dataflowCreationFormFields.value.type,
-				},
-				{
-					name: 'sourceLNodeUuid',
-					value: props.sourceLNode.uuid,
-				},
-				{
-					name: 'sourceDoName',
-					value: dataflowCreationFormFields.value.signal,
-				},
-				{
-					name: 'sourceDaName',
-					value: dataflowCreationFormFields.value.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
-				},
-				// TODO resourceName, source, templateUUID attributes
-			],
-			parent: {
-				tagName: lNodeInputsRecord.tagName,
-				id: lNodeInputsRecord.id,
-			},
-			value: null,
-			children: null,
-		}
+		const dataflow = useDataflow()
+		await dataflow.create(
+			dataflowCreationFormFields.value,
+			props.sourceLNode,
+			props.destinationLNode,
+		)
 
-		// Add SourceRef records for new dataflow
-		const addedSourceRefIds: string[] = []
-
-		const addedId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
-		if (!addedId) {
-			console.error('Failed to add SourceRef record')
-			return
-		}
-
-		addedSourceRefIds.push(addedId.toString())
-
-		if (dataflowCreationFormFields.value.includeQuality) {
-			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
-				(attr) => attr.name === 'sourceDaName',
-			)
-			if (sourceDaNameIndex === undefined || sourceDaNameIndex < 0) {
-				console.error('sourceDaName attribute not found in SourceRef record')
-				return
-			}
-
-			recordToAdd.id = crypto.randomUUID()
-			setAttributeValue(recordToAdd, 'uuid', crypto.randomUUID())
-			setAttributeValue(recordToAdd, 'sourceDaName', 'q') // Set to 'q' for Quality
-			setAttributeValue(recordToAdd, 'pDA', 'q') // Set to 'q' for Quality
-
-			const addedQualityId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
-			if (!addedQualityId) {
-				console.error('Failed to add SourceRef record for quality')
-				return
-			}
-
-			addedSourceRefIds.push(addedQualityId.toString())
-		}
-
-		if (dataflowCreationFormFields.value.includeTimestamp) {
-			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
-				(attr) => attr.name === 'sourceDaName',
-			)
-			if (sourceDaNameIndex === undefined || sourceDaNameIndex < 0) {
-				console.error('sourceDaName attribute not found in SourceRef record')
-				return
-			}
-
-			recordToAdd.id = crypto.randomUUID()
-			setAttributeValue(recordToAdd, 'uuid', crypto.randomUUID())
-			setAttributeValue(recordToAdd, 'sourceDaName', 't') // Set to 't' for timestamp
-			setAttributeValue(recordToAdd, 'pDA', 't')
-
-			const addedTimestampId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
-			if (!addedTimestampId) {
-				console.error('Failed to add SourceRef record for timestamp')
-				return
-			}
-
-			addedSourceRefIds.push(addedTimestampId.toString())
-		}
-
-		// TODO: add additional SourceRef for t and q if needed#
-
-		console.log('Added SourceRef with ID:', addedSourceRefIds)
-
-		if (lNodeInputsRecord.children == null) {
-			lNodeInputsRecord.children = []
-		}
-
-		// Add SourceRef elements as a child to the LNodeInputs element
-		for (const sourceRefId of addedSourceRefIds) {
-			lNodeInputsRecord.children.push({
-				id: sourceRefId.toString(),
-				tagName: 'SourceRef',
-			})
-		}
-
-		await fileDb
-			.table<DatabaseRecord>(lNodeInputsRecord.tagName)
-			.update(lNodeInputsRecord.id, { children: lNodeInputsRecord.children })
+		closeModal()
+	} catch (e) {
+		console.error('Error creating dataflow:', e)
+		alert(`Error creating dataflow: ${e instanceof Error ? e.message : 'Unknown error'}`)
 	}
-
-	// TODO: handle if LNodeInputsElement is not found
-
-	fileDb.close()
-
-	closeModal()
 }
 
 function validateDataflowCreationForm(
 	formFields: DataflowCreationForm,
-): formFields is DataflowCreationForm & { type: NonNullable<DataflowCreationForm['type']> } {
+): formFields is ValidatedDataflowCreationForm {
 	if (!formFields.type) {
 		alert('Please select a dataflow type.')
 		return false
@@ -454,18 +276,6 @@ function validateDataflowCreationForm(
 
 function resetForm() {
 	dataflowCreationFormFields.value = getDataflowCreationFormDefaultValues()
-}
-
-function setAttributeValue(record: DatabaseRecord, attributeName: string, value: string) {
-	const attribute = record.attributes?.find((attr) => attr.name === attributeName)
-	if (!record.attributes) {
-		record.attributes = []
-	}
-	if (attribute) {
-		attribute.value = value
-	} else {
-		record.attributes.push({ name: attributeName, value })
-	}
 }
 </script>
 
