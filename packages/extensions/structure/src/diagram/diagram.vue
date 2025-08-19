@@ -1,5 +1,6 @@
 <template>
 	<VueFlow
+		:id="diagramId"
 		:nodes="nodes"
 		:edges="edges"
 		:class="{ dark }"
@@ -17,7 +18,7 @@
 				<Icon name="reset" />
 			</ControlButton>
 
-			<ControlButton title="Custom Control" @click="updatePos">
+			<ControlButton title="Custom Control" @click="cycleDirection">
 				<Icon name="update" />
 			</ControlButton>
 
@@ -34,95 +35,69 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { VueFlow, useVueFlow, type Node, type Edge } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import Icon from './icon.vue'
+import { useLayout, type Direction } from './layout'
 
 const props = defineProps<{
 	nodes: Node[]
 	edges: Edge[]
 }>()
 
-/**
- * `useVueFlow` provides:
- * 1. a set of methods to interact with the VueFlow instance (like `fitView`, `setViewport`, `addEdges`, etc)
- * 2. a set of event-hooks to listen to VueFlow events (like `onInit`, `onNodeDragStop`, `onConnect`, etc)
- * 3. the internal state of the VueFlow instance (like `nodes`, `edges`, `viewport`, etc)
- */
-const { onInit, onNodeDragStop, onConnect, addEdges, setViewport, toObject } = useVueFlow()
+const nodes = ref<Node[]>(props.nodes)
+const edges = ref<Edge[]>(props.edges)
 
-// const nodes = ref(initialNodes)
+const diagramId = ref('scl-structure-diagram')
 
-// const edges = ref(initialEdges)
+const directions: Direction[] = ['TB', 'BT', 'LR', 'RL']
+let currentDirection = directions[0]
+const { layout } = useLayout(diagramId.value)
+
+const { onInit, onNodeDragStop, onConnect, addEdges, setViewport, toObject, fitView } = useVueFlow(
+	diagramId.value,
+)
 
 // our dark mode toggle flag
 const dark = ref(false)
 
-/**
- * This is a Vue Flow event-hook which can be listened to from anywhere you call the composable, instead of only on the main component
- * Any event that is available as `@event-name` on the VueFlow component is also available as `onEventName` on the composable and vice versa
- *
- * onInit is called when the VueFlow viewport is initialized
- */
 onInit((vueFlowInstance) => {
 	// instance is the same as the return of `useVueFlow`
 	vueFlowInstance.fitView()
 })
 
-/**
- * onNodeDragStop is called when a node is done being dragged
- *
- * Node drag events provide you with:
- * 1. the event object
- * 2. the nodes array (if multiple nodes are dragged)
- * 3. the node that initiated the drag
- * 4. any intersections with other nodes
- */
 onNodeDragStop(({ event, nodes, node }) => {
 	console.log('Node Drag Stop', { event, nodes, node })
 })
 
-/**
- * onConnect is called when a new connection is created.
- *
- * You can add additional properties to your new edge (like a type or label) or block the creation altogether by not calling `addEdges`
- */
 onConnect((connection) => {
 	addEdges(connection)
 })
 
-/**
- * To update a node or multiple nodes, you can
- * 1. Mutate the node objects *if* you're using `v-model`
- * 2. Use the `updateNode` method (from `useVueFlow`) to update the node(s)
- * 3. Create a new array of nodes and pass it to the `nodes` ref
- */
-function updatePos() {
-	console.debug({ level: 'debug', msg: 'put your custom logic here' })
-	// nodes.value = nodes.value.map((node) => {
-	// 	return {
-	// 		...node,
-	// 		position: {
-	// 			x: Math.random() * 400,
-	// 			y: Math.random() * 400,
-	// 		},
-	// 	}
-	// })
+async function cycleDirection() {
+	let newDirIndex = -1
+	const currentDirIndex = directions.indexOf(currentDirection)
+	if (currentDirIndex < 0) {
+		newDirIndex = 0
+	}
+
+	newDirIndex = (currentDirIndex + 1) % directions.length
+	currentDirection = directions[newDirIndex]
+	const newNodes = layout(props.nodes, props.edges, currentDirection)
+	nodes.value = newNodes
+	console.debug({ level: 'debug', msg: 'changed direction', currentDirection })
+
+	await nextTick()
+	fitView()
 }
 
-/**
- * toObject transforms your current graph data to an easily persist-able object
- */
 function logToObject() {
 	console.log(toObject())
 }
 
-/**
- * Resets the current viewport transformation (zoom & pan)
- */
 function resetTransform() {
 	setViewport({ x: 0, y: 0, zoom: 1 })
 }
