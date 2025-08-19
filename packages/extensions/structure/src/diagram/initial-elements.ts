@@ -1,6 +1,6 @@
-import { MarkerType } from '@vue-flow/core'
+import { MarkerType, type Node } from '@vue-flow/core'
 
-export const initialNodes = [
+export const initialNodes: Node[] = [
 	{
 		id: '1',
 		type: 'input',
