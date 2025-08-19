@@ -1,7 +1,7 @@
 <template>
 	<div class="root" name="ext-structure-root">
 		<h3>Data Structure</h3>
-		<Diagram />
+		<Diagram :nodes="initialNodes" :edges="initialEdges" />
 	</div>
 </template>
 
@@ -9,6 +9,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import Diagram from './diagram/diagram.vue'
 import '@/assets/vueflow.css'
+import { initialEdges, initialNodes } from './initial-elements'
 
 const props = defineProps<{
 	api: { [key: string]: any }

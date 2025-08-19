@@ -33,14 +33,18 @@
 	</VueFlow>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow, type Node, type Edge } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
-import { initialEdges, initialNodes } from './initial-elements'
 import Icon from './icon.vue'
+
+const props = defineProps<{
+	nodes: Node[]
+	edges: Edge[]
+}>()
 
 /**
  * `useVueFlow` provides:
@@ -50,9 +54,9 @@ import Icon from './icon.vue'
  */
 const { onInit, onNodeDragStop, onConnect, addEdges, setViewport, toObject } = useVueFlow()
 
-const nodes = ref(initialNodes)
+// const nodes = ref(initialNodes)
 
-const edges = ref(initialEdges)
+// const edges = ref(initialEdges)
 
 // our dark mode toggle flag
 const dark = ref(false)
