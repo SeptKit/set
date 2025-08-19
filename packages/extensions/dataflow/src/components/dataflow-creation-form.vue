@@ -146,16 +146,6 @@ type DataflowCreationForm = {
 	includeTimestamp: boolean
 }
 
-const getDataflowCreationFormDefaultValues: () => DataflowCreationForm = () => ({
-	type: null,
-	signal: '',
-	attribute: '',
-	inputName: '',
-	inputInstance: '',
-	includeQuality: false,
-	includeTimestamp: false,
-})
-
 const dataflowCreationFormFields = ref<DataflowCreationForm>(getDataflowCreationFormDefaultValues())
 
 const signalOptions = computed<string[]>(() => {
@@ -223,6 +213,18 @@ watch(
 	},
 )
 
+function getDataflowCreationFormDefaultValues(): DataflowCreationForm {
+	return {
+		type: null,
+		signal: '',
+		attribute: '',
+		inputName: '',
+		inputInstance: '',
+		includeQuality: false,
+		includeTimestamp: false,
+	}
+}
+
 function resetFields(
 	fieldNames: Exclude<keyof DataflowCreationForm, 'type' | 'includeQuality' | 'includeTimestamp'>[],
 ) {
@@ -238,7 +240,7 @@ function closeModal() {
 
 // TODO: extract to smaller functions
 async function createDataflow() {
-	if (!validateDataflowCreationForm()) {
+	if (!validateDataflowCreationForm(dataflowCreationFormFields.value)) {
 		return
 	}
 
@@ -319,7 +321,7 @@ async function createDataflow() {
 				},
 				{
 					name: 'service',
-					value: dataflowCreationFormFields.value.type!,
+				value: dataflowCreationFormFields.value.type,
 				},
 				{
 					name: 'sourceLNodeUuid',
@@ -428,20 +430,22 @@ async function createDataflow() {
 	closeModal()
 }
 
-function validateDataflowCreationForm(): boolean {
-	if (!dataflowCreationFormFields.value.type) {
+function validateDataflowCreationForm(
+	formFields: DataflowCreationForm,
+): formFields is DataflowCreationForm & { type: NonNullable<DataflowCreationForm['type']> } {
+	if (!formFields.type) {
 		alert('Please select a dataflow type.')
 		return false
 	}
-	if (!dataflowCreationFormFields.value.signal) {
+	if (!formFields.signal) {
 		alert('Please select a signal (DO).')
 		return false
 	}
-	if (!dataflowCreationFormFields.value.attribute) {
+	if (!formFields.attribute) {
 		alert('Please select an attribute (DA).')
 		return false
 	}
-	if (!dataflowCreationFormFields.value.inputName) {
+	if (!formFields.inputName) {
 		alert('Please enter an input name.')
 		return false
 	}
