@@ -26,7 +26,7 @@ export async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
 }
 
 // Get all LNode records from the database
-async function getAllLNodes(db: Dexie): Promise<LNode[]> {
+export async function getAllLNodes(db: Dexie): Promise<LNode[]> {
 	const lnodeRecords = await db.table<DatabaseRecord>('LNode').toArray()
 	return lnodeRecords.map((record) => ({
 		id: record.id,
@@ -41,7 +41,7 @@ async function getAllLNodes(db: Dexie): Promise<LNode[]> {
 }
 
 // Get the DataObjects for each LNode
-async function enrichLNodesWithDataObjects(db: Dexie, lnodes: LNode[]): Promise<LNode[]> {
+export async function enrichLNodesWithDataObjects(db: Dexie, lnodes: LNode[]): Promise<LNode[]> {
 	const allLNodeTypes = await db.table<DatabaseRecord>('LNodeType').toArray()
 	return Promise.all(
 		lnodes.map(async (lnode) => {
@@ -71,7 +71,7 @@ async function enrichLNodesWithDataObjects(db: Dexie, lnodes: LNode[]): Promise<
 }
 
 //Get the DataAttributes for each DataObject in each LNode
-async function enrichLNodesWithDataAttributes(db: Dexie, lnodes: LNode[]): Promise<LNode[]> {
+export async function enrichLNodesWithDataAttributes(db: Dexie, lnodes: LNode[]): Promise<LNode[]> {
 	const allDOTypes = await db.table<DatabaseRecord>('DOType').toArray()
 	const allDARecords = await db.table<DatabaseRecord>('DA').toArray()
 
