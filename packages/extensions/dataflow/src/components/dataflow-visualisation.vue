@@ -19,7 +19,7 @@
 		+
 	</button>
 
-	<DataflowCreationDialog
+	<DataflowCreationForm
 		v-if="activeInputLNode && activeOutputLNode"
 		v-model:isOpen="isCreationDialogOpen"
 		:sourceLNode="activeInputLNode"
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import dataflowNode from './dataflow-node.vue'
-import DataflowCreationDialog from './dataflow-creation.vue'
+import DataflowCreationForm from './dataflow-creation-form.vue'
 import { getEnrichedLNodesFromDB } from '../assets/use-lnode-records'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/types/lnode'

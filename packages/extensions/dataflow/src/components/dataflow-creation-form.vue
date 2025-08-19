@@ -8,11 +8,11 @@
 				<select
 					required
 					class="select"
-					v-model="dataflowToCreate.type"
+					v-model="dataflowCreationFormFields.type"
 					@change="resetFields(['signal', 'attribute'])"
 				>
-					<option v-for="type in dataflowTypes" :key="type.value" :value="type.value">
-						{{ type.label }}
+					<option v-for="type in Object.values(DataflowType)" :key="type" :value="type">
+						{{ type }}
 					</option>
 				</select>
 			</fieldset>
@@ -31,7 +31,7 @@
 				<select
 					required
 					class="select"
-					v-model="dataflowToCreate.signal"
+					v-model="dataflowCreationFormFields.signal"
 					@change="resetFields(['attribute'])"
 				>
 					<option v-for="signal of signalOptions" :key="signal" :value="signal">
@@ -42,7 +42,7 @@
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Attribute (DA)</legend>
-				<select required class="select" v-model="dataflowToCreate.attribute">
+				<select required class="select" v-model="dataflowCreationFormFields.attribute">
 					<option v-for="attribute of attributeOptions" :key="attribute" :value="attribute">
 						{{ attribute }}
 					</option>
@@ -65,10 +65,11 @@
 					type="text"
 					placeholder="Input Name"
 					class="input"
-					v-model="dataflowToCreate.inputName"
+					v-model="dataflowCreationFormFields.inputName"
 				/>
 			</fieldset>
 
+			<!-- TODO: This needs to be adapted according to rule defined in issue https://github.com/SeptKit/set/issues/163 -->
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Input Instance</legend>
 				<input
@@ -77,7 +78,7 @@
 					type="text"
 					placeholder="Input Name"
 					class="input"
-					v-model="dataflowToCreate.inputInstance"
+					v-model="dataflowCreationFormFields.inputInstance"
 				/>
 			</fieldset>
 
@@ -86,7 +87,11 @@
 			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 mb-3">
 				<legend></legend>
 				<label class="label">
-					<input type="checkbox" v-model="dataflowToCreate.includeQuality" class="checkbox" />
+					<input
+						type="checkbox"
+						v-model="dataflowCreationFormFields.includeQuality"
+						class="checkbox"
+					/>
 					Include Quality
 				</label>
 			</fieldset>
@@ -94,7 +99,11 @@
 			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 mb-3">
 				<legend></legend>
 				<label class="label">
-					<input type="checkbox" v-model="dataflowToCreate.includeTimestamp" class="checkbox" />
+					<input
+						type="checkbox"
+						v-model="dataflowCreationFormFields.includeTimestamp"
+						class="checkbox"
+					/>
 					Include Timestamp
 				</label>
 			</fieldset>
@@ -103,7 +112,7 @@
 
 			<div class="modal-action">
 				<button class="btn" @click="closeModal">Close</button>
-				<button class="btn" @click="createConnection">Save</button>
+				<button class="btn" @click="createDataflow">Save</button>
 			</div>
 		</div>
 	</dialog>
@@ -127,34 +136,7 @@ const emit = defineEmits<{
 	(e: 'update:isOpen', isOpenValue: boolean): void
 }>()
 
-const dataflowTypes = [
-	{
-		label: 'Goose',
-		value: DataflowType.GOOSE,
-	},
-	{
-		label: 'SMV',
-		value: DataflowType.SMV,
-	},
-	{
-		label: 'Reporting',
-		value: DataflowType.REPORTING,
-	},
-	{
-		label: 'Internal',
-		value: DataflowType.INTERNAL,
-	},
-	{
-		label: 'Wired',
-		value: DataflowType.WIRED,
-	},
-	{
-		label: 'Control',
-		value: DataflowType.CONTROL,
-	},
-] as const
-
-type DataflowCreationType = {
+type DataflowCreationForm = {
 	type: DataflowType | null
 	signal: string
 	attribute: string
@@ -164,7 +146,7 @@ type DataflowCreationType = {
 	includeTimestamp: boolean
 }
 
-const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
+const getDataflowCreationFormDefaultValues: () => DataflowCreationForm = () => ({
 	type: null,
 	signal: '',
 	attribute: '',
@@ -174,72 +156,78 @@ const getDataflowToCreateDefault: () => DataflowCreationType = () => ({
 	includeTimestamp: false,
 })
 
-const dataflowToCreate = ref<DataflowCreationType>(getDataflowToCreateDefault())
+const dataflowCreationFormFields = ref<DataflowCreationForm>(getDataflowCreationFormDefaultValues())
 
 const signalOptions = computed<string[]>(() => {
-	if (!dataflowToCreate.value.type) return []
+	if (!dataflowCreationFormFields.value.type) return []
 	return props.sourceLNode.dataObjects
 		.filter((doObj) =>
 			doObj.dataAttributes.some((attr) =>
-				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
+				DataflowTypeToFCMap[dataflowCreationFormFields.value.type as DataflowType].includes(
+					attr.fc,
+				),
 			),
 		)
 		.map((doObj) => doObj.name)
 })
 
 const attributeOptions = computed(() => {
-	if (!dataflowToCreate.value.type) return []
+	if (!dataflowCreationFormFields.value.type) return []
 
 	return (
 		props.sourceLNode.dataObjects
-			.find((doObj) => doObj.name === dataflowToCreate.value.signal)
+			.find((doObj) => doObj.name === dataflowCreationFormFields.value.signal)
 			?.dataAttributes.filter((attr) =>
-				DataflowTypeToFCMap[dataflowToCreate.value.type as DataflowType].includes(attr.fc),
+				DataflowTypeToFCMap[dataflowCreationFormFields.value.type as DataflowType].includes(
+					attr.fc,
+				),
 			)
 			.filter((attr) => attr.name !== 't' && attr.name !== 'q')
 			.map((attr) => attr.name) || []
 	)
 })
 
+// TODO: This needs to be adapted according to rule defined in issue https://github.com/SeptKit/set/issues/163
 watch(
-	() => dataflowToCreate.value.signal,
+	() => dataflowCreationFormFields.value.signal,
 	(newSignal, _) => {
-		dataflowToCreate.value.inputName = newSignal
+		dataflowCreationFormFields.value.inputName = newSignal
+	},
+)
+
+// TODO: This needs to be adapted according to rule defined in issue https://github.com/SeptKit/set/issues/163
+watch(
+	() => dataflowCreationFormFields.value.inputName,
+	() => {
+		dataflowCreationFormFields.value.inputInstance = '1' // currently hardcoded, needs to be adapted
 	},
 )
 
 watch(
-	() => dataflowToCreate.value.inputName,
+	() => dataflowCreationFormFields.value.type,
 	() => {
-		dataflowToCreate.value.inputInstance = '1'
-	},
-)
-
-watch(
-	() => dataflowToCreate.value.type,
-	() => {
-		switch (dataflowToCreate.value.type) {
+		switch (dataflowCreationFormFields.value.type) {
 			case DataflowType.GOOSE:
 			case DataflowType.SMV:
-				dataflowToCreate.value.includeQuality = true
-				dataflowToCreate.value.includeTimestamp = false
+				dataflowCreationFormFields.value.includeQuality = true
+				dataflowCreationFormFields.value.includeTimestamp = false
 				break
-			case DataflowType.REPORTING:
-				dataflowToCreate.value.includeQuality = true
-				dataflowToCreate.value.includeTimestamp = true
+			case DataflowType.REPORT:
+				dataflowCreationFormFields.value.includeQuality = true
+				dataflowCreationFormFields.value.includeTimestamp = true
 				break
 			default:
-				dataflowToCreate.value.includeQuality = false
-				dataflowToCreate.value.includeTimestamp = false
+				dataflowCreationFormFields.value.includeQuality = false
+				dataflowCreationFormFields.value.includeTimestamp = false
 		}
 	},
 )
 
 function resetFields(
-	fieldNames: Exclude<keyof DataflowCreationType, 'type' | 'includeQuality' | 'includeTimestamp'>[],
+	fieldNames: Exclude<keyof DataflowCreationForm, 'type' | 'includeQuality' | 'includeTimestamp'>[],
 ) {
 	for (const fieldName of fieldNames) {
-		dataflowToCreate.value[fieldName] = ''
+		dataflowCreationFormFields.value[fieldName] = ''
 	}
 }
 
@@ -249,12 +237,12 @@ function closeModal() {
 }
 
 // TODO: extract to smaller functions
-async function createConnection() {
-	if (!validateDataflowToCreate()) {
+async function createDataflow() {
+	if (!validateDataflowCreationForm()) {
 		return
 	}
 
-	console.log('Creating connection with data:', dataflowToCreate.value)
+	console.log('Creating dataflow with data:', dataflowCreationFormFields.value)
 
 	const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
 	if (!activeFile) {
@@ -307,7 +295,7 @@ async function createConnection() {
 			attributes: [
 				{
 					name: 'pDO',
-					value: dataflowToCreate.value.signal,
+					value: dataflowCreationFormFields.value.signal,
 				},
 				{
 					name: 'pLN',
@@ -315,7 +303,7 @@ async function createConnection() {
 				},
 				{
 					name: 'pDA',
-					value: dataflowToCreate.value.attribute,
+					value: dataflowCreationFormFields.value.attribute,
 				},
 				{
 					name: 'uuid',
@@ -323,15 +311,15 @@ async function createConnection() {
 				},
 				{
 					name: 'input',
-					value: dataflowToCreate.value.inputName,
+					value: dataflowCreationFormFields.value.inputName,
 				},
 				{
 					name: 'inputInst',
-					value: dataflowToCreate.value.inputInstance,
+					value: dataflowCreationFormFields.value.inputInstance,
 				},
 				{
 					name: 'service',
-					value: findDataflowTypeLabelByValue(dataflowToCreate.value.type as DataflowType),
+					value: dataflowCreationFormFields.value.type!,
 				},
 				{
 					name: 'sourceLNodeUuid',
@@ -339,11 +327,11 @@ async function createConnection() {
 				},
 				{
 					name: 'sourceDoName',
-					value: dataflowToCreate.value.signal,
+					value: dataflowCreationFormFields.value.signal,
 				},
 				{
 					name: 'sourceDaName',
-					value: dataflowToCreate.value.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
+					value: dataflowCreationFormFields.value.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
 				},
 				// TODO resourceName, source, templateUUID attributes
 			],
@@ -355,7 +343,7 @@ async function createConnection() {
 			children: null,
 		}
 
-		// Add SourceRef records for new connection
+		// Add SourceRef records for new dataflow
 		const addedSourceRefIds: string[] = []
 
 		const addedId = await fileDb.table<DatabaseRecord>('SourceRef').add(recordToAdd)
@@ -366,7 +354,7 @@ async function createConnection() {
 
 		addedSourceRefIds.push(addedId.toString())
 
-		if (dataflowToCreate.value.includeQuality) {
+		if (dataflowCreationFormFields.value.includeQuality) {
 			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
 				(attr) => attr.name === 'sourceDaName',
 			)
@@ -389,7 +377,7 @@ async function createConnection() {
 			addedSourceRefIds.push(addedQualityId.toString())
 		}
 
-		if (dataflowToCreate.value.includeTimestamp) {
+		if (dataflowCreationFormFields.value.includeTimestamp) {
 			const sourceDaNameIndex = recordToAdd.attributes?.findIndex(
 				(attr) => attr.name === 'sourceDaName',
 			)
@@ -440,32 +428,28 @@ async function createConnection() {
 	closeModal()
 }
 
-function validateDataflowToCreate(): boolean {
-	if (!dataflowToCreate.value.type) {
+function validateDataflowCreationForm(): boolean {
+	if (!dataflowCreationFormFields.value.type) {
 		alert('Please select a dataflow type.')
 		return false
 	}
-	if (!dataflowToCreate.value.signal) {
+	if (!dataflowCreationFormFields.value.signal) {
 		alert('Please select a signal (DO).')
 		return false
 	}
-	if (!dataflowToCreate.value.attribute) {
+	if (!dataflowCreationFormFields.value.attribute) {
 		alert('Please select an attribute (DA).')
 		return false
 	}
-	if (!dataflowToCreate.value.inputName) {
-		alert('Please enter a input name.')
+	if (!dataflowCreationFormFields.value.inputName) {
+		alert('Please enter an input name.')
 		return false
 	}
 	return true
 }
 
-function findDataflowTypeLabelByValue(dataflowType: DataflowType): string {
-	return dataflowTypes.find((type) => type.value === dataflowType)?.label ?? ''
-}
-
 function resetForm() {
-	dataflowToCreate.value = getDataflowToCreateDefault()
+	dataflowCreationFormFields.value = getDataflowCreationFormDefaultValues()
 }
 
 function setAttributeValue(record: DatabaseRecord, attributeName: string, value: string) {

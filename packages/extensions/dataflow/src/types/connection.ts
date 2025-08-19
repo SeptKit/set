@@ -1,10 +1,10 @@
 export enum DataflowType {
-	GOOSE = 'goose',
-	SMV = 'smv',
-	REPORTING = 'reporting',
-	INTERNAL = 'internal',
-	WIRED = 'wired',
-	CONTROL = 'control',
+	GOOSE = 'GOOSE',
+	SMV = 'SMV',
+	REPORT = 'Report',
+	INTERNAL = 'Internal',
+	WIRED = 'Wired',
+	CONTROL = 'Control',
 }
 
 export type Connection = {
@@ -20,20 +20,7 @@ export type Connection = {
 export const DataflowTypeToFCMap: Record<DataflowType, string[]> = {
 	[DataflowType.GOOSE]: ['ST', 'MX', 'SP', 'OR'],
 	[DataflowType.SMV]: ['ST', 'MX'],
-	[DataflowType.REPORTING]: [
-		'ST',
-		'MX',
-		'SP',
-		'SV',
-		'CF',
-		'DC',
-		'SG',
-		'SE',
-		'SR',
-		'OR',
-		'BL',
-		'EX',
-	],
+	[DataflowType.REPORT]: ['ST', 'MX', 'SP', 'SV', 'CF', 'DC', 'SG', 'SE', 'SR', 'OR', 'BL', 'EX'],
 	[DataflowType.INTERNAL]: ['ST', 'MX', 'SP', 'SV', 'CF', 'DC', 'SG', 'SE', 'SR', 'OR', 'BL', 'EX'],
 	[DataflowType.WIRED]: ['ST', 'MX', 'SP', 'SV', 'CF', 'DC', 'SG', 'SE', 'SR', 'OR', 'BL', 'EX'],
 	[DataflowType.CONTROL]: [], // TODO
