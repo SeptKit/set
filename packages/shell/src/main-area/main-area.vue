@@ -21,12 +21,14 @@ import type { Optional } from '../x/types'
 const store = useMainAreaWidgetStore()
 
 const extensionList = [
-	// 'https://septkit.github.io/extensions/structure/2/', // Structure Prod
+	'https://septkit.github.io/extensions/structure/2/', // Structure Prod
 	// 'http://localhost:54945/', //Structure DEV
 	// 'http://127.0.0.1:51003/',
 	// 'http://localhost:54944/',
 	// 'http://localhost:54945/', //__TEMPLATE__
-	'http://localhost:54945/',
+	// 'http://localhost:54945/',
+	//'http://localhost:54945/',
+	//'http://localhost:54947/', // Dataflow Extension
 ]
 
 onMounted(() => loadExtensions(extensionList))
