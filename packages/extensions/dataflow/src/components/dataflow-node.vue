@@ -13,6 +13,7 @@
 				class="select"
 				:value="props.activeLNodeId ?? ''"
 				@change="(e) => onSelect((e.target as HTMLSelectElement).value)"
+				:data-testid="`select-${props.type}-lnode`"
 			>
 				<option key="null" value="">Select LNode</option>
 				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
