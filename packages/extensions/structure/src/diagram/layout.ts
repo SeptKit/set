@@ -43,14 +43,6 @@ export function useLayout() {
 
 export type CombinedNode = ElkNode & { flowNode: FlowNode }
 
-// ElkNode: { id: "n1", width: 30, height: 30 },
-// FlowNode:{
-// 	id: '1',
-// 	type: 'input',
-// 	data: { label: 'Node 1' },
-// 	position: { x: 250, y: 0 },
-// 	class: 'light',
-// },
 function flowNodeToElkNode(flowNode: FlowNode): CombinedNode {
 	return {
 		id: flowNode.id,
@@ -93,19 +85,6 @@ function setupRelationships(nodes: CombinedNode[]) {
 	return nodesWithChildren
 }
 
-/**
- *
- * flowEdge:
- * {
- *	id: 'e1-2',
- *	source: '1',
- *	target: '2',
- *	animated: true,
- *	},
- *
- * elkEdge:
- * { id: "e1", sources: [ "n1" ], targets: [ "n2" ] },
- */
 function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge {
 	return {
 		id: flowEdge.id,
@@ -114,28 +93,6 @@ function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge {
 	}
 }
 
-/**
- *
- * elkNode
- * {
- *   "$H": 277,
- *   "height": 30,
- *   "id": "1",
- *   "width": 90,
- *   "x": 12,
- *   "y": 12,
- * },
- *
- * flowNode:
- * {
- * 	id: '1',
- * 	type: 'input',
- * 	data: { label: 'Node 1' },
- * 	position: { x: 0, y: 0 },
- * 	class: 'light',
- * },
- *
- */
 function elkNodeToFlowNode(elkNode: CombinedNode): FlowNode {
 	return {
 		...elkNode.flowNode,
@@ -145,11 +102,6 @@ function elkNodeToFlowNode(elkNode: CombinedNode): FlowNode {
 			height: elkNode.height,
 		},
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
-		// style: { width: `${elkNode.width}px`, height: `${elkNode.height}px` },
-		// id: elkNode.id,
-		// type: 'input',
-		// data: { label: elkNode.flowNode.data.label },
-		// class: elkNode.flowNode.class,
 	}
 }
 

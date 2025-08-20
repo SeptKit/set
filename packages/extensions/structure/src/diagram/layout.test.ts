@@ -144,7 +144,7 @@ describe('Component', () => {
 
 				// Assert
 
-				// Note: we remoe all the data expect the label
+				// Note: we remove all the data expect the label
 				// because currently they are calculated
 				// and we cannot use them in a deterministic way
 				nodes.forEach((node) => {

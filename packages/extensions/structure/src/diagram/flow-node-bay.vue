@@ -9,7 +9,6 @@ import type { NodeProps } from '@vue-flow/core'
 import { computed } from 'vue'
 
 const props = defineProps<NodeProps>()
-console.debug('bay node', { props, style: props.style })
 
 const style = computed(() => ({ width: `${props.data.width}px`, height: `${props.data.height}px` }))
 </script>
