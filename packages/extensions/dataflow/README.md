@@ -1,21 +1,7 @@
-# Extension Template
+# Dataflow Extension
 
-This is a template for making SET Extensions.
+This is a SET Extensions for dataflow connections between LNodes
 
-# Starting the Template
+# Starting the Extension
 
 pnpm build:serve
-
-# Creating a new Extension
-
--Copy the `_template` folder
--Change `__Template__` in following files:
-
-- app.vue
-- app.test.ts
-- package.json
-- index.html
-
--Register the new Extension in:
-
--main-area.vue -> dummyExtensionLocationList
