@@ -1,6 +1,6 @@
 import type Dexie from 'dexie'
 import type { Attribute, DatabaseRecord, QualifiedAttribute } from '@septkit/fileio'
-import type { PartialBy } from './types/types'
+import type { PartialBy } from './types'
 
 export function useSDK(db: Dexie) {
 	return {

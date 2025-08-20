@@ -1,10 +1,10 @@
 import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
-import type { PartialBy } from '@/types/types.ts'
-import type { DataflowType } from '@/types/connection'
-import { extractAttr, useSDK, type SDK } from './sdk.ts'
-import type { LNode } from './types/lnode.ts'
-import { openDatabase } from './assets/open-db.ts'
+import type { PartialBy } from './types'
+import { extractAttr, useSDK, type SDK } from './sdk'
+import { openDatabase } from './database'
+import type { DataflowType } from '@/lnode/connection'
+import type { LNode } from '@/lnode/lnode'
 
 export type DataflowCreationForm = {
 	type: DataflowType | null
