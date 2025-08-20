@@ -26,7 +26,7 @@ const dummyExtensionLocationList = [
 	// 'http://localhost:54944/',
 	// 'http://localhost:54945/', //__TEMPLATE__
 	//'http://localhost:54945/',
-	'http://localhost:54947/', // Dataflow Extension
+	//'http://localhost:54947/', // Dataflow Extension
 ]
 
 onMounted(() => loadExtensions(dummyExtensionLocationList))
