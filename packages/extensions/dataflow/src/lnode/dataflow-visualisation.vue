@@ -39,7 +39,7 @@ async function initLnode() {
 	if (!props.lnodeSDK) {
 		return
 	}
-	lNodes.value = await props.lnodeSDK.getEnrichedLNodesFromDB()
+	lNodes.value = await props.lnodeSDK.findAllEnrichedLNodesFromDB()
 }
 </script>
 

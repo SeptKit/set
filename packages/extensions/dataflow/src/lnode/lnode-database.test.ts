@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import Dexie from 'dexie'
-import {
-	enrichLNodesWithDataObjects,
-	enrichLNodesWithDataAttributes,
-	enrichLNodesWithDataObjectSpecifications,
-} from './lnode-database'
+import { createLNodeSDK } from './lnode-database'
 import type { LNode } from '@/lnode/lnode'
 import { importXmlFiles, type DatabaseRecord } from '@septkit/fileio'
 
@@ -31,6 +27,51 @@ const sclData = `
   </DataTypeTemplates>
 </SCL>
 `
+
+describe('use-lnode-records to map the XML', () => {
+	let db: Dexie
+	let lnodes: LNode[]
+	beforeEach(async () => {
+		db = await loadMinimalTestDB()
+		const lnodeRecs = await db.table('LNode').toArray()
+		expect(lnodeRecs.length).toBeGreaterThan(0)
+		lnodes = lnodeRecs.map(mapToLNode)
+	})
+
+	it('enrichLNodesWithDataObjects finds DOs by LNodeType', async () => {
+		// Arrange
+		const lnodeSdk = createLNodeSDK(db)
+		// Act: Enrich LNodes with DataObjects
+		const result = await lnodeSdk.enrichLNodesWithDataObjects(lnodes)
+		// Assert: Check if DataObjects are enriched correctly
+		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Beh')
+		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Pos')
+	})
+
+	it('enrichLNodesWithDataAttributes finds DAs by DOType', async () => {
+		// Arrange
+		const lnodeSdk = createLNodeSDK(db)
+		// Act: Enrich LNodes with DataObjects and DataAttributes
+		const lnodesWithDOs = await lnodeSdk.enrichLNodesWithDataObjects(lnodes)
+		const result = await lnodeSdk.enrichLNodesWithDataAttributes(lnodesWithDOs)
+		// Assert: Check if DataAttributes are enriched correctly
+		expect(result[0].dataObjects[0].dataAttributes.map((daj) => daj.name)).toEqual(
+			expect.arrayContaining(['stVal', 'q']),
+		)
+		expect(result[0].dataObjects[1].dataAttributes[0].name).toBe('ctlVal')
+	})
+
+	it('enrichLNodesWithDataObjectSpecifications finds DOS in Private', async () => {
+		// Arrange
+		const lnodeSdk = createLNodeSDK(db)
+		// Act: Enrich LNodes with DataObjectSpecifications
+		const result = await lnodeSdk.enrichLNodesWithDataObjectSpecifications(lnodes)
+		// Assert: Check if DataObjectSpecifications are enriched correctly
+		expect(result[0].dataObjectSpecifications?.length).toBeGreaterThanOrEqual(1)
+		expect(result[0].dataObjectSpecifications?.[0].name).toBe('AmpSv')
+		expect(result[0].dataObjectSpecifications?.[0].desc).toBe('DOS Description')
+	})
+})
 
 async function loadMinimalTestDB() {
 	const sclFile = new File([sclData], 'test.ssd', { type: 'text/xml' })
@@ -63,36 +104,3 @@ function mapToLNode(r: DatabaseRecord): LNode {
 		dataObjects: [],
 	}
 }
-
-describe('use-lnode-records to map the XML', () => {
-	let db: Dexie
-	let lnodes: LNode[]
-	beforeEach(async () => {
-		db = await loadMinimalTestDB()
-		const lnodeRecs = await db.table('LNode').toArray()
-		expect(lnodeRecs.length).toBeGreaterThan(0)
-		lnodes = lnodeRecs.map(mapToLNode)
-	})
-
-	it('enrichLNodesWithDataObjects finds DOs by LNodeType', async () => {
-		const result = await enrichLNodesWithDataObjects(db, lnodes)
-		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Beh')
-		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Pos')
-	})
-
-	it('enrichLNodesWithDataAttributes finds DAs by DOType', async () => {
-		const lnodesWithDOs = await enrichLNodesWithDataObjects(db, lnodes)
-		const result = await enrichLNodesWithDataAttributes(db, lnodesWithDOs)
-		expect(result[0].dataObjects[0].dataAttributes.map((daj) => daj.name)).toEqual(
-			expect.arrayContaining(['stVal', 'q']),
-		)
-		expect(result[0].dataObjects[1].dataAttributes[0].name).toBe('ctlVal')
-	})
-
-	it('enrichLNodesWithDataObjectSpecifications finds DOS in Private', async () => {
-		const result = await enrichLNodesWithDataObjectSpecifications(db, lnodes)
-		expect(result[0].dataObjectSpecifications?.length).toBeGreaterThanOrEqual(1)
-		expect(result[0].dataObjectSpecifications?.[0].name).toBe('AmpSv')
-		expect(result[0].dataObjectSpecifications?.[0].desc).toBe('DOS Description')
-	})
-})

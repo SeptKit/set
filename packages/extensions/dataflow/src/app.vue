@@ -12,14 +12,12 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from './lnode/dataflow-visualisation.vue'
 import { createLNodeSDK, type LNodeSDK } from './lnode/lnode-database'
 import { openDatabase } from './x/database'
-import { useStorage } from '@vueuse/core'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
-let fileName = ref('')
-let unsubscribe = () => {}
+let lnodeSDK = ref<LNodeSDK | undefined>()
 
 onMounted(() => {
 	window.addEventListener('storage', onActiveFileChange)
@@ -29,7 +27,6 @@ onUnmounted(() => {
 	window.removeEventListener('storage', onActiveFileChange)
 })
 
-let lnodeSDK = ref<LNodeSDK | undefined>()
 async function onActiveFileChange(event: StorageEvent) {
 	if (event.key !== 'currentActiveFileDatabaseName') {
 		return
@@ -60,16 +57,6 @@ async function initSDK(newActiveFile: string) {
 
 	lnodeSDK.value = createLNodeSDK(db)
 }
-
-// onMounted(() => {
-// 	unsubscribe = props.api?.activeFileName.subscribe((newFile: string, oldFile: any) => {
-// 		fileName.value = newFile
-// 	})
-// })
-
-onUnmounted(() => {
-	unsubscribe()
-})
 </script>
 
 <style scoped>

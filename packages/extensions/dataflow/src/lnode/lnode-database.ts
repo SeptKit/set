@@ -1,14 +1,12 @@
 import type { DataAttribute, DataObject, DataObjectSpecification, LNode } from '@/lnode/lnode'
 import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
 import Dexie from 'dexie'
-import { useStorage } from '@vueuse/core'
-import { openDatabase } from '../x/database'
 
 export type LNodeSDK = ReturnType<typeof createLNodeSDK>
 
 export function createLNodeSDK(db: Dexie) {
 	return {
-		getEnrichedLNodesFromDB,
+		findAllEnrichedLNodesFromDB,
 		enrichLNodesWithDataObjects,
 		enrichLNodesWithDataAttributes,
 		enrichLNodesWithDataObjectSpecifications,
@@ -16,8 +14,8 @@ export function createLNodeSDK(db: Dexie) {
 	}
 
 	//Main function to get enriched LNodes from the database
-	async function getEnrichedLNodesFromDB(): Promise<LNode[]> {
-		const lnodes = await getAllLNodes()
+	async function findAllEnrichedLNodesFromDB(): Promise<LNode[]> {
+		const lnodes = await findAllNodesFromDB()
 		if (!lnodes.length) return []
 		const lnodesWithDOs = await enrichLNodesWithDataObjects(lnodes)
 		const lnodesWithDAs = await enrichLNodesWithDataAttributes(lnodesWithDOs)
@@ -46,7 +44,7 @@ export function createLNodeSDK(db: Dexie) {
 						if (!doRecord) continue
 						dataObjects.push({
 							id: doRecord.id,
-							uuid: getAttribute(doRecord, 'uuid') ?? '',
+							uuid: findOneAttribute(doRecord, 'uuid') ?? '',
 							name: doRecord.attributes?.find((a) => a.name === 'name')?.value ?? doRecord.id,
 							lNodeId: lnode.id,
 							dataAttributes: [],
@@ -68,7 +66,7 @@ export function createLNodeSDK(db: Dexie) {
 				const enrichedDataObjects = await Promise.all(
 					(lnode.dataObjects ?? []).map(async (dataObject) => {
 						const doTypeId = dataObject
-							? getAttribute(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
+							? findOneAttribute(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
 							: undefined
 						if (!doTypeId) return { ...dataObject, dataAttributes: [] }
 
@@ -82,11 +80,11 @@ export function createLNodeSDK(db: Dexie) {
 							if (childRef.tagName !== 'DA') continue
 							const daRecord = allDARecords.find((d) => d.id === childRef.id)
 							if (!daRecord) continue
-							const daName = getAttribute(daRecord, 'name') ?? daRecord.id
-							const daFc = getAttribute(daRecord, 'fc') ?? ''
+							const daName = findOneAttribute(daRecord, 'name') ?? daRecord.id
+							const daFc = findOneAttribute(daRecord, 'fc') ?? ''
 							dataAttributes.push({
 								id: daRecord.id,
-								uuid: getAttribute(daRecord, 'uuid') ?? '',
+								uuid: findOneAttribute(daRecord, 'uuid') ?? '',
 								name: daName,
 								dataObjectId: dataObject.id,
 								fc: daFc,
@@ -123,8 +121,8 @@ export function createLNodeSDK(db: Dexie) {
 
 					dosSpecs.push({
 						id: dosRecord.id,
-						name: getAttribute(dosRecord, 'name') ?? '',
-						desc: getAttribute(dosRecord, 'desc') ?? '',
+						name: findOneAttribute(dosRecord, 'name') ?? '',
+						desc: findOneAttribute(dosRecord, 'desc') ?? '',
 						dataAttributeSpecification: [],
 						lNodeId: lnode.id,
 					})
@@ -134,33 +132,28 @@ export function createLNodeSDK(db: Dexie) {
 		)
 	}
 
-	function close(){
-		db.close()
-	}
-
-	// Get all LNode records from the database
-	async function getAllLNodes(): Promise<LNode[]> {
+	// Find all LNode records from the database
+	async function findAllNodesFromDB(): Promise<LNode[]> {
 		const lnodeRecords = await db.table<DatabaseRecord>('LNode').toArray()
 		return lnodeRecords.map((record) => ({
 			id: record.id,
-			uuid: getAttribute(record, 'uuid') ?? '',
-			iedName: getAttribute(record, 'iedName') ?? '',
-			prefix: getAttribute(record, 'prefix') ?? '',
-			lnClass: getAttribute(record, 'lnClass') ?? '',
-			lnInst: getAttribute(record, 'lnInst') ?? '',
-			lnType: getAttribute(record, 'lnType'),
+			uuid: findOneAttribute(record, 'uuid') ?? '',
+			iedName: findOneAttribute(record, 'iedName') ?? '',
+			prefix: findOneAttribute(record, 'prefix') ?? '',
+			lnClass: findOneAttribute(record, 'lnClass') ?? '',
+			lnInst: findOneAttribute(record, 'lnInst') ?? '',
+			lnType: findOneAttribute(record, 'lnType'),
 			dataObjects: [],
 		}))
 	}
+
+	// Close the database connection
+	function close() {
+		db.close()
+	}
 }
 
-// findAllObjects
-// findAllObjectsByParent
-// findOneObject
-// findOneObjectById
-// findOneObjectByParent
-
 // Helper function to get an attribute value from a record
-function getAttribute(record: DatabaseRecord | undefined, name: string): string | undefined {
+function findOneAttribute(record: DatabaseRecord | undefined, name: string): string | undefined {
 	return record?.attributes?.find((a) => a.name === name)?.value
 }
