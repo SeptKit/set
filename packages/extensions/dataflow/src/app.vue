@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
-		<div class="flex flex-col items-center justify-center">
+		<div class="dataflow-app-center">
 			<DataflowVisualisation :lnodeSDK="lnodeSDK" />
 		</div>
 	</div>
@@ -65,4 +65,11 @@ async function initSDK(newActiveFile: string) {
 	the rest of the ui
 */
 @import '@/assets/main.css';
+
+.dataflow-app-center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
 </style>

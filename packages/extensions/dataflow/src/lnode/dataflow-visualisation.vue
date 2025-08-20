@@ -1,17 +1,7 @@
 <template>
-	<div style="display: flex; flex-direction: row; align-items: center; justify-content: center">
+	<div class="visualisation-row">
 		<DataflowNode :lnodes="lNodes" type="input" v-model:activeLNodeId="activeInputLNodeId" />
-		<div
-			style="
-				width: 200px;
-				height: 200px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			"
-		>
-			- Connections -
-		</div>
+		<div class="visualisation-connections">- Connections -</div>
 		<DataflowNode :lnodes="lNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
 	</div>
 </template>
@@ -45,4 +35,19 @@ async function initLnode() {
 
 <style scoped>
 @import '@/assets/main.css';
+
+.visualisation-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.visualisation-connections {
+	width: 200px;
+	height: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 </style>

@@ -1,14 +1,6 @@
 <template>
-	<div
-		style="
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: flex-start;
-			position: relative;
-		"
-	>
-		<div style="margin-bottom: 20px; margin-top: 20px">
+	<div class="node-element-root">
+		<div class="node-element-select-row">
 			<select
 				class="select"
 				:value="props.activeLNodeId ?? ''"
@@ -20,34 +12,9 @@
 				</option>
 			</select>
 		</div>
-
 		<!-- LNode card -->
-		<div
-			style="
-				width: 240px;
-				height: 400px;
-				background-color: lightgray;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				position: relative;
-				border-radius: 8px;
-			"
-		>
-			<div
-				style="
-					width: 100%;
-					text-align: center;
-					font-size: 20px;
-					font-weight: bold;
-					padding: 10px 0 10px 0;
-					position: absolute;
-					top: 0;
-					left: 0;
-					z-index: 2;
-					background: transparent;
-				"
-			>
+		<div class="node-element-card">
+			<div class="node-element-card-title">
 				{{ activeLNode ? getLNodeLabel(activeLNode) : 'Logical Node' }}
 			</div>
 			<!-- Ports right (only for input LN) -->
@@ -56,12 +23,12 @@
 					v-for="(dataObject, idx) in activeLNode.dataObjects"
 					:key="dataObject.id"
 					:style="getPortPositionStyle(idx, activeLNode.dataObjects.length, 'right')"
-					style="position: absolute; display: flex; align-items: center"
+					class="node-element-port-row"
 				>
-					<div style="font-size: 15px; white-space: nowrap; text-align: right; margin-right: 8px">
+					<div class="node-element-port-label">
 						{{ getPortLabel(dataObject) }}
 					</div>
-					<div style="width: 18px; height: 18px; border-radius: 50%; background: #111"></div>
+					<div class="node-element-port-dot"></div>
 				</div>
 			</template>
 		</div>
@@ -114,4 +81,55 @@ function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right'
 
 <style scoped>
 @import '@/assets/main.css';
+
+.node-element-root {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	position: relative;
+}
+.node-element-select-row {
+	margin-bottom: 20px;
+	margin-top: 20px;
+}
+.node-element-card {
+	width: 240px;
+	height: 400px;
+	background-color: lightgray;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+	border-radius: 8px;
+}
+.node-element-card-title {
+	width: 100%;
+	text-align: center;
+	font-size: 20px;
+	font-weight: bold;
+	padding: 10px 0 10px 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	background: transparent;
+}
+.node-element-port-row {
+	position: absolute;
+	display: flex;
+	align-items: center;
+}
+.node-element-port-label {
+	font-size: 15px;
+	white-space: nowrap;
+	text-align: right;
+	margin-right: 8px;
+}
+.node-element-port-dot {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #111;
+}
 </style>
