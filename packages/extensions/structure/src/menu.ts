@@ -400,18 +400,22 @@ async function ensureRecordByAttribute(
 
 async function ensurePrivateRecordByParent(
 	targetSDK: SDK,
-	record: DatabaseRecord,
+	privateRecord: DatabaseRecord,
 	parentRecord: DatabaseRecord,
 ): Promise<DatabaseRecord> {
-	const typeAttr = extractAttr(record, 'type')
+	const typeAttr = extractAttr(privateRecord, 'type')
 	if (!typeAttr || !typeAttr.value) {
-		const err = { msg: 'type attribute is required but it is missing or empty', typeAttr, record }
+		const err = {
+			msg: 'type attribute is required but it is missing or empty',
+			typeAttr,
+			record: privateRecord,
+		}
 		console.error(err)
 		throw new Error(JSON.stringify(err))
 	}
 
 	const existingElement = await targetSDK.db
-		.table<DatabaseRecord>(record.tagName)
+		.table<DatabaseRecord>(privateRecord.tagName)
 		.where('parent.id')
 		.equals(parentRecord.id)
 		.filter((record) =>
@@ -423,7 +427,7 @@ async function ensurePrivateRecordByParent(
 		return existingElement
 	}
 
-	const newElement = await targetSDK.addRecord(record)
+	const newElement = await targetSDK.addRecord(privateRecord)
 
 	return newElement
 }

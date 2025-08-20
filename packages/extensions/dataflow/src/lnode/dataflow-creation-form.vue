@@ -133,14 +133,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { DataflowType, DataflowTypeToFCMap } from '@/types/connection'
-import type { LNode } from '@/types/lnode'
-import { getLNodeLabel } from '@/types/lnode'
+import { DataflowType, DataflowTypeToFCMap } from './connection'
+import { type LNode, getLNodeLabel } from './lnode'
 import {
 	useDataflow,
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
-} from '../dataflow.ts'
+} from '@/x/dataflow.ts'
 
 const props = defineProps<{
 	sourceLNode: LNode

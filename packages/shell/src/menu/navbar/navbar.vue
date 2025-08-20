@@ -57,7 +57,6 @@ const dropdowns = ref<(typeof Dropdown)[]>([])
 
 const props = defineProps<{
 	items: NavBarItem[]
-	activeFileName: string
 }>()
 
 const navigation: ComputedRef<NavigationItem[]> = computed(() => {

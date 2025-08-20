@@ -1,10 +1,11 @@
 import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
-import type { PartialBy } from '@/types/types.ts'
-import type { DataflowType } from '@/types/connection'
-import { extractAttr, useSDK, type SDK } from './sdk.ts'
-import type { LNode } from './types/lnode.ts'
-import { openDatabase } from './assets/open-db.ts'
+import type { PartialBy } from './types'
+import { extractAttr, useSDK, type SDK } from './sdk'
+import { openDatabase } from './database'
+import type { DataflowType } from '@/lnode/connection'
+import type { LNode } from '@/lnode/lnode'
+import { toRaw } from 'vue'
 
 export type DataflowCreationForm = {
 	type: DataflowType | null
@@ -99,7 +100,7 @@ async function addSourceRefElements(
 	await sdk.ensureRelationship(lNodeInputsRecord, addedSourceRef)
 
 	if (dataflowCreationFormFields.includeQuality) {
-		let formFieldsForQuality = structuredClone(dataflowCreationFormFields)
+		let formFieldsForQuality = structuredClone(toRaw(dataflowCreationFormFields))
 		formFieldsForQuality.attribute = 'q' // Set to 'q' for Quality
 		const addedQualitySourceRef = await addSourceRefElement(
 			sdk,
@@ -111,7 +112,7 @@ async function addSourceRefElements(
 	}
 
 	if (dataflowCreationFormFields.includeTimestamp) {
-		let formFieldsForTimestamp = structuredClone(dataflowCreationFormFields)
+		let formFieldsForTimestamp = structuredClone(toRaw(dataflowCreationFormFields))
 		formFieldsForTimestamp.attribute = 't' // Set to 't' for Quality
 		const addedTimeStampSourceRef = await addSourceRefElement(
 			sdk,

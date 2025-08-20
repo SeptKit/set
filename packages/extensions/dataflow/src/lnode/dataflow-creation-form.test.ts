@@ -1,13 +1,12 @@
 import { expect, describe, it, vi } from 'vitest'
-import {} from '@vitest/browser/context'
 import { render } from 'vitest-browser-vue'
 import DataflowCreationForm from './dataflow-creation-form.vue'
-import { getLNodeLabel, type LNode } from '../types/lnode'
+import { getLNodeLabel, type LNode } from './lnode'
 
 // At the top of your test file
 const createDataflowMock = vi.fn()
 
-vi.mock('../dataflow.ts', () => ({
+vi.mock('@/x/dataflow.ts', () => ({
 	useDataflow: () => ({
 		create: createDataflowMock,
 	}),
@@ -99,12 +98,10 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			// Title
 			await expect
 				.element(screen.getByText('Create Connection', { exact: true }))
 				.toBeInTheDocument()
-
 			// Buttons
 			await expect
 				.element(screen.getByRole('button', { name: 'Close', exact: true }))
@@ -112,7 +109,6 @@ describe('DataflowCreationForm', () => {
 			await expect
 				.element(screen.getByRole('button', { name: 'Save', exact: true }))
 				.toBeInTheDocument()
-
 			// Input Labels
 			await expect.element(screen.getByText('Dataflow Type', { exact: true })).toBeInTheDocument()
 			await expect.element(screen.getByText('Source', { exact: true })).toBeInTheDocument()
@@ -136,11 +132,9 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			await expect
 				.element(screen.getByText(getLNodeLabel(sendingLNode), { exact: true }))
 				.toBeInTheDocument()
-
 			await expect
 				.element(screen.getByText(getLNodeLabel(receivingLNode), { exact: true }))
 				.toBeInTheDocument()
@@ -155,14 +149,11 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			vi.spyOn(window, 'alert')
-
 			// Click save button without filling mandatory fields
 			const saveButton = screen.getByRole('button', { name: 'Save', exact: true })
 			await expect.element(saveButton).toBeEnabled()
 			await saveButton.click()
-
 			expect(alert).toHaveBeenCalledWith('Please select a dataflow type.')
 		})
 		it('calls create dataflow function when save button is clicked', async () => {
@@ -173,15 +164,12 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			await screen.getByTestId('select-dataflow-type').selectOptions('GOOSE', { exact: true })
 			await screen.getByTestId('select-data-object').selectOptions('Op', { exact: true })
 			await screen.getByTestId('select-data-attribute').selectOptions('general', { exact: true })
-
 			const saveButton = screen.getByRole('button', { name: 'Save', exact: true })
 			await expect.element(saveButton).toBeEnabled()
 			await saveButton.click()
-
 			expect(createDataflowMock).toHaveBeenCalledWith(
 				{
 					type: 'GOOSE',
@@ -206,17 +194,14 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			const dataflowTypeSelect = screen.getByTestId('select-dataflow-type')
 			await expect.element(dataflowTypeSelect).toBeInTheDocument()
 			await dataflowTypeSelect.selectOptions('GOOSE', { exact: true })
 			await expect.element(dataflowTypeSelect).toHaveValue('GOOSE')
-
 			const dataObjectSelect = screen.getByTestId('select-data-object')
 			await expect.element(dataObjectSelect).toBeInTheDocument()
 			await dataObjectSelect.selectOptions('Op', { exact: true })
 			await expect.element(dataObjectSelect).toHaveValue('Op')
-
 			// Change dataflow type to SMV to trigger clearing of data object select
 			await dataflowTypeSelect.selectOptions('SMV', { exact: true })
 			await expect.element(dataObjectSelect).toHaveValue('')
@@ -229,21 +214,17 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			const dataflowTypeSelect = screen.getByTestId('select-dataflow-type')
 			await expect.element(dataflowTypeSelect).toBeInTheDocument()
 			await dataflowTypeSelect.selectOptions('GOOSE', { exact: true })
 			await expect.element(dataflowTypeSelect).toHaveValue('GOOSE')
-
 			const dataObjectSelect = screen.getByTestId('select-data-object')
 			await expect.element(dataObjectSelect).toBeInTheDocument()
 			await dataObjectSelect.selectOptions('Op', { exact: true })
-
 			const dataAttributeSelect = screen.getByTestId('select-data-attribute')
 			await expect.element(dataAttributeSelect).toBeInTheDocument()
 			await dataAttributeSelect.selectOptions('general', { exact: true })
 			await expect.element(dataAttributeSelect).toHaveValue('general')
-
 			// Change data object to 'MinPlsDur' to trigger clearing of data attribute select
 			await dataObjectSelect.selectOptions('MinPlsDur', { exact: true })
 			await expect.element(dataAttributeSelect).toHaveValue('')
@@ -256,30 +237,23 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			const dataflowTypeSelect = screen.getByTestId('select-dataflow-type')
 			await expect.element(dataflowTypeSelect).toBeInTheDocument()
-
 			await dataflowTypeSelect.selectOptions('GOOSE', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).not.toBeChecked()
-
 			await dataflowTypeSelect.selectOptions('SMV', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).not.toBeChecked()
-
 			await dataflowTypeSelect.selectOptions('Report', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).toBeChecked()
-
 			await dataflowTypeSelect.selectOptions('Internal', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).not.toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).not.toBeChecked()
-
 			await dataflowTypeSelect.selectOptions('Wired', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).not.toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).not.toBeChecked()
-
 			await dataflowTypeSelect.selectOptions('Control', { exact: true })
 			await expect.element(screen.getByTestId('checkbox-include-quality')).not.toBeChecked()
 			await expect.element(screen.getByTestId('checkbox-include-timestamp')).not.toBeChecked()
@@ -292,24 +266,18 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			const dataflowTypeSelect = screen.getByTestId('select-dataflow-type')
 			await expect.element(dataflowTypeSelect).toBeInTheDocument()
-
 			await dataflowTypeSelect.selectOptions('GOOSE', { exact: true })
-
 			await expect.element(screen.getByText('Op', { exact: true })).toBeInTheDocument()
 			await expect.element(screen.getByText('MinPlsDur', { exact: true })).toBeInTheDocument()
-
 			// SMV data type has only mapping for 'Op' via DataflowTypeToFCMap
 			await dataflowTypeSelect.selectOptions('SMV', { exact: true })
 			await expect.element(screen.getByText('Op', { exact: true })).toBeInTheDocument()
 			await expect.element(screen.getByText('MinPlsDur', { exact: true })).not.toBeInTheDocument()
-
 			await dataflowTypeSelect.selectOptions('Report', { exact: true })
 			await expect.element(screen.getByText('Op', { exact: true })).toBeInTheDocument()
 			await expect.element(screen.getByText('MinPlsDur', { exact: true })).toBeInTheDocument()
-
 			// Control data type currently has no mapping to data objects via DataflowTypeToFCMap
 			await dataflowTypeSelect.selectOptions('Control', { exact: true })
 			await expect.element(screen.getByText('Op', { exact: true })).not.toBeInTheDocument()
@@ -323,21 +291,16 @@ describe('DataflowCreationForm', () => {
 					isOpen: true,
 				},
 			})
-
 			const dataflowTypeSelect = screen.getByTestId('select-dataflow-type')
 			await expect.element(dataflowTypeSelect).toBeInTheDocument()
-
 			await dataflowTypeSelect.selectOptions('GOOSE', { exact: true })
-
 			const dataObjectSelect = screen.getByTestId('select-data-object')
 			await expect.element(dataObjectSelect).toBeInTheDocument()
 			await dataObjectSelect.selectOptions('Op', { exact: true })
-
 			await expect.element(screen.getByText('general', { exact: true })).toBeInTheDocument()
 			// 'q' and 't' should be filtered out for data attributes
 			await expect.element(screen.getByText('q', { exact: true })).not.toBeInTheDocument()
 			await expect.element(screen.getByText('t', { exact: true })).not.toBeInTheDocument()
-
 			await dataObjectSelect.selectOptions('MinPlsDur', { exact: true })
 			await expect.element(screen.getByText('setVal', { exact: true })).toBeInTheDocument()
 			// 'd' should be filtered out because of the FC value 'DC' for GOOSE dataflow type
