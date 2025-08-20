@@ -45,7 +45,8 @@
 		"format": "prettier --write src/",
 		"format:check": "prettier --check src/",
 		"link:fileio": "rm -rf ./node_modules/@septkit/fileio && ln -s ../../../../fileio ./node_modules/@septkit/fileio",
-		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install"
+		"link:fileio:restore": "rm -rf ./node_modules/@septkit/fileio && pnpm install",
+		"ci-tests": "npm run format:check && npm run lint && npm run build && npm run test"
 	},
 	"dependencies": {
 		"@septkit/fileio": "0.0.3",
