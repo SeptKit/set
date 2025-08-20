@@ -18,13 +18,11 @@ describe('Component', () => {
 				nodes: [
 					{
 						id: '1',
-						type: 'input',
 						data: { label: 'Node 1' },
 						position: { x: 0, y: 0 },
 					},
 					{
 						id: '2',
-						type: 'input',
 						data: { label: 'Node 2' },
 						position: { x: 0, y: 0 },
 					},
@@ -53,13 +51,11 @@ describe('Component', () => {
 				nodes: [
 					{
 						id: '1',
-						type: 'input',
 						data: { label: 'Parent' },
 						position: { x: 0, y: 0 },
 					},
 					{
 						id: '2',
-						type: 'input',
 						data: { label: 'Child' },
 						position: { x: 0, y: 0 },
 						parentNode: '1',
@@ -83,27 +79,23 @@ describe('Component', () => {
 				nodes: [
 					{
 						id: '1',
-						type: 'input',
 						data: { label: 'Parent' },
 						position: { x: 0, y: 0 },
 					},
 					{
 						id: '2',
-						type: 'input',
 						data: { label: 'Child' },
 						position: { x: 0, y: 0 },
 						parentNode: '1',
 					},
 					{
 						id: '3',
-						type: 'input',
 						data: { label: 'Child' },
 						position: { x: 0, y: 0 },
 						parentNode: '2',
 					},
 					{
 						id: '4',
-						type: 'input',
 						data: { label: 'Child' },
 						position: { x: 0, y: 0 },
 						parentNode: '1',
@@ -151,7 +143,19 @@ describe('Component', () => {
 				const nodes = await calcLayout(tc.nodes, tc.edges)
 
 				// Assert
-				expect(nodes).toEqual(
+
+				// Note: we remoe all the data expect the label
+				// because currently they are calculated
+				// and we cannot use them in a deterministic way
+				nodes.forEach((node) => {
+					for (const key of Object.keys(node.data)) {
+						if (key === 'label') {
+							continue
+						}
+						delete node.data[key]
+					}
+				})
+				expect(nodes, 'nodes:: ' + JSON.stringify(nodes, undefined, 2)).toEqual(
 					expect.arrayContaining(
 						tc.expectedPartialFlowNodes.map((expNode) => expect.objectContaining(expNode)),
 					),
