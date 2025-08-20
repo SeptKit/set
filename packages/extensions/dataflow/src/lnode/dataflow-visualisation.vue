@@ -1,19 +1,20 @@
 <template>
-	<div class="visualisation-row">
-		<LNodeElement
-			:lnodes="lNodes"
-			type="input"
-			:activeLNodeId="activeInputLNodeId"
-			@change="onActiveInputLNodeIdChange"
-		/>
-		<div class="visualisation-connections">- Connections -</div>
-		<LNodeElement
-			:lnodes="lNodes"
-			type="output"
-			:activeLNodeId="activeOutputLNodeId"
-			@change="onActiveOutputLNodeIdChange"
-		/>
-
+	<div class="flex flex-col items-center justify-center">
+		<div class="visualisation-row">
+			<LNodeElement
+				:lnodes="lNodes"
+				type="input"
+				:activeLNodeId="activeInputLNodeId"
+				@change="onActiveInputLNodeIdChange"
+			/>
+			<div class="visualisation-connections">- Connections -</div>
+			<LNodeElement
+				:lnodes="lNodes"
+				type="output"
+				:activeLNodeId="activeOutputLNodeId"
+				@change="onActiveOutputLNodeIdChange"
+			/>
+		</div>
 		<button :disabled="!activeInputLNode || !activeOutputLNode" class="btn" @click="showModal">
 			+
 		</button>
