@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { nextTick, watchEffect } from 'vue'
 import { VueFlow, useVueFlow, type Node, type Edge } from '@vue-flow/core'
+import { ControlButton, Controls } from '@vue-flow/controls'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import Icon from './icon.vue'

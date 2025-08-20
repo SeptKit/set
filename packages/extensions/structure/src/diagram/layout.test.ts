@@ -14,7 +14,7 @@ describe('Component', () => {
 
 		const featureTests: TestCase[] = [
 			{
-				desc: 'first test',
+				desc: 'two nodes connected',
 				nodes: [
 					{
 						id: '1',
@@ -45,6 +45,90 @@ describe('Component', () => {
 					{
 						id: '2',
 						data: { label: 'Node 2' },
+					},
+				],
+			},
+			{
+				desc: 'single level of children nodes',
+				nodes: [
+					{
+						id: '1',
+						type: 'input',
+						data: { label: 'Parent' },
+						position: { x: 0, y: 0 },
+					},
+					{
+						id: '2',
+						type: 'input',
+						data: { label: 'Child' },
+						position: { x: 0, y: 0 },
+						parentNode: '1',
+					},
+				],
+				edges: [],
+				expectedPartialFlowNodes: [
+					{
+						id: '1',
+						data: { label: 'Parent' },
+					},
+					{
+						id: '2',
+						data: { label: 'Child' },
+						parentNode: '1',
+					},
+				],
+			},
+			{
+				desc: 'multiple level of nodes',
+				nodes: [
+					{
+						id: '1',
+						type: 'input',
+						data: { label: 'Parent' },
+						position: { x: 0, y: 0 },
+					},
+					{
+						id: '2',
+						type: 'input',
+						data: { label: 'Child' },
+						position: { x: 0, y: 0 },
+						parentNode: '1',
+					},
+					{
+						id: '3',
+						type: 'input',
+						data: { label: 'Child' },
+						position: { x: 0, y: 0 },
+						parentNode: '2',
+					},
+					{
+						id: '4',
+						type: 'input',
+						data: { label: 'Child' },
+						position: { x: 0, y: 0 },
+						parentNode: '1',
+					},
+				],
+				edges: [],
+				expectedPartialFlowNodes: [
+					{
+						id: '1',
+						data: { label: 'Parent' },
+					},
+					{
+						id: '2',
+						data: { label: 'Child' },
+						parentNode: '1',
+					},
+					{
+						id: '3',
+						data: { label: 'Child' },
+						parentNode: '2',
+					},
+					{
+						id: '4',
+						data: { label: 'Child' },
+						parentNode: '1',
 					},
 				],
 			},

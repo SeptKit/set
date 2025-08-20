@@ -3,7 +3,8 @@ import type { Node as FlowNode, Edge as FlowEdge } from '@vue-flow/core'
 
 // Note: this is a usefull function to print out
 // all the possible configuration of elk into the console
-// printElkInfo()
+// @ts-expect-error
+window.printElkInfo = printElkInfo
 
 export function useLayout() {
 	return {
@@ -18,7 +19,8 @@ export function useLayout() {
 			},
 		})
 
-		const elkNodes = nodes.map(flowNodeToElkNode)
+		const elkNodesFlat = nodes.map(flowNodeToElkNode)
+		const elkNodes = setupRelationships(elkNodesFlat)
 		const elkEdges = edges.map(flowEdgeToElkEdge)
 		// console.debug('mapped flow to elk', { edges, elkNodes, elkEdges })
 
@@ -31,8 +33,8 @@ export function useLayout() {
 		const rootNode = (await elk.layout(graph)) as Omit<ElkNode, 'cildren'> & {
 			children: CombinedNode[]
 		}
-
-		const newFlowNodes = rootNode.children?.map(elkNodeToFlowNode)
+		const newElkNodesFlat = flattenElkNodes(rootNode.children)
+		const newFlowNodes = newElkNodesFlat.map(elkNodeToFlowNode)
 
 		return newFlowNodes ?? []
 	}
@@ -56,6 +58,38 @@ function flowNodeToElkNode(flowNode: FlowNode): CombinedNode {
 		labels: [{ text: flowNode.data.label }],
 		flowNode,
 	}
+}
+
+function setupRelationships(nodes: CombinedNode[]) {
+	const nodeMapById = nodes.reduce((nodeMap: { [nodeId: string]: CombinedNode }, node) => {
+		nodeMap[node.id] = node
+
+		return nodeMap
+	}, {})
+
+	const nodesWithChildren: CombinedNode[] = []
+	for (const nodeId of Object.keys(nodeMapById)) {
+		const node = nodeMapById[nodeId]
+		const parentId = node.flowNode.parentNode
+		if (!parentId) {
+			nodesWithChildren.push(node)
+			continue
+		}
+
+		const parentNode = nodeMapById[parentId]
+		if (!parentNode) {
+			console.warn('there was a parent id but could not find the parent node, moving on', parentId)
+			continue
+		}
+
+		if (!parentNode.children) {
+			parentNode.children = []
+		}
+
+		parentNode.children.push(node)
+	}
+
+	return nodesWithChildren
 }
 
 /**
@@ -100,21 +134,31 @@ function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge {
  * 	class: 'light',
  * },
  *
- *
- *
- *
- *
- * @param elkNode
- * @returns
  */
 function elkNodeToFlowNode(elkNode: CombinedNode): FlowNode {
 	return {
-		id: elkNode.id,
-		type: 'input',
-		data: { label: elkNode.flowNode.data.label },
+		...elkNode.flowNode,
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
-		class: elkNode.flowNode.class,
+		style: { width: `${elkNode.width}px`, height: `${elkNode.height}px` },
+		// id: elkNode.id,
+		// type: 'input',
+		// data: { label: elkNode.flowNode.data.label },
+		// class: elkNode.flowNode.class,
 	}
+}
+
+function flattenElkNodes(elkNodes: CombinedNode[]): CombinedNode[] {
+	const flattenedNodes: CombinedNode[] = []
+
+	for (const node of elkNodes) {
+		flattenedNodes.push(node)
+		if (node.children) {
+			const flattenedChildren = flattenElkNodes(node.children as CombinedNode[])
+			flattenedNodes.push(...flattenedChildren)
+		}
+	}
+
+	return flattenedNodes
 }
 
 async function printElkInfo() {
