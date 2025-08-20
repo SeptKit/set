@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { useLayout } from './layout'
 import type { Edge, Node } from '@vue-flow/core'
 
@@ -9,6 +9,7 @@ describe('Component', () => {
 			nodes: Node[]
 			edges: Edge[]
 			only?: boolean
+			expectedPartialFlowNodes: Partial<Node>[]
 		}
 
 		const featureTests: TestCase[] = [
@@ -20,14 +21,12 @@ describe('Component', () => {
 						type: 'input',
 						data: { label: 'Node 1' },
 						position: { x: 0, y: 0 },
-						class: 'light',
 					},
 					{
 						id: '2',
 						type: 'input',
 						data: { label: 'Node 2' },
 						position: { x: 0, y: 0 },
-						class: 'light',
 					},
 				],
 				edges: [
@@ -36,6 +35,16 @@ describe('Component', () => {
 						source: '1',
 						target: '2',
 						animated: true,
+					},
+				],
+				expectedPartialFlowNodes: [
+					{
+						id: '1',
+						data: { label: 'Node 1' },
+					},
+					{
+						id: '2',
+						data: { label: 'Node 2' },
 					},
 				],
 			},
@@ -58,7 +67,11 @@ describe('Component', () => {
 				const nodes = await calcLayout(tc.nodes, tc.edges)
 
 				// Assert
-				console.log({ nodes })
+				expect(nodes).toEqual(
+					expect.arrayContaining(
+						tc.expectedPartialFlowNodes.map((expNode) => expect.objectContaining(expNode)),
+					),
+				)
 			})
 		}
 	})

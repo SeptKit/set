@@ -1,32 +1,44 @@
 import Elk, { type ElkExtendedEdge, type ElkNode } from 'elkjs/lib/elk.bundled.js'
 import type { Node as FlowNode, Edge as FlowEdge } from '@vue-flow/core'
 
+// Note: this is a usefull function to print out
+// all the possible configuration of elk into the console
+// printElkInfo()
+
 export function useLayout() {
 	return {
 		calcLayout,
 	}
 
 	async function calcLayout(nodes: FlowNode[], edges: FlowEdge[]): Promise<FlowNode[]> {
-		const elk = new Elk()
+		const elk = new Elk({
+			defaultLayoutOptions: {
+				'elk.algorithm': 'layered',
+				'elk.spacing.nodeNode': '100',
+			},
+		})
 
 		const elkNodes = nodes.map(flowNodeToElkNode)
 		const elkEdges = edges.map(flowEdgeToElkEdge)
+		// console.debug('mapped flow to elk', { edges, elkNodes, elkEdges })
 
-		const graph = {
+		const graph: ElkNode = {
 			id: 'root',
-			layoutOptions: { 'elk.algorithm': 'layered' },
 			children: elkNodes,
 			edges: elkEdges,
 		}
 
-		const rootNode = await elk.layout(graph)
+		const rootNode = (await elk.layout(graph)) as Omit<ElkNode, 'cildren'> & {
+			children: CombinedNode[]
+		}
 
-		console.debug({ level: 'debug', msg: 'finished layout', elkNodes: rootNode.children })
 		const newFlowNodes = rootNode.children?.map(elkNodeToFlowNode)
 
 		return newFlowNodes ?? []
 	}
 }
+
+export type CombinedNode = ElkNode & { flowNode: FlowNode }
 
 // ElkNode: { id: "n1", width: 30, height: 30 },
 // FlowNode:{
@@ -36,12 +48,13 @@ export function useLayout() {
 // 	position: { x: 250, y: 0 },
 // 	class: 'light',
 // },
-function flowNodeToElkNode(flowNode: FlowNode): ElkNode {
+function flowNodeToElkNode(flowNode: FlowNode): CombinedNode {
 	return {
 		id: flowNode.id,
-		width: 90,
-		height: 30,
+		width: 150,
+		height: 40,
 		labels: [{ text: flowNode.data.label }],
+		flowNode,
 	}
 }
 
@@ -58,12 +71,11 @@ function flowNodeToElkNode(flowNode: FlowNode): ElkNode {
  * elkEdge:
  * { id: "e1", sources: [ "n1" ], targets: [ "n2" ] },
  */
-function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge & { customData: unknown } {
+function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge {
 	return {
 		id: flowEdge.id,
 		sources: [flowEdge.source],
 		targets: [flowEdge.target],
-		customData: { animated: true },
 	}
 }
 
@@ -95,27 +107,35 @@ function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge & { customData: 
  * @param elkNode
  * @returns
  */
-function elkNodeToFlowNode(elkNode: ElkNode): FlowNode {
+function elkNodeToFlowNode(elkNode: CombinedNode): FlowNode {
 	return {
 		id: elkNode.id,
 		type: 'input',
-		data: { label: extractLabel(elkNode) },
+		data: { label: elkNode.flowNode.data.label },
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
-		class: 'light',
+		class: elkNode.flowNode.class,
 	}
 }
 
-function extractLabel(elkNode: ElkNode): string {
-	const noLabel = '<no label>'
-	const hasLabel = elkNode.labels && elkNode.labels.length > 0
-	if (!hasLabel) {
-		return noLabel
-	}
+async function printElkInfo() {
+	const elk = new Elk()
 
-	const label = elkNode.labels![0].text
-	if (label === undefined) {
-		return noLabel
-	}
+	const algos = await elk.knownLayoutAlgorithms()
+	const options = await elk.knownLayoutOptions()
+	const cats = await elk.knownLayoutCategories()
 
-	return label
+	console.debug(
+		'elk algos:',
+		algos.map((a) => a.id),
+	)
+
+	console.debug(
+		'elk options',
+		options.map((o) => o.id),
+	)
+
+	console.debug(
+		'elk cats',
+		cats.map((c) => c.id),
+	)
 }
