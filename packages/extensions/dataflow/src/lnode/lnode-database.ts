@@ -17,6 +17,7 @@ export function createLNodeSDK(db: Dexie) {
 	async function findAllEnrichedLNodesFromDB(): Promise<LNode[]> {
 		const lnodes = await findAllNodesFromDB()
 		if (!lnodes.length) return []
+
 		const lnodesWithDOs = await enrichLNodesWithDataObjects(lnodes)
 		const lnodesWithDAs = await enrichLNodesWithDataAttributes(lnodesWithDOs)
 		const lnodesWithDOSs = await enrichLNodesWithDataObjectSpecifications(lnodesWithDAs)
@@ -40,8 +41,10 @@ export function createLNodeSDK(db: Dexie) {
 				if (lnodeType?.children) {
 					for (const childRef of lnodeType.children) {
 						if (childRef.tagName !== 'DO') continue
+
 						const doRecord = await db.table<DatabaseRecord>('DO').get(childRef.id)
 						if (!doRecord) continue
+
 						dataObjects.push({
 							id: doRecord.id,
 							uuid: findOneAttribute(doRecord, 'uuid') ?? '',
@@ -63,8 +66,11 @@ export function createLNodeSDK(db: Dexie) {
 
 		return Promise.all(
 			lnodes.map(async (lnode) => {
+				const dataObjectsArray = lnode.dataObjects
+				if (!dataObjectsArray.length) return { ...lnode, dataObjects: [] }
+
 				const enrichedDataObjects = await Promise.all(
-					(lnode.dataObjects ?? []).map(async (dataObject) => {
+					dataObjectsArray.map(async (dataObject) => {
 						const doTypeId = dataObject
 							? findOneAttribute(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
 							: undefined
@@ -78,8 +84,10 @@ export function createLNodeSDK(db: Dexie) {
 						const dataAttributes: DataAttribute[] = []
 						for (const childRef of doType.children) {
 							if (childRef.tagName !== 'DA') continue
+
 							const daRecord = allDARecords.find((d) => d.id === childRef.id)
 							if (!daRecord) continue
+
 							const daName = findOneAttribute(daRecord, 'name') ?? daRecord.id
 							const daFc = findOneAttribute(daRecord, 'fc') ?? ''
 							dataAttributes.push({
@@ -116,6 +124,7 @@ export function createLNodeSDK(db: Dexie) {
 				const dosSpecs: DataObjectSpecification[] = []
 				for (const childRef of privateRecord.children) {
 					if (childRef.tagName !== 'DOS') continue
+
 					const dosRecord = allDOS.find((d) => d.id === childRef.id)
 					if (!dosRecord) continue
 
