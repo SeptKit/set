@@ -47,7 +47,7 @@ export function createLNodeSDK(db: Dexie) {
 
 						dataObjects.push({
 							id: doRecord.id,
-							uuid: findOneAttribute(doRecord, 'uuid') ?? '',
+							uuid: extractAttributeValue(doRecord, 'uuid') ?? '',
 							name: doRecord.attributes?.find((a) => a.name === 'name')?.value ?? doRecord.id,
 							lNodeId: lnode.id,
 							dataAttributes: [],
@@ -72,7 +72,7 @@ export function createLNodeSDK(db: Dexie) {
 				const enrichedDataObjects = await Promise.all(
 					dataObjectsArray.map(async (dataObject) => {
 						const doTypeId = dataObject
-							? findOneAttribute(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
+							? extractAttributeValue(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
 							: undefined
 						if (!doTypeId) return { ...dataObject, dataAttributes: [] }
 
@@ -88,11 +88,11 @@ export function createLNodeSDK(db: Dexie) {
 							const daRecord = allDARecords.find((d) => d.id === childRef.id)
 							if (!daRecord) continue
 
-							const daName = findOneAttribute(daRecord, 'name') ?? daRecord.id
-							const daFc = findOneAttribute(daRecord, 'fc') ?? ''
+							const daName = extractAttributeValue(daRecord, 'name') ?? daRecord.id
+							const daFc = extractAttributeValue(daRecord, 'fc') ?? ''
 							dataAttributes.push({
 								id: daRecord.id,
-								uuid: findOneAttribute(daRecord, 'uuid') ?? '',
+								uuid: extractAttributeValue(daRecord, 'uuid') ?? '',
 								name: daName,
 								dataObjectId: dataObject.id,
 								fc: daFc,
@@ -117,7 +117,7 @@ export function createLNodeSDK(db: Dexie) {
 					(p) =>
 						p.parent?.id === lnode.id &&
 						p.parent?.tagName === 'LNode' &&
-						findOneAttribute(p, 'type') === 'eIEC61850-6-100',
+						extractAttributeValue(p, 'type') === 'eIEC61850-6-100',
 				)
 				if (!privateRecord || !privateRecord.children) {
 					return { ...lnode, dataObjectSpecifications: [] }
@@ -133,8 +133,8 @@ export function createLNodeSDK(db: Dexie) {
 
 					dosSpecs.push({
 						id: dosRecord.id,
-						name: findOneAttribute(dosRecord, 'name') ?? '',
-						desc: findOneAttribute(dosRecord, 'desc') ?? '',
+						name: extractAttributeValue(dosRecord, 'name') ?? '',
+						desc: extractAttributeValue(dosRecord, 'desc') ?? '',
 						dataAttributeSpecification: [],
 						lNodeId: lnode.id,
 					})
@@ -149,12 +149,12 @@ export function createLNodeSDK(db: Dexie) {
 		const lnodeRecords = await db.table<DatabaseRecord>('LNode').toArray()
 		return lnodeRecords.map((record) => ({
 			id: record.id,
-			uuid: findOneAttribute(record, 'uuid') ?? '',
-			iedName: findOneAttribute(record, 'iedName') ?? '',
-			prefix: findOneAttribute(record, 'prefix') ?? '',
-			lnClass: findOneAttribute(record, 'lnClass') ?? '',
-			lnInst: findOneAttribute(record, 'lnInst') ?? '',
-			lnType: findOneAttribute(record, 'lnType'),
+			uuid: extractAttributeValue(record, 'uuid') ?? '',
+			iedName: extractAttributeValue(record, 'iedName') ?? '',
+			prefix: extractAttributeValue(record, 'prefix') ?? '',
+			lnClass: extractAttributeValue(record, 'lnClass') ?? '',
+			lnInst: extractAttributeValue(record, 'lnInst') ?? '',
+			lnType: extractAttributeValue(record, 'lnType'),
 			dataObjects: [],
 		}))
 	}
@@ -166,6 +166,6 @@ export function createLNodeSDK(db: Dexie) {
 }
 
 // Helper function to get an attribute value from a record
-function findOneAttribute(record: DatabaseRecord | undefined, name: string): string | undefined {
+function extractAttributeValue(record: DatabaseRecord | undefined, name: string): string | undefined {
 	return record?.attributes?.find((a) => a.name === name)?.value
 }
