@@ -43,17 +43,17 @@ import { getLNodeLabel } from '@/lnode/lnode'
 const props = defineProps<{
 	lnodes: LNode[]
 	type: 'input' | 'output'
-	activeLNodeId?: string | null
+	activeLNodeId?: string
 }>()
 
 const emit = defineEmits<{
-	(e: 'update:activeLNodeId', value: string | null): void
+	(e: 'change', value: string | undefined): void
 }>()
 
-const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === props.activeLNodeId) ?? null)
+const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === props.activeLNodeId))
 
 function onSelect(lnodeId: string) {
-	emit('update:activeLNodeId', lnodeId)
+	emit('change', lnodeId)
 }
 
 // Get the label for the port (e.g., "DataObject.Name.DataAttribute.Name")

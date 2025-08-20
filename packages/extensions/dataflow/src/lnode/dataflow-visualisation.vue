@@ -1,13 +1,23 @@
 <template>
 	<div class="visualisation-row">
-		<DataflowNode :lnodes="lNodes" type="input" v-model:activeLNodeId="activeInputLNodeId" />
+		<LNodeElement
+			:lnodes="lNodes"
+			type="input"
+			:activeLNodeId="activeInputLNodeId"
+			@change="onActiveInputLNodeIdChange"
+		/>
 		<div class="visualisation-connections">- Connections -</div>
-		<DataflowNode :lnodes="lNodes" type="output" v-model:activeLNodeId="activeOutputLNodeId" />
+		<LNodeElement
+			:lnodes="lNodes"
+			type="output"
+			:activeLNodeId="activeOutputLNodeId"
+			@change="onActiveOutputLNodeIdChange"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import DataflowNode from './lnode-element.vue'
+import LNodeElement from './lnode-element.vue'
 import type { LNodeSDK } from './lnode-database'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/lnode/lnode'
@@ -18,18 +28,24 @@ const props = defineProps<{
 
 const lNodes = ref<LNode[]>([])
 
-const activeInputLNodeId = ref<string | null>(null)
-const activeOutputLNodeId = ref<string | null>(null)
+const activeInputLNodeId = ref<string | undefined>()
+const activeOutputLNodeId = ref<string | undefined>()
 
 onMounted(initLnode)
 watch(() => props.lnodeSDK, initLnode)
 
 async function initLnode() {
-	console.debug({ level: 'debug', msg: 'init lnode', sdk: props.lnodeSDK })
 	if (!props.lnodeSDK) {
 		return
 	}
 	lNodes.value = await props.lnodeSDK.findAllEnrichedLNodesFromDB()
+}
+
+function onActiveInputLNodeIdChange(newLNodeId?: string) {
+	activeInputLNodeId.value = newLNodeId
+}
+function onActiveOutputLNodeIdChange(newLNodeId?: string) {
+	activeOutputLNodeId.value = newLNodeId
 }
 </script>
 
