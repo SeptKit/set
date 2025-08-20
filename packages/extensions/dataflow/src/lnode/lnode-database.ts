@@ -114,7 +114,10 @@ export function createLNodeSDK(db: Dexie) {
 			lnodes.map(async (lnode) => {
 				// 1) find Private element
 				const privateRecord = allPrivates.find(
-					(p) => p.parent?.id === lnode.id && p.parent?.tagName === 'LNode',
+					(p) =>
+						p.parent?.id === lnode.id &&
+						p.parent?.tagName === 'LNode' &&
+						findOneAttribute(p, 'type') === 'eIEC61850-6-100',
 				)
 				if (!privateRecord || !privateRecord.children) {
 					return { ...lnode, dataObjectSpecifications: [] }
