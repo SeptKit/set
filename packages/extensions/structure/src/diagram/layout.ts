@@ -15,6 +15,7 @@ export function useLayout() {
 		const elk = new Elk({
 			defaultLayoutOptions: {
 				'elk.algorithm': 'layered',
+				'elk.padding': '[top=35,right=10,bottom=10,left=10]',
 				'elk.spacing.nodeNode': '100',
 			},
 		})
@@ -138,8 +139,13 @@ function flowEdgeToElkEdge(flowEdge: FlowEdge): ElkExtendedEdge {
 function elkNodeToFlowNode(elkNode: CombinedNode): FlowNode {
 	return {
 		...elkNode.flowNode,
+		data: {
+			...elkNode.flowNode.data,
+			width: elkNode.width,
+			height: elkNode.height,
+		},
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
-		style: { width: `${elkNode.width}px`, height: `${elkNode.height}px` },
+		// style: { width: `${elkNode.width}px`, height: `${elkNode.height}px` },
 		// id: elkNode.id,
 		// type: 'input',
 		// data: { label: elkNode.flowNode.data.label },

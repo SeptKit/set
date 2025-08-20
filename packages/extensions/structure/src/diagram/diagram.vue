@@ -9,6 +9,10 @@
 	>
 		<Background pattern-color="#aaa" :gap="16" />
 
+		<template #node-bay="props">
+			<FlowNodeBay v-bind="props" />
+		</template>
+
 		<MiniMap />
 
 		<Controls position="top-left">
@@ -31,6 +35,7 @@ import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import Icon from './icon.vue'
 import { useLayout } from './layout'
+import FlowNodeBay from './flow-node-bay.vue'
 
 const props = defineProps<{
 	nodes: Node[]
