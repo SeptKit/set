@@ -10,6 +10,7 @@
 					class="select"
 					v-model="dataflowCreationFormFields.type"
 					@change="resetFields(['signal', 'attribute'])"
+					data-testid="select-dataflow-type"
 				>
 					<option v-for="type in Object.values(DataflowType)" :key="type" :value="type">
 						{{ type }}
@@ -33,19 +34,27 @@
 					class="select"
 					v-model="dataflowCreationFormFields.signal"
 					@change="resetFields(['attribute'])"
+					data-testid="select-data-object"
 				>
 					<option v-for="signal of signalOptions" :key="signal" :value="signal">
 						{{ signal }}
 					</option>
+					<option key="empty" value="">-</option>
 				</select>
 			</fieldset>
 
 			<fieldset class="fieldset">
 				<legend class="fieldset-legend">Attribute (DA)</legend>
-				<select required class="select" v-model="dataflowCreationFormFields.attribute">
+				<select
+					required
+					class="select"
+					v-model="dataflowCreationFormFields.attribute"
+					data-testid="select-data-attribute"
+				>
 					<option v-for="attribute of attributeOptions" :key="attribute" :value="attribute">
 						{{ attribute }}
 					</option>
+					<option key="empty" value="">-</option>
 				</select>
 			</fieldset>
 
@@ -66,6 +75,7 @@
 					placeholder="Input Name"
 					class="input"
 					v-model="dataflowCreationFormFields.inputName"
+					data-testid="input-name-input"
 				/>
 			</fieldset>
 
@@ -79,6 +89,7 @@
 					placeholder="Input Name"
 					class="input"
 					v-model="dataflowCreationFormFields.inputInstance"
+					data-testid="input-instance-input"
 				/>
 			</fieldset>
 
@@ -91,6 +102,7 @@
 						type="checkbox"
 						v-model="dataflowCreationFormFields.includeQuality"
 						class="checkbox"
+						data-testid="checkbox-include-quality"
 					/>
 					Include Quality
 				</label>
@@ -103,6 +115,7 @@
 						type="checkbox"
 						v-model="dataflowCreationFormFields.includeTimestamp"
 						class="checkbox"
+						data-testid="checkbox-include-timestamp"
 					/>
 					Include Timestamp
 				</label>
