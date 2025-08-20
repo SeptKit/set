@@ -4,8 +4,8 @@ import {
 	enrichLNodesWithDataObjects,
 	enrichLNodesWithDataAttributes,
 	enrichLNodesWithDataObjectSpecifications,
-} from '../assets/use-lnode-records'
-import type { LNode } from '@/types/lnode'
+} from './lnode-database'
+import type { LNode } from '@/lnode/lnode'
 import { importXmlFiles, type DatabaseRecord } from '@septkit/fileio'
 
 // XML Test Data

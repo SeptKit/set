@@ -70,8 +70,8 @@
 
 <script setup lang="ts">
 import { defineEmits, computed } from 'vue'
-import type { LNode } from '@/types/lnode'
-import { getLNodeLabel } from '@/types/lnode'
+import type { LNode } from '@/lnode/lnode'
+import { getLNodeLabel } from '@/lnode/lnode'
 
 const props = defineProps<{
 	lnodes: LNode[]
@@ -83,6 +83,8 @@ const emit = defineEmits<{
 	(e: 'update:activeLNodeId', value: string | null): void
 }>()
 
+const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === props.activeLNodeId) ?? null)
+
 function onSelect(lnodeId: string) {
 	emit('update:activeLNodeId', lnodeId)
 }
@@ -92,8 +94,6 @@ function getPortLabel(dataObject: any): string {
 	const daNames = (dataObject.dataAttributes ?? []).map((da: any) => da.name)
 	return [dataObject.name, ...daNames].join('.')
 }
-
-const activeLNode = computed(() => props.lnodes.find((ln) => ln.id === props.activeLNodeId) ?? null)
 
 function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right') {
 	const nodeHeight = 400

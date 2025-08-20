@@ -17,19 +17,30 @@
 </template>
 
 <script setup lang="ts">
-import DataflowNode from '../lnode/lnode-element.vue'
-import { getEnrichedLNodesFromDB } from './use-lnode-records'
-import { onMounted, ref } from 'vue'
+import DataflowNode from './lnode-element.vue'
+import type { LNodeSDK } from './lnode-database'
+import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/lnode/lnode'
+
+const props = defineProps<{
+	lnodeSDK: LNodeSDK | undefined
+}>()
 
 const lNodes = ref<LNode[]>([])
 
 const activeInputLNodeId = ref<string | null>(null)
 const activeOutputLNodeId = ref<string | null>(null)
 
-onMounted(async () => {
-	lNodes.value = await getEnrichedLNodesFromDB()
-})
+onMounted(initLnode)
+watch(() => props.lnodeSDK, initLnode)
+
+async function initLnode() {
+	console.debug({ level: 'debug', msg: 'init lnode', sdk: props.lnodeSDK })
+	if (!props.lnodeSDK) {
+		return
+	}
+	lNodes.value = await props.lnodeSDK.getEnrichedLNodesFromDB()
+}
 </script>
 
 <style scoped>
