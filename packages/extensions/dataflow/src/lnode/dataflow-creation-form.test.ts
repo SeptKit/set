@@ -3,7 +3,6 @@ import { render } from 'vitest-browser-vue'
 import DataflowCreationForm from './dataflow-creation-form.vue'
 import { getLNodeLabel, type LNode } from './lnode'
 
-// At the top of your test file
 const createDataflowMock = vi.fn()
 
 vi.mock('@/lnode/dataflow.ts', () => ({
