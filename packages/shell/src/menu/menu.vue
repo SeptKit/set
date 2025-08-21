@@ -31,16 +31,20 @@ const menuItems = computedAsync(async () => {
 
 	const navBarItems: NavBarItem[] = []
 	for (const cont of contributions.value) {
-		const action = await fetchAction(cont)
-		const navBarItem: NavBarItem = {
-			id: cont.id,
-			label: cont.label,
-			path: cont.menuPath,
-			action,
+		try {
+			const action = await fetchAction(cont)
+			const navBarItem: NavBarItem = {
+				id: cont.id,
+				label: cont.label,
+				path: cont.menuPath,
+				action,
+			}
+			navBarItems.push(navBarItem)
+		} catch (err) {
+			console.error('Error fetching action for menu contribution', { cont, err })
+			continue
 		}
-		navBarItems.push(navBarItem)
 	}
-
 	return [...builtInItems, ...navBarItems]
 }, builtInItems)
 
