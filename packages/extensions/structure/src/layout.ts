@@ -1,5 +1,5 @@
 import Elk, { type ElkExtendedEdge, type ElkNode } from 'elkjs/lib/elk.bundled.js'
-import type { Node as FlowNode, Edge as FlowEdge } from '@vue-flow/core'
+import type { Node as FlowNode } from '@vue-flow/core'
 import type { DatabaseRecord } from '@septkit/fileio'
 import { extractAttr } from './sdk'
 
