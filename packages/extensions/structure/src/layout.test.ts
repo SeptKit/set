@@ -83,7 +83,7 @@ describe('Component', () => {
 
 				// Assert
 
-				// Note: we remove all the data expect the label
+				// Note: we remove all the data except the label
 				// because currently they are calculated
 				// and we cannot use them in a deterministic way
 				nodes.forEach((node) => {
@@ -94,7 +94,7 @@ describe('Component', () => {
 						delete node.data[key]
 					}
 				})
-				expect(nodes, 'nodes:: ' + JSON.stringify(nodes, undefined, 2)).toEqual(
+				expect(nodes, 'nodes: ' + JSON.stringify(nodes, undefined, 2)).toEqual(
 					expect.arrayContaining(
 						tc.expectedPartialFlowNodes.map((expNode) => expect.objectContaining(expNode)),
 					),

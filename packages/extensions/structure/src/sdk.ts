@@ -1,11 +1,6 @@
 import type Dexie from 'dexie'
-import type {
-	Attribute,
-	DatabaseRecord,
-	QualifiedAttribute,
-} from '../node_modules/@septkit/fileio/dist/common/common.types'
 import type { PartialBy } from './x/types/types'
-import type { Relationship } from '@septkit/fileio'
+import type { Relationship, Attribute, DatabaseRecord, QualifiedAttribute } from '@septkit/fileio'
 
 export type SDK = ReturnType<typeof useSDK>
 
@@ -205,9 +200,10 @@ export function useSDK(db: Dexie) {
 		return childRecords.filter(Boolean)
 	}
 
+	const DEPTH_TIL_BAY_CHILDREN = 3
 	async function findChildRecordsWithinDepthAndGivenTagName(
 		record: DatabaseRecord,
-		depth = 3,
+		depth = DEPTH_TIL_BAY_CHILDREN,
 		childTagNames: string[] = [],
 	): Promise<DatabaseRecord[]> {
 		const allChildren: DatabaseRecord[] = []

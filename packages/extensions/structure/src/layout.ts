@@ -3,7 +3,7 @@ import type { Node as FlowNode } from '@vue-flow/core'
 import type { DatabaseRecord } from '@septkit/fileio'
 import { extractAttr } from './sdk'
 
-// Note: this is a usefull function to print out
+// Note: this is a useful function to print out
 // all the possible configuration of elk into the console
 // @ts-expect-error
 window.printElkInfo = printElkInfo
