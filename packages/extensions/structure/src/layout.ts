@@ -38,7 +38,6 @@ export function useLayout() {
 		const elkNodesFlat = records.map(recordToElkNode)
 		const elkNodes = setupRelationships(elkNodesFlat)
 		const elkEdges = conections.map(connectionToEdge)
-		// console.debug('mapped flow to elk', { edges, elkNodes, elkEdges })
 
 		const graph: ElkNode = {
 			id: 'root',
@@ -46,7 +45,7 @@ export function useLayout() {
 			edges: elkEdges,
 		}
 
-		const rootNode = (await elk.layout(graph)) as Omit<ElkNode, 'cildren'> & {
+		const rootNode = (await elk.layout(graph)) as ElkNode & {
 			children: ElkNodeWithRecord[]
 		}
 		const newElkNodesFlat = flattenElkNodes(rootNode.children)
@@ -135,7 +134,6 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 		// TODO: temporary, this should depent on the records tagname
 		type: 'bay',
 		data: {
-			// TODO: Each element type needs its own label generator
 			label: extractLabel(elkNode.record),
 			tagName: elkNode.record.tagName,
 			width: elkNode.width,
@@ -148,7 +146,7 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 		// TODO: users can only move elements within their parent
 		// We can allow moving outside when we implement the feature
 		extent: 'parent',
-		// TODO: should be configurable but for now we don't want to move elemnts aroung
+		// TODO: should be configurable but for now we don't want to move elements around
 		draggable: false,
 		selectable: false,
 		connectable: false,
@@ -228,17 +226,17 @@ async function printElkInfo() {
 	const options = await elk.knownLayoutOptions()
 	const cats = await elk.knownLayoutCategories()
 
-	console.debug(
+	console.info(
 		'elk algos:',
 		algos.map((a) => a.id),
 	)
 
-	console.debug(
+	console.info(
 		'elk options',
 		options.map((o) => o.id),
 	)
 
-	console.debug(
+	console.info(
 		'elk cats',
 		cats.map((c) => c.id),
 	)

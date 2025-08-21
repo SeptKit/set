@@ -11,7 +11,7 @@ import Diagram from './diagram/diagram.vue'
 import { useSDK, type SDK } from './sdk'
 import Dexie from 'dexie'
 import { useLayout } from './layout'
-import { Node } from '@vue-flow/core'
+import type { Node } from '@vue-flow/core'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -59,7 +59,8 @@ async function onFileChange(newFileName: string) {
 		'PowerTransformers',
 		'VoltageLevel',
 		'Bay',
-		'Conducting (Sub)equipment',
+		'SubEquipment',
+		'ConductingEquipment',
 		'Application',
 		'Function',
 		'BehaviorDescription',
