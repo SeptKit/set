@@ -140,6 +140,7 @@ import {
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
 } from '@/lnode/dataflow'
+import { openDatabase } from '@/x/database'
 
 const props = defineProps<{
 	sourceLNode: LNode
@@ -250,13 +251,20 @@ async function createConnection() {
 			return
 		}
 
-		const dataflow = useDataflow()
+		const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
+		if (!activeFile) {
+			throw new Error('no active file')
+		}
+		const db = await openDatabase(activeFile)
+
+		const dataflow = useDataflow(db)
 		await dataflow.create(
 			dataflowCreationFormFields.value,
 			props.sourceLNode,
 			props.destinationLNode,
 		)
 
+		db.close()
 		closeModal()
 	} catch (e) {
 		console.error('Error creating dataflow:', e)

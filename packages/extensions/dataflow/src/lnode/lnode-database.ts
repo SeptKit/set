@@ -22,8 +22,6 @@ export function createLNodeSDK(db: Dexie) {
 		const lnodesWithDAs = await enrichLNodesWithDataAttributes(lnodesWithDOs)
 		const lnodesWithDOSs = await enrichLNodesWithDataObjectSpecifications(lnodesWithDAs)
 
-		db.close()
-
 		return lnodesWithDOSs
 	}
 
@@ -72,7 +70,10 @@ export function createLNodeSDK(db: Dexie) {
 				const enrichedDataObjects = await Promise.all(
 					dataObjectsArray.map(async (dataObject) => {
 						const doTypeId = dataObject
-							? extractAttributeValue(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
+							? extractAttributeValue(
+									await db.table<DatabaseRecord>('DO').get(dataObject.id)!,
+									'type',
+								)
 							: undefined
 						if (!doTypeId) return { ...dataObject, dataAttributes: [] }
 
@@ -166,6 +167,9 @@ export function createLNodeSDK(db: Dexie) {
 }
 
 // Helper function to get an attribute value from a record
-function extractAttributeValue(record: DatabaseRecord | undefined, name: string): string | undefined {
+function extractAttributeValue(
+	record: DatabaseRecord | undefined,
+	name: string,
+): string | undefined {
 	return record?.attributes?.find((a) => a.name === name)?.value
 }

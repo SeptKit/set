@@ -6,11 +6,17 @@ import { getLNodeLabel, type LNode } from './lnode'
 // At the top of your test file
 const createDataflowMock = vi.fn()
 
-vi.mock('@/x/dataflow.ts', () => ({
+vi.mock('@/lnode/dataflow.ts', () => ({
 	useDataflow: () => ({
 		create: createDataflowMock,
 	}),
 }))
+
+vi.mock('@/x/database.ts', () => {
+	return {
+		openDatabase: () => {},
+	}
+})
 
 const sendingLNode: LNode = {
 	id: '1',
@@ -157,6 +163,8 @@ describe('DataflowCreationForm', () => {
 			expect(alert).toHaveBeenCalledWith('Please select a dataflow type.')
 		})
 		it('calls create dataflow function when save button is clicked', async () => {
+			localStorage.setItem('currentActiveFileDatabaseName', 'testfile')
+
 			const screen = render(DataflowCreationForm, {
 				props: {
 					sourceLNode: sendingLNode,
