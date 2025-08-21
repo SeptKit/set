@@ -5,9 +5,9 @@ packages:
   - 'packages/sclsdk'
   - 'packages/fileio'
 catalog:
-  '@septkit/fileio': 0.0.2
+  '@septkit/fileio': 0.0.3
   '@septkit/ui': 0.0.5
-  'dexie': '^4.2.0'
+  dexie: ^4.2.0
 
 linkWorkspacePackages: true
 sharedWorkspaceLockfile: false
