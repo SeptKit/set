@@ -139,7 +139,7 @@ import {
 	useDataflow,
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
-} from '@/x/dataflow.ts'
+} from '@/lnode/dataflow'
 
 const props = defineProps<{
 	sourceLNode: LNode
