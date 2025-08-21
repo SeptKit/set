@@ -6,16 +6,22 @@ settings:
 
 catalogs:
   default:
+    '@septkit/fileio':
+      specifier: 0.0.3
+      version: 0.0.3
     '@septkit/ui':
       specifier: 0.0.5
       version: 0.0.5
+    dexie:
+      specifier: ^4.2.0
+      version: 4.2.0
 
 importers:
 
   .:
     dependencies:
       '@septkit/fileio':
-        specifier: 0.0.3
+        specifier: 'catalog:'
         version: link:../../fileio
       '@septkit/ui':
         specifier: 'catalog:'
@@ -42,7 +48,7 @@ importers:
         specifier: ^13.5.0
         version: 13.6.0(vue@3.5.17(typescript@5.8.3))
       dexie:
-        specifier: ^4.2.0
+        specifier: 'catalog:'
         version: 4.2.0
       elkjs:
         specifier: ^0.10.0

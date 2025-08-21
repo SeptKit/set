@@ -1,6 +1,6 @@
 {
 	"name": "@septkit/ext-structure",
-	"version": "2",
+	"version": "3",
 	"description": "SeptKit extension to manage structures in SCL",
 	"private": true,
 	"type": "module",
@@ -49,7 +49,7 @@
 		"ci-tests": "npm run format:check && npm run lint && npm run build && npm run test"
 	},
 	"dependencies": {
-		"@septkit/fileio": "0.0.3",
+		"@septkit/fileio": "catalog:",
 		"@septkit/ui": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
 		"@vue-flow/background": "^1.3.2",
@@ -58,8 +58,8 @@
 		"@vue-flow/minimap": "^1.5.4",
 		"@vue-flow/node-resizer": "^1.5.0",
 		"@vueuse/core": "^13.5.0",
-		"dexie": "^4.2.0",
 		"elkjs": "^0.10.0",
+		"dexie": "catalog:",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
 		"vite-plugin-css-injected-by-js": "^3.5.2",

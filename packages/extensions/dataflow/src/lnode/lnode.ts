@@ -40,16 +40,6 @@ export type LNode = {
 	dataObjectSpecifications?: DataObjectSpecification[]
 }
 
-export type Connection = {
-	id: string
-	sourceLNodeId: string
-	sourceAttributeId: string
-	destinationLNodeId: string
-	dataflowType: 'goose' | 'smv' | 'reporting' | 'internal' | 'wired' | 'control'
-	inputInstance: string
-	inputName: string
-}
-
 export function getLNodeLabel(lnode: LNode): string {
 	return `${lnode.prefix} ${lnode.lnClass} ${lnode.lnInst}`
 }

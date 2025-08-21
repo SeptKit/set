@@ -9,9 +9,9 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import DataflowVisualisation from './lnode/dataflow-visualisation.vue'
-import { createLNodeSDK, type LNodeSDK } from './lnode/lnode-database'
-import { openDatabase } from './x/database'
+import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
+import { createLNodeSDK, type LNodeSDK } from '@/lnode/lnode-database'
+import { openDatabase } from '@/x/database'
 
 const props = defineProps<{
 	api: { [key: string]: any }
