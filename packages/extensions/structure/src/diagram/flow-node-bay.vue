@@ -1,6 +1,6 @@
 <template>
-	<div class="vue-flow__node-default" name="bay-node" :style="style">
-		<div>{{ data.label }}</div>
+	<div class="vue-flow__node-default" name="bay-node" :title="props.data.tagName" :style="style">
+		<div>{{ props.data.label }}</div>
 	</div>
 </template>
 

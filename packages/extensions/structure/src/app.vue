@@ -44,6 +44,7 @@ async function onFileChange(newFileName: string) {
 	}
 
 	const db = new Dexie(newFileName)
+	await db.open()
 	sdk = useSDK(db)
 
 	// Find all substations
@@ -53,11 +54,32 @@ async function onFileChange(newFileName: string) {
 		return
 	}
 
+	const includeList = [
+		'Substation',
+		'PowerTransformers',
+		'VoltageLevel',
+		'Bay',
+		'Conducting (Sub)equipment',
+		'Application',
+		'Function',
+		'BehaviorDescription',
+		'SubFunction',
+		'LNode',
+		'SubFunction',
+		'LNode',
+		'AllocationRole',
+		'Private',
+	]
+
 	// Gather their children
 	const substationsChildren = (
 		await Promise.all(
 			substations.map(async (substation) => {
-				const children = await sdk!.findChildRecordsWidthDepth(substation)
+				const children = await sdk!.findChildRecordsWithinDepthAndGivenTagName(
+					substation,
+					10,
+					includeList,
+				)
 				return children
 			}),
 		)
@@ -65,7 +87,8 @@ async function onFileChange(newFileName: string) {
 
 	const allElements = [...substations, ...substationsChildren]
 
-	flowNodes.value = await calcLayout(allElements, [])
+	const newFlowNodes = await calcLayout(allElements, [])
+	flowNodes.value = newFlowNodes
 }
 </script>
 

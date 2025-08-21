@@ -83,16 +83,23 @@ function setupRelationships(nodes: ElkNodeWithRecord[]) {
 	for (const nodeId of Object.keys(nodeMapById)) {
 		const node = nodeMapById[nodeId]
 		const parentId = node.record.parent?.id
-		// We put the parentless nodes into the array because
+		const isSCLChildNode = node.record.parent?.tagName === 'SCL'
+
+		// We put the parentless and SCL child nodes into the array because
 		// they are our entrypoint for later
-		if (!parentId) {
+		if (!parentId || isSCLChildNode) {
 			nodesWithChildren.push(node)
 			continue
 		}
 
 		const parentNode = nodeMapById[parentId]
 		if (!parentNode) {
-			console.warn('there was a parent id but could not find the parent node, moving on', parentId)
+			const msg = {
+				msg: 'there was a parent id but could not find the parent node, moving on',
+				parentId,
+				parentTagName: node.record.parent?.tagName,
+			}
+			console.warn(msg)
 			continue
 		}
 
@@ -126,10 +133,11 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 	return {
 		id: elkNode.id,
 		// TODO: temporary, this should depent on the records tagname
-		type: 'Bay',
+		type: 'bay',
 		data: {
 			// TODO: Each element type needs its own label generator
 			label: extractLabel(elkNode.record),
+			tagName: elkNode.record.tagName,
 			width: elkNode.width,
 			height: elkNode.height,
 		},
@@ -162,6 +170,11 @@ const labelExtractors: { [tagName: string]: LabelExtractor } = {
 	Substation: extractNameAttributeValue,
 	VoltageLevel: extractNameAttributeValue,
 	Bay: extractNameAttributeValue,
+	Function: extractNameAttributeValue,
+	LNode: lnodeLabelExtractor,
+	SubFunction: extractNameAttributeValue,
+	Private: extractTypeAttributeValue,
+	Application: extractNameAttributeValue,
 }
 type LabelExtractor = (r: DatabaseRecord) => string
 
@@ -174,6 +187,38 @@ function extractNameAttributeValue(record: DatabaseRecord): string {
 	}
 
 	return nameAttr.value
+}
+
+function extractTypeAttributeValue(record: DatabaseRecord): string {
+	const defaultLabel = `<${record.tagName} without type>`
+	const typeAttr = extractAttr(record, 'type')
+	if (!typeAttr) {
+		console.error('record does not have a type attribute, returning default label', record)
+		return defaultLabel
+	}
+
+	return typeAttr.value
+}
+
+function lnodeLabelExtractor(record: DatabaseRecord) {
+	if (record.tagName !== 'LNode') {
+		console.warn('not an LNode;', record)
+	}
+
+	const lnTypeAttr = extractAttr(record, 'lnType')
+	if (!lnTypeAttr) {
+		const err = { msg: 'could not extract lnType', record }
+		console.error(err)
+		throw new Error(JSON.stringify(err))
+	}
+	const lnInstAttr = extractAttr(record, 'lnInst')
+	if (!lnInstAttr) {
+		const err = { msg: 'could not extract lnInst', record }
+		console.error(err)
+		throw new Error(JSON.stringify(err))
+	}
+
+	return `${lnTypeAttr.value}-${lnInstAttr.value}`
 }
 
 async function printElkInfo() {
