@@ -57,7 +57,7 @@
 		"@vue-flow/minimap": "^1.5.4",
 		"@vue-flow/node-resizer": "^1.5.0",
 		"@vueuse/core": "^13.5.0",
-		"dexie": "^4.2.0",
+		"dexie": "catalog:",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.11",
 		"vite-plugin-css-injected-by-js": "^3.5.2",
