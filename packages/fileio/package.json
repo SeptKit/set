@@ -28,7 +28,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"dexie": "^4.2.0",
+		"dexie": "catalog:",
 		"sax": "^1.4.1",
 		"vite": "^7.0.0"
 	},

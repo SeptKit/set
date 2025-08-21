@@ -34,7 +34,7 @@ import { ControlButton, Controls } from '@vue-flow/controls'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import Icon from './icon.vue'
-import { useLayout } from './layout'
+import { useLayout } from '../layout'
 import FlowNodeBay from './flow-node-bay.vue'
 
 const props = defineProps<{
@@ -54,13 +54,6 @@ const {
 	setNodes,
 	fitView,
 } = useVueFlow()
-
-watchEffect(async () => {
-	const newNodes = await calcLayout(props.nodes, props.edges)
-	setNodes(newNodes)
-	await nextTick()
-	fitView()
-})
 
 onInit((vueFlowInstance) => {
 	// instance is the same as the return of `useVueFlow`

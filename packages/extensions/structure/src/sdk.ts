@@ -6,17 +6,22 @@ import type {
 } from '../node_modules/@septkit/fileio/dist/common/common.types'
 import type { PartialBy } from './x/types/types'
 
+export type SDK = ReturnType<typeof useSDK>
+
 export function useSDK(db: Dexie) {
 	return {
 		addRecord,
 		updateRecord,
+		findRecordsByTagName,
 		findChildRecords,
 		findChildRecordsByTagName,
+		findChildRecordsWidthDepth,
 		instantiate,
 		ensureRelationship,
 		findRootSCL,
 		recordExists,
 		findOneRecordByAttribute,
+		close,
 		db,
 	}
 
@@ -119,6 +124,11 @@ export function useSDK(db: Dexie) {
 		return firstSCL
 	}
 
+	async function findRecordsByTagName(tagName: string): Promise<DatabaseRecord[]> {
+		const records = await db.table<DatabaseRecord>(tagName).toArray()
+		return records
+	}
+
 	// TODO: fsdReference with file name
 	// TODO: make it return a new record instead of changing the uuids in place
 	function instantiate(record: DatabaseRecord) {
@@ -179,6 +189,26 @@ export function useSDK(db: Dexie) {
 		return childRecords
 	}
 
+	async function findChildRecordsWidthDepth(
+		record: DatabaseRecord,
+		depth = 3,
+	): Promise<DatabaseRecord[]> {
+		const allChildren: DatabaseRecord[] = []
+
+		let parentNodes = [record]
+		for (let currentLevel = 0; currentLevel < depth; currentLevel++) {
+			const newParentElements: DatabaseRecord[] = []
+			for (const parent of parentNodes) {
+				const children = await findChildRecords(parent)
+				newParentElements.push(...children)
+				allChildren.push(...children)
+			}
+			parentNodes = [...newParentElements]
+		}
+
+		return allChildren
+	}
+
 	async function findChildRecordsByTagName(
 		record: DatabaseRecord,
 		tagName: string,
@@ -199,9 +229,11 @@ export function useSDK(db: Dexie) {
 
 		return childRecords
 	}
-}
 
-export type SDK = ReturnType<typeof useSDK>
+	function close() {
+		db.close()
+	}
+}
 
 export function extractAttr(
 	record: DatabaseRecord,

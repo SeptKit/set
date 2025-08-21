@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    dexie:
+      specifier: ^4.2.0
+      version: 4.2.0
+
 importers:
 
   .:
@@ -21,8 +27,8 @@ importers:
         specifier: ^13.5.0
         version: 13.5.0(vue@3.5.17(typescript@5.8.3))
       dexie:
-        specifier: ^4.0.11
-        version: 4.0.11
+        specifier: 'catalog:'
+        version: 4.2.0
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
@@ -1116,8 +1122,8 @@ packages:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
 
-  dexie@4.0.11:
-    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
+  dexie@4.2.0:
+    resolution: {integrity: sha512-OSeyyWOUetDy9oFWeddJgi83OnRA3hSFh3RrbltmPgqHszE9f24eUCVLI4mPg0ifsWk0lQTdnS+jyGNrPMvhDA==}
 
   dom-accessibility-api@0.5.16:
     resolution: {integrity: sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==}
@@ -2608,7 +2614,7 @@ snapshots:
 
   '@septkit/fileio@0.0.2(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1)':
     dependencies:
-      dexie: 4.0.11
+      dexie: 4.2.0
       sax: 1.4.1
       vite: 7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1)
     transitivePeerDependencies:
@@ -3224,7 +3230,7 @@ snapshots:
 
   detect-libc@2.0.4: {}
 
-  dexie@4.0.11: {}
+  dexie@4.2.0: {}
 
   dom-accessibility-api@0.5.16: {}
 

@@ -1,31 +1,72 @@
 <template>
 	<div class="root" name="ext-structure-root">
 		<h3>Data Structure</h3>
-		<Diagram :nodes="initialNodes" :edges="initialEdges" />
+		<Diagram :nodes="flowNodes" :edges="[]" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import Diagram from './diagram/diagram.vue'
-import { initialEdges, initialNodes } from './initial-elements'
+import { useSDK, type SDK } from './sdk'
+import Dexie from 'dexie'
+import { useLayout } from './layout'
+import { Node } from '@vue-flow/core'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
 let fileName = ref('')
-let unsubscribe = () => {}
+let unsubscribeFromFileName = () => {}
+let sdk: SDK | undefined
+let flowNodes = ref<Node[]>([])
 
 onMounted(() => {
-	unsubscribe = props.api.activeFileName.subscribe((newFile: string, oldFile: any) => {
-		fileName.value = newFile
+	unsubscribeFromFileName = props.api.activeFileName.subscribe((newFileName: string) => {
+		onFileChange(newFileName)
 	})
+
+	onFileChange(props.api.activeFileName.value)
 })
 
 onUnmounted(() => {
-	unsubscribe()
+	unsubscribeFromFileName()
 })
+
+const { calcLayout } = useLayout()
+
+async function onFileChange(newFileName: string) {
+	fileName.value = newFileName
+
+	if (sdk) {
+		sdk.close()
+	}
+
+	const db = new Dexie(newFileName)
+	sdk = useSDK(db)
+
+	// Find all substations
+	const substations = await sdk.findRecordsByTagName('Substation')
+	if (substations.length === 0) {
+		console.warn('no substations found in the database:', newFileName)
+		return
+	}
+
+	// Gather their children
+	const substationsChildren = (
+		await Promise.all(
+			substations.map(async (substation) => {
+				const children = await sdk!.findChildRecordsWidthDepth(substation)
+				return children
+			}),
+		)
+	).flat()
+
+	const allElements = [...substations, ...substationsChildren]
+
+	flowNodes.value = await calcLayout(allElements, [])
+}
 </script>
 
 <style>
