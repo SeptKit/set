@@ -8,14 +8,14 @@ import { DataflowType } from './connection'
 // XML Test Data
 const sclData = /*xml*/ `
 <SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
-	<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="ELIA_PIOC_V001" prefix=""
+	<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="PIOC_V001" prefix=""
 		uuid="0033a7f6-8d64-449f-9def-a5103fbb06e8"
 		templateUUID="123e4567-e89b-12d3-a456-789012345678">
 		<Private type="eIEC61850-6-100">
 			<eIEC61850-6-100:LNodeInputs/>
 		</Private>
 	</LNode>
-	<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="ELIA_PTRC_TR_SET_V002"
+	<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="PTRC_TR_SET_V002"
 		prefix="" uuid="9c00571a-133d-4eba-a71a-6a0380ac6169"
 		templateUUID="123e4567-e89b-12d3-a456-789012345678">
 		<Private type="eIEC61850-6-100">
@@ -23,28 +23,28 @@ const sclData = /*xml*/ `
 		</Private>
 	</LNode>
   <DataTypeTemplates>
-    <LNodeType id="ELIA_PIOC_V001" lnClass="PIOC">
-      <DO name="Op" type="ELIA_ACT_V001" transient="false" />
-      <DO name="Str" type="ELIA_ACD_V003" transient="false" />
+    <LNodeType id="PIOC_V001" lnClass="PIOC">
+      <DO name="Op" type="ACT_V001" transient="false" />
+      <DO name="Str" type="ACD_V003" transient="false" />
     </LNodeType>
-    <LNodeType id="ELIA_PTRC_TR_SET_V002" lnClass="PTRC">
-      <DO desc="Trip (electrical protection function)" name="Tr" type="ELIA_ACT_V001"
+    <LNodeType id="PTRC_TR_SET_V002" lnClass="PTRC">
+      <DO desc="Trip (electrical protection function)" name="Tr" type="ACT_V001"
         transient="false" />
-      <DO desc="Behaviour" name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false" />
+      <DO desc="Behaviour" name="Beh" type="ENS_BehaviourModeKind" transient="false" />
     </LNodeType>
-    <DOType id="ELIA_ACT_V001" cdc="ACT">
+    <DOType id="ACT_V001" cdc="ACT">
       <DA desc="general" bType="BOOLEAN" name="general" dchg="false" dupd="false" fc="ST"
         qchg="false" />
       <DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false" />
       <DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false" />
     </DOType>
-    <DOType id="ELIA_ACD_V003" cdc="ACD">
+    <DOType id="ACD_V003" cdc="ACD">
       <DA bType="BOOLEAN" name="phsA" dchg="false" dupd="false" fc="ST" qchg="false" />
       <DA bType="BOOLEAN" name="phsB" dchg="false" dupd="false" fc="ST" qchg="false" />
       <DA bType="BOOLEAN" name="phsC" dchg="false" dupd="false" fc="ST" qchg="false" />
     </DOType>
-    <DOType id="ELIA_ENS_BehaviourModeKind" cdc="ENS">
-      <DA bType="Enum" name="stVal" type="ELIA_BehaviourModeKind" dchg="false" dupd="false" fc="ST"
+    <DOType id="ENS_BehaviourModeKind" cdc="ENS">
+      <DA bType="Enum" name="stVal" type="BehaviourModeKind" dchg="false" dupd="false" fc="ST"
         qchg="false" />
       <DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false" />
       <DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false" />
@@ -101,7 +101,7 @@ describe('create dataflow into XML', () => {
 		// For some reason the export does not keep the <DataTypeTemplates> element at the end
 		const expected = /*xml*/ `
 			<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
-				<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="ELIA_PIOC_V001" prefix=""
+				<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="PIOC_V001" prefix=""
 						uuid="0033a7f6-8d64-449f-9def-a5103fbb06e8"
 						templateUUID="123e4567-e89b-12d3-a456-789012345678">
 						<Private type="eIEC61850-6-100">
@@ -109,11 +109,11 @@ describe('create dataflow into XML', () => {
 						</Private>
 				</LNode>
 				<DataTypeTemplates>
-						<LNodeType id="ELIA_PIOC_V001" lnClass="PIOC">
-								<DO name="Op" type="ELIA_ACT_V001" transient="false" />
-								<DO name="Str" type="ELIA_ACD_V003" transient="false" />
+						<LNodeType id="PIOC_V001" lnClass="PIOC">
+								<DO name="Op" type="ACT_V001" transient="false" />
+								<DO name="Str" type="ACD_V003" transient="false" />
 						</LNodeType>
-						<DOType id="ELIA_ACT_V001" cdc="ACT">
+						<DOType id="ACT_V001" cdc="ACT">
 								<DA desc="general" bType="BOOLEAN" name="general" dchg="false" dupd="false" fc="ST"
 										qchg="false" />
 								<DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST"
@@ -121,24 +121,24 @@ describe('create dataflow into XML', () => {
 								<DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST"
 										qchg="false" />
 						</DOType>
-						<LNodeType id="ELIA_PTRC_TR_SET_V002" lnClass="PTRC">
-								<DO desc="Trip (electrical protection function)" name="Tr" type="ELIA_ACT_V001"
+						<LNodeType id="PTRC_TR_SET_V002" lnClass="PTRC">
+								<DO desc="Trip (electrical protection function)" name="Tr" type="ACT_V001"
 										transient="false" />
-								<DO desc="Behaviour" name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false" />
+								<DO desc="Behaviour" name="Beh" type="ENS_BehaviourModeKind" transient="false" />
 						</LNodeType>
-						<DOType id="ELIA_ACD_V003" cdc="ACD">
+						<DOType id="ACD_V003" cdc="ACD">
 								<DA bType="BOOLEAN" name="phsA" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="BOOLEAN" name="phsB" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="BOOLEAN" name="phsC" dchg="false" dupd="false" fc="ST" qchg="false" />
 						</DOType>
-						<DOType id="ELIA_ENS_BehaviourModeKind" cdc="ENS">
-								<DA bType="Enum" name="stVal" type="ELIA_BehaviourModeKind" dchg="false" dupd="false"
+						<DOType id="ENS_BehaviourModeKind" cdc="ENS">
+								<DA bType="Enum" name="stVal" type="BehaviourModeKind" dchg="false" dupd="false"
 										fc="ST" qchg="false" />
 								<DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false" />
 						</DOType>
 				</DataTypeTemplates>
-				<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="ELIA_PTRC_TR_SET_V002"
+				<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="PTRC_TR_SET_V002"
 						prefix="" uuid="9c00571a-133d-4eba-a71a-6a0380ac6169"
 						templateUUID="123e4567-e89b-12d3-a456-789012345678">
 						<Private type="eIEC61850-6-100">
@@ -195,7 +195,7 @@ describe('create dataflow into XML', () => {
 		// For some reason the export does not keep the <DataTypeTemplates> element at the end
 		const expected = /*xml*/ `
 			<SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
-				<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="ELIA_PIOC_V001" prefix=""
+				<LNode iedName="P1" ldInst="P51" lnClass="PIOC" lnInst="1" lnType="PIOC_V001" prefix=""
 						uuid="0033a7f6-8d64-449f-9def-a5103fbb06e8"
 						templateUUID="123e4567-e89b-12d3-a456-789012345678">
 						<Private type="eIEC61850-6-100">
@@ -203,11 +203,11 @@ describe('create dataflow into XML', () => {
 						</Private>
 				</LNode>
 				<DataTypeTemplates>
-						<LNodeType id="ELIA_PIOC_V001" lnClass="PIOC">
-								<DO name="Op" type="ELIA_ACT_V001" transient="false" />
-								<DO name="Str" type="ELIA_ACD_V003" transient="false" />
+						<LNodeType id="PIOC_V001" lnClass="PIOC">
+								<DO name="Op" type="ACT_V001" transient="false" />
+								<DO name="Str" type="ACD_V003" transient="false" />
 						</LNodeType>
-						<DOType id="ELIA_ACT_V001" cdc="ACT">
+						<DOType id="ACT_V001" cdc="ACT">
 								<DA desc="general" bType="BOOLEAN" name="general" dchg="false" dupd="false" fc="ST"
 										qchg="false" />
 								<DA desc="quality" bType="Quality" name="q" dchg="false" dupd="false" fc="ST"
@@ -215,24 +215,24 @@ describe('create dataflow into XML', () => {
 								<DA desc="time" bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST"
 										qchg="false" />
 						</DOType>
-						<LNodeType id="ELIA_PTRC_TR_SET_V002" lnClass="PTRC">
-								<DO desc="Trip (electrical protection function)" name="Tr" type="ELIA_ACT_V001"
+						<LNodeType id="PTRC_TR_SET_V002" lnClass="PTRC">
+								<DO desc="Trip (electrical protection function)" name="Tr" type="ACT_V001"
 										transient="false" />
-								<DO desc="Behaviour" name="Beh" type="ELIA_ENS_BehaviourModeKind" transient="false" />
+								<DO desc="Behaviour" name="Beh" type="ENS_BehaviourModeKind" transient="false" />
 						</LNodeType>
-						<DOType id="ELIA_ACD_V003" cdc="ACD">
+						<DOType id="ACD_V003" cdc="ACD">
 								<DA bType="BOOLEAN" name="phsA" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="BOOLEAN" name="phsB" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="BOOLEAN" name="phsC" dchg="false" dupd="false" fc="ST" qchg="false" />
 						</DOType>
-						<DOType id="ELIA_ENS_BehaviourModeKind" cdc="ENS">
-								<DA bType="Enum" name="stVal" type="ELIA_BehaviourModeKind" dchg="false" dupd="false"
+						<DOType id="ENS_BehaviourModeKind" cdc="ENS">
+								<DA bType="Enum" name="stVal" type="BehaviourModeKind" dchg="false" dupd="false"
 										fc="ST" qchg="false" />
 								<DA bType="Quality" name="q" dchg="false" dupd="false" fc="ST" qchg="false" />
 								<DA bType="Timestamp" name="t" dchg="false" dupd="false" fc="ST" qchg="false" />
 						</DOType>
 				</DataTypeTemplates>
-				<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="ELIA_PTRC_TR_SET_V002"
+				<LNode iedName="P1" ldInst="P51" lnClass="PTRC" lnInst="1" lnType="PTRC_TR_SET_V002"
 						prefix="" uuid="9c00571a-133d-4eba-a71a-6a0380ac6169"
 						templateUUID="123e4567-e89b-12d3-a456-789012345678">
 						<Private type="eIEC61850-6-100">
