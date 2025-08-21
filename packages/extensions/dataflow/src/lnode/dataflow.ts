@@ -1,8 +1,7 @@
 import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
-import type { PartialBy } from '../x/types'
-import { extractAttr, useSDK, type SDK } from '../x/sdk'
-import { openDatabase } from '../x/database'
+import type { PartialBy } from '@/x/types'
+import { extractAttr, useSDK, type SDK } from '@/x/sdk'
 import type { DataflowType } from '@/lnode/connection'
 import type { LNode } from '@/lnode/lnode'
 import { toRaw } from 'vue'
@@ -21,7 +20,7 @@ export type ValidatedDataflowCreationForm = Omit<DataflowCreationForm, 'type'> &
 	type: NonNullable<DataflowCreationForm['type']>
 }
 
-export function useDataflow() {
+export function useDataflow(db: Dexie) {
 	return {
 		create,
 	}
@@ -31,18 +30,10 @@ export function useDataflow() {
 		sourceLNode: LNode,
 		destinationLNode: LNode,
 	) {
-		const activeFile = localStorage.getItem('currentActiveFileDatabaseName')
-		if (!activeFile) {
-			throw new Error('no active file')
-		}
-
-		const db = await openDatabase(activeFile)
 		const sdk = useSDK(db)
 
 		const lNodeInputsElement = await getLNodeInputsElement(db, sdk, destinationLNode)
 		await addSourceRefElements(sdk, sourceLNode, lNodeInputsElement, formValues)
-
-		db.close()
 	}
 }
 
@@ -147,10 +138,6 @@ export async function addSourceRefElement(
 				value: dataflowCreationFormFields.attribute,
 			},
 			{
-				name: 'uuid',
-				value: crypto.randomUUID(),
-			},
-			{
 				name: 'input',
 				value: dataflowCreationFormFields.inputName,
 			},
@@ -173,6 +160,11 @@ export async function addSourceRefElement(
 			{
 				name: 'sourceDaName',
 				value: dataflowCreationFormFields.attribute, // TODO: in the example SSD this was a combination fo SDS and DA name
+			},
+
+			{
+				name: 'uuid',
+				value: crypto.randomUUID(),
 			},
 			// TODO: resourceName, source, templateUUID (?) attributes (https://github.com/SeptKit/set/issues/163)
 		],

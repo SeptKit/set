@@ -9,6 +9,9 @@ catalogs:
     '@septkit/ui':
       specifier: 0.0.5
       version: 0.0.5
+    dexie:
+      specifier: ^4.2.0
+      version: 4.2.0
 
 importers:
 
@@ -42,7 +45,7 @@ importers:
         specifier: ^13.5.0
         version: 13.6.0(vue@3.5.17(typescript@5.8.3))
       dexie:
-        specifier: ^4.2.0
+        specifier: 'catalog:'
         version: 4.2.0
       pinia:
         specifier: ^3.0.3
