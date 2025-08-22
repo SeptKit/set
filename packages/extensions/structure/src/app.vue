@@ -55,21 +55,19 @@ async function onFileChange(newFileName: string) {
 	}
 
 	const includeList = [
-		'Substation',
-		'PowerTransformers',
-		'VoltageLevel',
-		'Bay',
-		'SubEquipment',
-		'ConductingEquipment',
-		'Application',
-		'Function',
-		'BehaviorDescription',
-		'SubFunction',
-		'LNode',
-		'SubFunction',
-		'LNode',
 		'AllocationRole',
+		'Application',
+		'Bay',
+		'BehaviorDescription',
+		'ConductingEquipment',
+		'Function',
+		'LNode',
+		'PowerTransformers',
 		'Private',
+		'SubEquipment',
+		'SubFunction',
+		'Substation',
+		'VoltageLevel',
 	]
 
 	// Gather their children
