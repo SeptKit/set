@@ -1,6 +1,14 @@
-import type { DataAttribute, DataObject, DataObjectSpecification, LNode } from '@/lnode/lnode'
+import type {
+	DataAttribute,
+	DataAttributeSpecification,
+	DataObject,
+	DataObjectSpecification,
+	LNode,
+	SubscriberLNode,
+} from '@/lnode/lnode'
 import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
 import Dexie from 'dexie'
+import { DataflowType } from './connection'
 
 export type LNodeSDK = ReturnType<typeof createLNodeSDK>
 
@@ -72,7 +80,10 @@ export function createLNodeSDK(db: Dexie) {
 				const enrichedDataObjects = await Promise.all(
 					dataObjectsArray.map(async (dataObject) => {
 						const doTypeId = dataObject
-							? extractAttributeValue(await db.table<DatabaseRecord>('DO').get(dataObject.id)!, 'type')
+							? extractAttributeValue(
+									await db.table<DatabaseRecord>('DO').get(dataObject.id)!,
+									'type',
+								)
 							: undefined
 						if (!doTypeId) return { ...dataObject, dataAttributes: [] }
 
@@ -109,10 +120,11 @@ export function createLNodeSDK(db: Dexie) {
 	async function enrichLNodesWithDataObjectSpecifications(lnodes: LNode[]): Promise<LNode[]> {
 		const allPrivates = await db.table<DatabaseRecord>('Private').toArray()
 		const allDOS = await db.table<DatabaseRecord>('DOS').toArray()
+		const allDAS = await db.table<DatabaseRecord>('DAS').toArray()
+		const allSubscriberLNodes = await db.table<DatabaseRecord>('SubscriberLNode').toArray()
 
 		return Promise.all(
 			lnodes.map(async (lnode) => {
-				// 1) find Private element
 				const privateRecord = allPrivates.find(
 					(p) =>
 						p.parent?.id === lnode.id &&
@@ -123,7 +135,7 @@ export function createLNodeSDK(db: Dexie) {
 					return { ...lnode, dataObjectSpecifications: [] }
 				}
 
-				// 2) get DOS-Children of the Private element
+				//DOS
 				const dosSpecs: DataObjectSpecification[] = []
 				for (const childRef of privateRecord.children) {
 					if (childRef.tagName !== 'DOS') continue
@@ -131,11 +143,50 @@ export function createLNodeSDK(db: Dexie) {
 					const dosRecord = allDOS.find((d) => d.id === childRef.id)
 					if (!dosRecord) continue
 
+					// DAS
+					const dasSpecs: DataAttributeSpecification[] = []
+					if (dosRecord.children) {
+						for (const dasRef of dosRecord.children) {
+							if (dasRef.tagName !== 'DAS') continue
+
+							const dasRecord = allDAS.find((d) => d.id === dasRef.id)
+							if (!dasRecord) continue
+
+							// Check for SubscriberLNode
+							let subscriberLNode: SubscriberLNode | undefined = undefined
+							if (dasRecord.children) {
+								const subRef = dasRecord.children.find((c) => c.tagName === 'SubscriberLNode')
+
+								if (subRef) {
+									const subRec = allSubscriberLNodes.find((s) => s.id === subRef.id)
+
+									if (subRec) {
+										subscriberLNode = {
+											id: subRec.id,
+											uuid: extractAttributeValue(subRec, 'uuid') ?? '',
+											inputName: extractAttributeValue(subRec, 'inputName') ?? '',
+											service: extractDataflowTypeValue(subRec, 'service'),
+											pLN: extractAttributeValue(subRec, 'pLN') ?? '',
+										}
+									}
+								}
+							}
+
+							dasSpecs.push({
+								id: dasRecord.id,
+								name: extractAttributeValue(dasRecord, 'name') ?? '',
+								desc: extractAttributeValue(dasRecord, 'desc') ?? '',
+								dataObjectSpecificationId: dosRecord.id,
+								subscriberLNode,
+							})
+						}
+					}
+
 					dosSpecs.push({
 						id: dosRecord.id,
 						name: extractAttributeValue(dosRecord, 'name') ?? '',
 						desc: extractAttributeValue(dosRecord, 'desc') ?? '',
-						dataAttributeSpecification: [],
+						dataAttributeSpecification: dasSpecs,
 						lNodeId: lnode.id,
 					})
 				}
@@ -166,6 +217,36 @@ export function createLNodeSDK(db: Dexie) {
 }
 
 // Helper function to get an attribute value from a record
-function extractAttributeValue(record: DatabaseRecord | undefined, name: string): string | undefined {
+function extractAttributeValue(
+	record: DatabaseRecord | undefined,
+	name: string,
+): string | undefined {
 	return record?.attributes?.find((a) => a.name === name)?.value
+}
+
+// Helper function to get DataflowType value from a record
+function extractDataflowTypeValue(
+	record: DatabaseRecord | undefined,
+	name: string,
+): DataflowType | undefined {
+	const str = record?.attributes?.find((a) => a.name === name)?.value
+	if (!str) return undefined
+
+	const upper = str.toUpperCase()
+	switch (upper) {
+		case 'GOOSE':
+			return DataflowType.GOOSE
+		case 'SMV':
+			return DataflowType.SMV
+		case 'REPORT':
+			return DataflowType.REPORT
+		case 'INTERNAL':
+			return DataflowType.INTERNAL
+		case 'WIRED':
+			return DataflowType.WIRED
+		case 'CONTROL':
+			return DataflowType.CONTROL
+		default:
+			return undefined
+	}
 }
