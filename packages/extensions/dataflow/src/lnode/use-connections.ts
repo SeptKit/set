@@ -11,13 +11,10 @@ export function useConnections(db: Dexie) {
 
 	return {
 		findAllExistingFromDB,
-		close,
 	}
 
 	// Get all existing connections from the database via SourceRef elements
 	async function findAllExistingFromDB(): Promise<Connection[]> {
-		await db.open()
-
 		const sourceRefRecords = await db.table<DatabaseRecord>('SourceRef').toArray()
 		if (!sourceRefRecords.length) return []
 
@@ -78,7 +75,6 @@ export function useConnections(db: Dexie) {
 
 			connections.push(connection)
 		}
-		db.close()
 
 		return connections
 	}

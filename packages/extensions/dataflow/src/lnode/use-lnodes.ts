@@ -19,7 +19,6 @@ export function useLNodes(db: Dexie) {
 		enrichWithDataObjects,
 		enrichWithDataAttributes,
 		enrichWithDataObjectSpecifications,
-		close,
 	}
 
 	//Main function to get enriched LNodes from the database
@@ -207,11 +206,6 @@ export function useLNodes(db: Dexie) {
 			lnType: extractAttributeValue(record, 'lnType'),
 			dataObjects: [],
 		}))
-	}
-
-	// Close the database connection
-	function close() {
-		db.close()
 	}
 }
 
