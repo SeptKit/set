@@ -1,22 +1,23 @@
 import type Dexie from 'dexie'
-import type {
-	Attribute,
-	DatabaseRecord,
-	QualifiedAttribute,
-} from '../node_modules/@septkit/fileio/dist/common/common.types'
 import type { PartialBy } from './x/types/types'
+import type { Relationship, Attribute, DatabaseRecord, QualifiedAttribute } from '@septkit/fileio'
+
+export type SDK = ReturnType<typeof useSDK>
 
 export function useSDK(db: Dexie) {
 	return {
 		addRecord,
 		updateRecord,
+		findRecordsByTagName,
 		findChildRecords,
 		findChildRecordsByTagName,
+		findChildRecordsWithinDepthAndGivenTagName,
 		instantiate,
 		ensureRelationship,
 		findRootSCL,
 		recordExists,
 		findOneRecordByAttribute,
+		close,
 		db,
 	}
 
@@ -119,6 +120,11 @@ export function useSDK(db: Dexie) {
 		return firstSCL
 	}
 
+	async function findRecordsByTagName(tagName: string): Promise<DatabaseRecord[]> {
+		const records = await db.table<DatabaseRecord>(tagName).toArray()
+		return records
+	}
+
 	// TODO: fsdReference with file name
 	// TODO: make it return a new record instead of changing the uuids in place
 	function instantiate(record: DatabaseRecord) {
@@ -164,44 +170,65 @@ export function useSDK(db: Dexie) {
 	}
 
 	async function findChildRecords(record: DatabaseRecord): Promise<DatabaseRecord[]> {
-		if (!record.children || record.children.length === 0) return []
-
-		const childRecords = await Promise.all(
-			record.children.map(async (child) => {
-				const table = child.tagName
-				const id = child.id
-
-				const childRecord = await db.table(table).get({ id })
-				return childRecord
-			}),
-		)
-
-		return childRecords
+		return findChildRecordsByTagName(record, [])
 	}
 
 	async function findChildRecordsByTagName(
 		record: DatabaseRecord,
-		tagName: string,
+		tagNames: string[],
 	): Promise<DatabaseRecord[]> {
-		if (!record.children || record.children.length === 0) return []
+		if (!record.children || record.children.length === 0) {
+			return []
+		}
 
+		let includedChildrenRefs: Relationship[] = record.children
+		if (tagNames.length > 0) {
+			includedChildrenRefs = record.children.filter((child) => tagNames.includes(child.tagName))
+		}
 		const childRecords = await Promise.all(
-			record.children
-				.filter((child) => child.tagName === tagName)
-				.map(async (child) => {
-					const table = child.tagName
-					const id = child.id
+			includedChildrenRefs.map(async (child) => {
+				const table = child.tagName
+				const id = child.id
 
-					const childRecord = await db.table(table).get({ id })
-					return childRecord
-				}),
+				const childRecord = await db.table(table).get({ id })
+				if (!childRecord) {
+					console.warn('could not find element', { id, table })
+				}
+				return childRecord
+			}),
 		)
+		return childRecords.filter(Boolean)
+	}
 
-		return childRecords
+	const DEPTH_TIL_BAY_CHILDREN = 3
+	async function findChildRecordsWithinDepthAndGivenTagName(
+		record: DatabaseRecord,
+		depth = DEPTH_TIL_BAY_CHILDREN,
+		childTagNames: string[] = [],
+	): Promise<DatabaseRecord[]> {
+		const allChildren: DatabaseRecord[] = []
+
+		let parentNodes = [record]
+		for (let currentLevel = 0; currentLevel < depth; currentLevel++) {
+			const newParentElements: DatabaseRecord[] = []
+			for (const parent of parentNodes) {
+				const children = await findChildRecordsByTagName(parent, childTagNames)
+				if (children.length === 0) {
+					continue
+				}
+				newParentElements.push(...children)
+				allChildren.push(...children)
+			}
+			parentNodes = [...newParentElements]
+		}
+
+		return allChildren
+	}
+
+	function close() {
+		db.close()
 	}
 }
-
-export type SDK = ReturnType<typeof useSDK>
 
 export function extractAttr(
 	record: DatabaseRecord,

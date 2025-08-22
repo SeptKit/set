@@ -36,6 +36,10 @@ export default defineConfig({
 		},
 	},
 	build: {
+		// `emptyOutDir` is disabled so the extension reload functionality of
+		// shell does not throw errors until the code generation is finished
+		emptyOutDir: false,
+		// `cssCodeSplit` is needed because we have multiple entry points
 		cssCodeSplit: true,
 		lib: {
 			// entry: fileURLToPath(new URL('./src/shell.js', import.meta.url)),

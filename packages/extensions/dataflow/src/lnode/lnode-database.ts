@@ -30,8 +30,6 @@ export function createLNodeSDK(db: Dexie) {
 		const lnodesWithDAs = await enrichLNodesWithDataAttributes(lnodesWithDOs)
 		const lnodesWithDOSs = await enrichLNodesWithDataObjectSpecifications(lnodesWithDAs)
 
-		db.close()
-
 		return lnodesWithDOSs
 	}
 

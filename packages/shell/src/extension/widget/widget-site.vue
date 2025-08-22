@@ -24,7 +24,7 @@ watch(() => props.widget, watchPluginChange)
 
 async function watchPluginChange() {
 	await reloadPluginIfNeeded()
-	setTimeout(watchPluginChange, 3_000)
+	setTimeout(watchPluginChange, 1_000)
 }
 
 async function reloadPluginIfNeeded() {
