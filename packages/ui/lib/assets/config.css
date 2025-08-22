@@ -38,3 +38,38 @@
 
 	--border-color: var(--color-base-content);
 }
+
+:root {
+	--color-ocean-gray-00: #ffffff;
+	--color-ocean-gray-25: #fafbfb;
+	--color-ocean-gray-50: #f5f6f7;
+	--color-ocean-gray-75: #eaeeef;
+	--color-ocean-gray-100: #e1e4e6;
+	--color-ocean-gray-150: #c6ced1;
+	--color-ocean-gray-200: #bac1c4;
+	--color-ocean-gray-250: #9fadb2;
+	--color-ocean-gray-300: #889499;
+	--color-ocean-gray-350: #72858c;
+	--color-ocean-gray-400: #617177;
+	--color-ocean-gray-450: #3f555e;
+	--color-ocean-gray-500: #394d55;
+	--color-ocean-gray-550: #34464d;
+	--color-ocean-gray-600: #2e3e44;
+	--color-ocean-gray-650: #27353b;
+	--color-ocean-gray-700: #222e33;
+	--color-ocean-gray-750: #1f272b;
+	--color-ocean-gray-800: #171f22;
+	--color-ocean-gray-850: #11171a;
+	--color-ocean-gray-900: #0b0f11;
+
+	--color-chart-1: #f7931e;
+	--color-chart-2: #40535b;
+	--color-chart-3: #2798aa;
+	--color-chart-4: #6da89c;
+	--color-chart-5: #a4cadd;
+	--color-chart-6: #97b42d;
+	--color-chart-7: #ffcb05;
+	--color-chart-8: #ee652e;
+	--color-chart-9: #528694;
+	--color-chart-10: #a10f3b;
+}
