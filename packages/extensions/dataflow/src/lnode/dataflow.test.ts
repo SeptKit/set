@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Dexie from 'dexie'
 import { exportFile, importXmlFiles } from '@septkit/fileio'
-import { useDataflow } from './dataflow'
-import { createLNodeSDK } from './lnode-database'
+import { useDataflow } from './use-dataflow'
+import { useLNodes } from './use-lnodes'
 import { DataflowType } from './connection'
 
 // XML Test Data
@@ -71,7 +71,7 @@ describe('create dataflow into XML', () => {
 		crypto.randomUUID = createMockRandomUUID()
 
 		// Arrange
-		const lnodeSdk = createLNodeSDK(db)
+		const lnodeSdk = useLNodes(db)
 		const lnodes = await lnodeSdk.findAllEnrichedFromDB()
 		expect(lnodes.length).toBeGreaterThan(0)
 		const dataflow = useDataflow(db)
@@ -165,7 +165,7 @@ describe('create dataflow into XML', () => {
 		crypto.randomUUID = createMockRandomUUID()
 
 		// Arrange
-		const lnodeSdk = createLNodeSDK(db)
+		const lnodeSdk = useLNodes(db)
 		const lnodes = await lnodeSdk.findAllEnrichedFromDB()
 		expect(lnodes.length).toBeGreaterThan(0)
 		const dataflow = useDataflow(db)
