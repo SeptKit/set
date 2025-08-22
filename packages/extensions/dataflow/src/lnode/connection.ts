@@ -8,12 +8,11 @@ export enum DataflowType {
 }
 
 export type Connection = {
-	id: string
-	sourceLNodeId: string
-	destinationLNodeId: string
+	sourceLNodeId: string | null
+	destinationLNodeId: string | null
 	sourceDataObject: string
 	sourceDataAttribute: string
-	dataflowType: DataflowType
+	dataflowType?: DataflowType
 	inputInstance: string
 	inputName: string
 }
