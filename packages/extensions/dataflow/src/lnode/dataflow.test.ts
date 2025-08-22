@@ -274,6 +274,8 @@ async function loadMinimalTestDB() {
 		SourceRef: 'id',
 		DA: 'id',
 		DO: 'id',
+		DAS: 'id',
+		SubscriberLNode: 'id',
 		DOType: 'id',
 		DataTypeTemplates: 'id',
 		LNode: 'id',
