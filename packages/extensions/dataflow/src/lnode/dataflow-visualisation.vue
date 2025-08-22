@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import LNodeElement from './lnode-element.vue'
-import type { LNodeSDK } from './lnode-database'
+import type { LNodeSDK } from './use-lnodes'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/lnode/lnode'
 import DataflowCreationForm from './dataflow-creation-form.vue'
@@ -54,7 +54,7 @@ async function initLnode() {
 	if (!props.lnodeSDK) {
 		return
 	}
-	lNodes.value = await props.lnodeSDK.findAllEnrichedLNodesFromDB()
+	lNodes.value = await props.lnodeSDK.findAllEnrichedFromDB()
 }
 
 function onActiveInputLNodeIdChange(newLNodeId?: string) {

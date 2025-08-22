@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import Dexie from 'dexie'
-import { createLNodeSDK } from './lnode-database'
+import { useLNodes } from './use-lnodes'
 import type { LNode } from '@/lnode/lnode'
 import { importXmlFiles, type DatabaseRecord } from '@septkit/fileio'
 
@@ -42,22 +42,22 @@ describe('use-lnode-records to map the XML', () => {
 		lnodes = lnodeRecs.map(mapToLNode)
 	})
 
-	it('enrichLNodesWithDataObjects finds DOs by LNodeType', async () => {
+	it('enrichWithDataObjects finds DOs by LNodeType', async () => {
 		// Arrange
-		const lnodeSdk = createLNodeSDK(db)
+		const lnodeSdk = useLNodes(db)
 		// Act: Enrich LNodes with DataObjects
-		const result = await lnodeSdk.enrichLNodesWithDataObjects(lnodes)
+		const result = await lnodeSdk.enrichWithDataObjects(lnodes)
 		// Assert: Check if DataObjects are enriched correctly
 		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Beh')
 		expect(result[0].dataObjects.map((doj) => doj.name)).toContain('Pos')
 	})
 
-	it('enrichLNodesWithDataAttributes finds DAs by DOType', async () => {
+	it('enrichWithDataAttributes finds DAs by DOType', async () => {
 		// Arrange
-		const lnodeSdk = createLNodeSDK(db)
+		const lnodeSdk = useLNodes(db)
 		// Act: Enrich LNodes with DataObjects and DataAttributes
-		const lnodesWithDOs = await lnodeSdk.enrichLNodesWithDataObjects(lnodes)
-		const result = await lnodeSdk.enrichLNodesWithDataAttributes(lnodesWithDOs)
+		const lnodesWithDOs = await lnodeSdk.enrichWithDataObjects(lnodes)
+		const result = await lnodeSdk.enrichWithDataAttributes(lnodesWithDOs)
 		// Assert: Check if DataAttributes are enriched correctly
 		expect(result[0].dataObjects[0].dataAttributes.map((daj) => daj.name)).toEqual(
 			expect.arrayContaining(['stVal', 'q']),
@@ -67,9 +67,9 @@ describe('use-lnode-records to map the XML', () => {
 
 	it('DataObjectSpecifications has DOS, DAS, and SubscriberLNode attached', async () => {
 		// Arrange
-		const lnodeSdk = createLNodeSDK(db)
+		const lnodeSdk = useLNodes(db)
 		// Act: Enrich LNodes with DataObjectSpecifications
-		const result = await lnodeSdk.enrichLNodesWithDataObjectSpecifications(lnodes)
+		const result = await lnodeSdk.enrichWithDataObjectSpecifications(lnodes)
 
 		// Assert: DOS, DAS, and SubscriberLNode are present
 		expect(result[0].dataObjectSpecifications?.length).toBeGreaterThanOrEqual(1)

@@ -1,7 +1,7 @@
 import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
 import type { PartialBy } from '@/x/types'
-import { extractAttr, useSDK, type SDK } from '@/x/sdk'
+import { extractAttr, useDatabase, type DatabaseSDK } from '@/x/use-database'
 import type { DataflowType } from '@/lnode/connection'
 import type { LNode } from '@/lnode/lnode'
 import { toRaw } from 'vue'
@@ -30,14 +30,14 @@ export function useDataflow(db: Dexie) {
 		sourceLNode: LNode,
 		destinationLNode: LNode,
 	) {
-		const sdk = useSDK(db)
+		const databaseSdk = useDatabase(db)
 
-		const lNodeInputsElement = await getLNodeInputsElement(db, sdk, destinationLNode)
-		await addSourceRefElements(sdk, sourceLNode, lNodeInputsElement, formValues)
+		const lNodeInputsElement = await getLNodeInputsElement(db, databaseSdk, destinationLNode)
+		await addSourceRefElements(databaseSdk, sourceLNode, lNodeInputsElement, formValues)
 	}
 }
 
-async function getLNodeInputsElement(db: Dexie, sdk: SDK, destinationLNode: LNode) {
+async function getLNodeInputsElement(db: Dexie, databaseSdk: DatabaseSDK, destinationLNode: LNode) {
 	const lNodeRecord = await db.table<DatabaseRecord>('LNode').get({ id: destinationLNode.id })
 
 	if (!lNodeRecord || !lNodeRecord.children || lNodeRecord.children.length == 0) {
@@ -48,7 +48,7 @@ async function getLNodeInputsElement(db: Dexie, sdk: SDK, destinationLNode: LNod
 		throw new Error(JSON.stringify(err))
 	}
 
-	const privateRecords = await sdk.findChildRecordsByTagName(lNodeRecord, 'Private')
+	const privateRecords = await databaseSdk.findChildRecordsByTagName(lNodeRecord, 'Private')
 	let private6_100 = privateRecords
 		.filter((el) => extractAttr(el, 'type')?.value === 'eIEC61850-6-100')
 		.at(0)
@@ -62,7 +62,10 @@ async function getLNodeInputsElement(db: Dexie, sdk: SDK, destinationLNode: LNod
 		throw new Error(JSON.stringify(err))
 	}
 
-	const lNodeInputsRecords = await sdk.findChildRecordsByTagName(privateRecords[0], 'LNodeInputs')
+	const lNodeInputsRecords = await databaseSdk.findChildRecordsByTagName(
+		privateRecords[0],
+		'LNodeInputs',
+	)
 
 	// TODO: Do we have to create a LNodeInputs element if it does not exist?
 	if (lNodeInputsRecords.length != 1) {
@@ -77,46 +80,46 @@ async function getLNodeInputsElement(db: Dexie, sdk: SDK, destinationLNode: LNod
 }
 
 async function addSourceRefElements(
-	sdk: SDK,
+	databaseSdk: DatabaseSDK,
 	sourceLNode: LNode,
 	lNodeInputsRecord: DatabaseRecord,
 	dataflowCreationFormFields: ValidatedDataflowCreationForm,
 ) {
 	const addedSourceRef = await addSourceRefElement(
-		sdk,
+		databaseSdk,
 		dataflowCreationFormFields,
 		sourceLNode,
 		lNodeInputsRecord.namespace,
 	)
-	await sdk.ensureRelationship(lNodeInputsRecord, addedSourceRef)
+	await databaseSdk.ensureRelationship(lNodeInputsRecord, addedSourceRef)
 
 	if (dataflowCreationFormFields.includeQuality) {
 		let formFieldsForQuality = structuredClone(toRaw(dataflowCreationFormFields))
 		formFieldsForQuality.attribute = 'q' // Set to 'q' for Quality
 		const addedQualitySourceRef = await addSourceRefElement(
-			sdk,
+			databaseSdk,
 			formFieldsForQuality,
 			sourceLNode,
 			lNodeInputsRecord.namespace,
 		)
-		await sdk.ensureRelationship(lNodeInputsRecord, addedQualitySourceRef)
+		await databaseSdk.ensureRelationship(lNodeInputsRecord, addedQualitySourceRef)
 	}
 
 	if (dataflowCreationFormFields.includeTimestamp) {
 		let formFieldsForTimestamp = structuredClone(toRaw(dataflowCreationFormFields))
 		formFieldsForTimestamp.attribute = 't' // Set to 't' for Quality
 		const addedTimeStampSourceRef = await addSourceRefElement(
-			sdk,
+			databaseSdk,
 			formFieldsForTimestamp,
 			sourceLNode,
 			lNodeInputsRecord.namespace,
 		)
-		await sdk.ensureRelationship(lNodeInputsRecord, addedTimeStampSourceRef)
+		await databaseSdk.ensureRelationship(lNodeInputsRecord, addedTimeStampSourceRef)
 	}
 }
 
 export async function addSourceRefElement(
-	sdk: SDK,
+	databaseSdk: DatabaseSDK,
 	dataflowCreationFormFields: ValidatedDataflowCreationForm,
 	sourceLNode: LNode,
 	namespace: Namespace | null,
@@ -173,5 +176,5 @@ export async function addSourceRefElement(
 		children: null,
 	}
 
-	return await sdk.addRecord(sourceRefToAdd)
+	return await databaseSdk.addRecord(sourceRefToAdd)
 }

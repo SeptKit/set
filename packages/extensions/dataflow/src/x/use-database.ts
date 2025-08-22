@@ -2,7 +2,7 @@ import type Dexie from 'dexie'
 import type { Attribute, DatabaseRecord, QualifiedAttribute } from '@septkit/fileio'
 import type { PartialBy } from './types'
 
-export function useSDK(db: Dexie) {
+export function useDatabase(db: Dexie) {
 	return {
 		addRecord,
 		findChildRecordsByTagName,
@@ -89,7 +89,7 @@ export function useSDK(db: Dexie) {
 	}
 }
 
-export type SDK = ReturnType<typeof useSDK>
+export type DatabaseSDK = ReturnType<typeof useDatabase>
 
 export function extractAttr(
 	record: DatabaseRecord,

@@ -72,7 +72,7 @@ describe('create dataflow into XML', () => {
 
 		// Arrange
 		const lnodeSdk = createLNodeSDK(db)
-		const lnodes = await lnodeSdk.findAllEnrichedLNodesFromDB()
+		const lnodes = await lnodeSdk.findAllEnrichedFromDB()
 		expect(lnodes.length).toBeGreaterThan(0)
 		const dataflow = useDataflow(db)
 
@@ -166,7 +166,7 @@ describe('create dataflow into XML', () => {
 
 		// Arrange
 		const lnodeSdk = createLNodeSDK(db)
-		const lnodes = await lnodeSdk.findAllEnrichedLNodesFromDB()
+		const lnodes = await lnodeSdk.findAllEnrichedFromDB()
 		expect(lnodes.length).toBeGreaterThan(0)
 		const dataflow = useDataflow(db)
 

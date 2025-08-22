@@ -10,8 +10,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
-import { createLNodeSDK, type LNodeSDK } from '@/lnode/lnode-database'
-import { openDatabase } from '@/x/database'
+import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
+import { useConnections, type ConnectionSDK } from './lnode/use-connections'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -55,7 +55,7 @@ async function initSDK(newActiveFile: string) {
 	const db = await openDatabase(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
-	lnodeSDK.value = createLNodeSDK(db)
+	lnodeSDK.value = useLNodes(db)
 }
 </script>
 
