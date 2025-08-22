@@ -106,7 +106,6 @@ async function loadMinimalTestDB() {
 		DAS: 'id',
 		SubscriberLNode: 'id',
 	})
-	await db.open()
 	return db
 }
 
