@@ -34,12 +34,16 @@ import type { LNodeSDK } from './use-lnodes'
 import { onMounted, ref, watch } from 'vue'
 import type { LNode } from '@/lnode/lnode'
 import DataflowCreationForm from './dataflow-creation-form.vue'
+import type { Connection } from './connection'
+import type { ConnectionSDK } from './use-connections'
 
 const props = defineProps<{
 	lnodeSDK: LNodeSDK | undefined
+	connectionSDK: ConnectionSDK | undefined
 }>()
 
 const lNodes = ref<LNode[]>([])
+const connections = ref<Connection[]>([])
 
 const activeInputLNodeId = ref<string | undefined>()
 const activeOutputLNodeId = ref<string | undefined>()
@@ -47,7 +51,10 @@ const activeInputLNode = ref<LNode | null>(null)
 const activeOutputLNode = ref<LNode | null>(null)
 const isCreationDialogOpen = ref(false)
 
-onMounted(initLnode)
+onMounted(() => {
+	initLnode()
+	initConnections()
+})
 watch(() => props.lnodeSDK, initLnode)
 
 async function initLnode() {
@@ -55,6 +62,13 @@ async function initLnode() {
 		return
 	}
 	lNodes.value = await props.lnodeSDK.findAllEnrichedFromDB()
+}
+
+async function initConnections() {
+	if (!props.connectionSDK) {
+		return
+	}
+	connections.value = await props.connectionSDK.findAllExistingFromDB()
 }
 
 function onActiveInputLNodeIdChange(newLNodeId?: string) {
