@@ -2,7 +2,7 @@
 	<div>
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
 		<div class="dataflow-app-center">
-			<DataflowVisualisation :lnodeSDK="lnodeSDK" :connectionSDK="connectionSDK" />
+			<DataflowVisualisation :sdks="sdks" />
 		</div>
 	</div>
 </template>
@@ -14,12 +14,16 @@ import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
 import { useConnections, type ConnectionSDK } from './lnode/use-connections'
 import Dexie from 'dexie'
 
+export type SDKs = {
+	lnodeSDK: LNodeSDK
+	connectionSDK: ConnectionSDK
+}
+
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
-let lnodeSDK = ref<LNodeSDK | undefined>()
-let connectionSDK = ref<ConnectionSDK | undefined>()
+let sdks = ref<SDKs | undefined>()
 
 onMounted(() => {
 	window.addEventListener('storage', onActiveFileChange)
@@ -54,8 +58,10 @@ async function initSDKs(newActiveFile: string) {
 	const db = new Dexie(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
-	lnodeSDK.value = useLNodes(db)
-	connectionSDK.value = useConnections(db)
+	sdks.value = {
+		lnodeSDK: useLNodes(db),
+		connectionSDK: useConnections(db),
+	}
 }
 </script>
 
