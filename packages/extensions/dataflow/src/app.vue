@@ -11,10 +11,12 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
 import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
-import { useConnections, type ConnectionSDK } from './lnode/use-connections'
+import { useConnections, type ConnectionSDK } from '@/lnode/use-connections'
+import { openDatabase } from '@/x/database'
 import Dexie from 'dexie'
 
 export type SDKs = {
+	db: Dexie
 	lnodeSDK: LNodeSDK
 	connectionSDK: ConnectionSDK
 }
@@ -55,10 +57,15 @@ async function initWithCurrentActiveFile() {
 }
 
 async function initSDKs(newActiveFile: string) {
-	const db = new Dexie(newActiveFile)
+	if (sdks.value) {
+		sdks.value.db.close()
+	}
+
+	const db = await openDatabase(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
 	sdks.value = {
+		db: db,
 		lnodeSDK: useLNodes(db),
 		connectionSDK: useConnections(db),
 	}

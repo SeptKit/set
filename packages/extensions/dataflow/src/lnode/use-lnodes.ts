@@ -24,16 +24,12 @@ export function useLNodes(db: Dexie) {
 
 	//Main function to get enriched LNodes from the database
 	async function findAllEnrichedFromDB(): Promise<LNode[]> {
-		await db.open()
-
 		const lnodes = await findAllNodesFromDB()
 		if (!lnodes.length) return []
 
 		const lnodesWithDOs = await enrichWithDataObjects(lnodes)
 		const lnodesWithDAs = await enrichWithDataAttributes(lnodesWithDOs)
 		const lnodesWithDOSs = await enrichWithDataObjectSpecifications(lnodesWithDAs)
-
-		db.close()
 
 		return lnodesWithDOSs
 	}
@@ -211,11 +207,6 @@ export function useLNodes(db: Dexie) {
 			lnType: extractAttributeValue(record, 'lnType'),
 			dataObjects: [],
 		}))
-	}
-
-	// Close the database connection
-	function close() {
-		db.close()
 	}
 }
 
