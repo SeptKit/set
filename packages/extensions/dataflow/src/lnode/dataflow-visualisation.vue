@@ -51,12 +51,13 @@ const isCreationDialogOpen = ref(false)
 
 watch(
 	() => props.sdks,
-	async () => {
-		await initLnodes()
-		await initConnections()
+	() => {
+		initLnodes()
+		initConnections()
 	},
 	{ immediate: true },
 )
+
 async function initLnodes() {
 	if (!props.sdks) {
 		return
@@ -75,6 +76,7 @@ function onActiveInputLNodeIdChange(newLNodeId?: string) {
 	activeInputLNodeId.value = newLNodeId
 	activeInputLNode.value = getActiveLNodeById(newLNodeId)
 }
+
 function onActiveOutputLNodeIdChange(newLNodeId?: string) {
 	activeOutputLNodeId.value = newLNodeId
 	activeOutputLNode.value = getActiveLNodeById(newLNodeId)
