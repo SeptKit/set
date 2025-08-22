@@ -2,7 +2,7 @@
 	<div>
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
 		<div class="dataflow-app-center">
-			<DataflowVisualisation :lnodeSDK="lnodeSDK" />
+			<DataflowVisualisation :lnodeSDK="lnodeSDK" :connectionSDK="connectionSDK" />
 		</div>
 	</div>
 </template>
@@ -19,6 +19,7 @@ const props = defineProps<{
 }>()
 
 let lnodeSDK = ref<LNodeSDK | undefined>()
+let connectionSDK = ref<ConnectionSDK | undefined>()
 
 onMounted(() => {
 	window.addEventListener('storage', onActiveFileChange)
@@ -35,24 +36,26 @@ async function onActiveFileChange(event: StorageEvent) {
 
 	const newActiveFile = event.newValue
 	if (!newActiveFile) {
-		throw new Error('incorrecr active file name: ' + newActiveFile)
+		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
-	await initSDK(newActiveFile)
+
+	await initSDKs(newActiveFile)
 }
 
 async function initWithCurrentActiveFile() {
 	const newActiveFile = localStorage.getItem('currentActiveFileDatabaseName')
 	if (!newActiveFile) {
-		throw new Error('incorrecr active file name: ' + newActiveFile)
+		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
-	await initSDK(newActiveFile)
+	await initSDKs(newActiveFile)
 }
 
-async function initSDK(newActiveFile: string) {
+async function initSDKs(newActiveFile: string) {
 	const db = new Dexie(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
 	lnodeSDK.value = useLNodes(db)
+	connectionSDK.value = useConnections(db)
 }
 </script>
 
