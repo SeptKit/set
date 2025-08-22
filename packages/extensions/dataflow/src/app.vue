@@ -11,7 +11,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
 import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
-import { useConnections, type ConnectionSDK } from './lnode/use-connections'
+import { openDatabase } from './x/database'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -34,7 +34,7 @@ async function onActiveFileChange(event: StorageEvent) {
 
 	const newActiveFile = event.newValue
 	if (!newActiveFile) {
-		throw new Error('incorrecr active file name: ' + newActiveFile)
+		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
 	await initSDK(newActiveFile)
 }
@@ -42,7 +42,7 @@ async function onActiveFileChange(event: StorageEvent) {
 async function initWithCurrentActiveFile() {
 	const newActiveFile = localStorage.getItem('currentActiveFileDatabaseName')
 	if (!newActiveFile) {
-		throw new Error('incorrecr active file name: ' + newActiveFile)
+		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
 	await initSDK(newActiveFile)
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import Dexie from 'dexie'
 import { useLNodes } from './use-lnodes'
 import type { LNode } from '@/lnode/lnode'
@@ -35,11 +35,16 @@ const sclData = `
 describe('use-lnode-records to map the XML', () => {
 	let db: Dexie
 	let lnodes: LNode[]
+
 	beforeEach(async () => {
 		db = await loadMinimalTestDB()
 		const lnodeRecs = await db.table('LNode').toArray()
 		expect(lnodeRecs.length).toBeGreaterThan(0)
 		lnodes = lnodeRecs.map(mapToLNode)
+	})
+
+	afterAll(() => {
+		db.close()
 	})
 
 	it('enrichWithDataObjects finds DOs by LNodeType', async () => {
