@@ -140,7 +140,7 @@ import {
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
 } from '@/lnode/use-dataflow'
-import { openDatabase } from '@/x/database'
+import Dexie from 'dexie'
 
 const props = defineProps<{
 	sourceLNode: LNode
@@ -255,7 +255,7 @@ async function createConnection() {
 		if (!activeFile) {
 			throw new Error('no active file')
 		}
-		const db = await openDatabase(activeFile)
+		const db = new Dexie(activeFile)
 
 		const dataflow = useDataflow(db)
 		await dataflow.create(
@@ -264,7 +264,6 @@ async function createConnection() {
 			props.destinationLNode,
 		)
 
-		db.close()
 		closeModal()
 	} catch (e) {
 		console.error('Error creating dataflow:', e)

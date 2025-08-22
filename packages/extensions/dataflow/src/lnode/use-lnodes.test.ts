@@ -35,6 +35,7 @@ const sclData = `
 describe('use-lnode-records to map the XML', () => {
 	let db: Dexie
 	let lnodes: LNode[]
+
 	beforeEach(async () => {
 		db = await loadMinimalTestDB()
 		const lnodeRecs = await db.table('LNode').toArray()

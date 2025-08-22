@@ -30,10 +30,13 @@ export function useDataflow(db: Dexie) {
 		sourceLNode: LNode,
 		destinationLNode: LNode,
 	) {
+		await db.open()
 		const databaseSdk = useDatabase(db)
 
 		const lNodeInputsElement = await getLNodeInputsElement(db, databaseSdk, destinationLNode)
 		await addSourceRefElements(databaseSdk, sourceLNode, lNodeInputsElement, formValues)
+
+		db.close()
 	}
 }
 

@@ -12,6 +12,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
 import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
 import { useConnections, type ConnectionSDK } from './lnode/use-connections'
+import Dexie from 'dexie'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -48,11 +49,7 @@ async function initWithCurrentActiveFile() {
 }
 
 async function initSDK(newActiveFile: string) {
-	if (lnodeSDK.value) {
-		lnodeSDK.value.close()
-	}
-
-	const db = await openDatabase(newActiveFile)
+	const db = new Dexie(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
 	lnodeSDK.value = useLNodes(db)
