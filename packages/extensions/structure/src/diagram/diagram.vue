@@ -1,30 +1,32 @@
 <template>
-	<VueFlow
-		:nodes="nodes"
-		:edges="edges"
-		class="basic-flow"
-		:default-viewport="{ zoom: 1.0 }"
-		:min-zoom="0.2"
-		:max-zoom="4"
-	>
-		<Background pattern-color="#aaa" :gap="16" />
+	<div class="root" name="diagram">
+		<VueFlow
+			:nodes="nodes"
+			:edges="edges"
+			class="basic-flow"
+			:default-viewport="{ zoom: 1.0 }"
+			:min-zoom="0.2"
+			:max-zoom="4"
+		>
+			<Background pattern-color="#aaa" :gap="16" />
 
-		<template #node-bay="props">
-			<FlowNodeBay v-bind="props" />
-		</template>
+			<template #node-bay="props">
+				<FlowNodeBay v-bind="props" />
+			</template>
 
-		<MiniMap />
+			<MiniMap />
 
-		<Controls position="top-left">
-			<ControlButton title="Reset Transform" @click="resetTransform">
-				<Icon name="reset" />
-			</ControlButton>
+			<Controls position="top-left">
+				<ControlButton title="Reset Transform" @click="resetTransform">
+					<Icon name="reset" />
+				</ControlButton>
 
-			<ControlButton title="Log `toObject`" @click="logToObject">
-				<Icon name="log" />
-			</ControlButton>
-		</Controls>
-	</VueFlow>
+				<ControlButton title="Log `toObject`" @click="logToObject">
+					<Icon name="log" />
+				</ControlButton>
+			</Controls>
+		</VueFlow>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -34,7 +36,7 @@ import { ControlButton, Controls } from '@vue-flow/controls'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import Icon from './icon.vue'
-import { useLayout } from './layout'
+import { useLayout } from '../layout'
 import FlowNodeBay from './flow-node-bay.vue'
 
 const props = defineProps<{
@@ -54,13 +56,6 @@ const {
 	setNodes,
 	fitView,
 } = useVueFlow()
-
-watchEffect(async () => {
-	const newNodes = await calcLayout(props.nodes, props.edges)
-	setNodes(newNodes)
-	await nextTick()
-	fitView()
-})
 
 onInit((vueFlowInstance) => {
 	// instance is the same as the return of `useVueFlow`
@@ -89,4 +84,8 @@ function resetTransform() {
 @import '@vue-flow/core/dist/theme-default.css';
 @import '@vue-flow/controls/dist/style.css';
 @import '@vue-flow/minimap/dist/style.css';
+
+.root {
+	padding-bottom: 1rem;
+}
 </style>
