@@ -2,6 +2,7 @@ import Elk, { type ElkExtendedEdge, type ElkNode } from 'elkjs/lib/elk.bundled.j
 import type { Node as FlowNode } from '@vue-flow/core'
 import type { DatabaseRecord } from '@septkit/fileio'
 import { extractAttr } from './sdk'
+import { ref } from 'vue'
 
 // Note: this is a useful function to print out
 // all the possible configuration of elk into the console
@@ -11,6 +12,15 @@ window.printElkInfo = printElkInfo
 const NODE_WIDTH = 140
 const NODE_HEIGHT = 50
 
+type ElkNodeWithRecord = ElkNode & {
+	record: DatabaseRecord
+	isOpen: boolean
+	permanentChildren: ElkNodeWithRecord[]
+}
+export type RootElkNode = ElkNode & {
+	children: ElkNodeWithRecord[]
+}
+type ElkNodeMapById = { [id: string]: ElkNodeWithRecord }
 export type CombinedNode = ElkNode & { flowNode: FlowNode }
 export type Connection = {
 	id: string
@@ -18,26 +28,35 @@ export type Connection = {
 	target: string
 }
 
+export type Layout = ReturnType<typeof useLayout>
+
 export function useLayout() {
+	let _rootElkNode: RootElkNode | undefined = undefined
+	let _elkNodeMapById: ElkNodeMapById = {}
+	const _flowNodes = ref<FlowNode[]>([])
+	let _records: DatabaseRecord[] = []
+	let _connections: Connection[] = []
+	const elk = new Elk({
+		defaultLayoutOptions: {
+			'elk.algorithm': 'layered',
+			'elk.padding': '[top=50,right=10,bottom=10,left=10]',
+			'elk.spacing.nodeNode': '100',
+		},
+	})
+
 	return {
 		calcLayout,
+		reCalcLayout,
+		flowNodes: _flowNodes,
+		setRecords,
+		setConnections,
+		toggleNode,
 	}
 
-	async function calcLayout(
-		records: DatabaseRecord[],
-		conections: Connection[],
-	): Promise<FlowNode[]> {
-		const elk = new Elk({
-			defaultLayoutOptions: {
-				'elk.algorithm': 'layered',
-				'elk.padding': '[top=35,right=10,bottom=10,left=10]',
-				'elk.spacing.nodeNode': '100',
-			},
-		})
-
-		const elkNodesFlat = records.map(recordToElkNode)
+	async function calcLayout(): Promise<void> {
+		const elkNodesFlat = _records.map(recordToElkNode)
 		const elkNodes = setupRelationships(elkNodesFlat)
-		const elkEdges = conections.map(connectionToEdge)
+		const elkEdges = _connections.map(connectionToEdge)
 
 		const graph: ElkNode = {
 			id: 'root',
@@ -45,22 +64,66 @@ export function useLayout() {
 			edges: elkEdges,
 		}
 
-		const rootNode = (await elk.layout(graph)) as ElkNode & {
-			children: ElkNodeWithRecord[]
-		}
-		const newElkNodesFlat = flattenElkNodes(rootNode.children)
-		const newFlowNodes = newElkNodesFlat.map(elkNodeToFlowNode)
+		_rootElkNode = (await elk.layout(graph)) as RootElkNode
+		updateFlowNodes(_rootElkNode)
+	}
 
-		return newFlowNodes ?? []
+	async function reCalcLayout() {
+		if (!_rootElkNode) {
+			return
+		}
+		_rootElkNode = (await elk.layout(_rootElkNode)) as RootElkNode
+		updateFlowNodes(_rootElkNode)
+	}
+
+	function setRecords(newRecords: DatabaseRecord[]) {
+		_records = newRecords
+	}
+
+	function setConnections(newConnection: Connection[]) {
+		_connections = newConnection
+	}
+
+	async function toggleNode(id: string) {
+		const node = _elkNodeMapById[id]
+		if (!node) {
+			throw Error(`could not toggle node state, id: ${id}`)
+		}
+
+		if (node.isOpen) {
+			node.children = []
+			node.width = NODE_WIDTH
+			node.height = NODE_HEIGHT
+			node.isOpen = false
+		} else {
+			node.children = [...node.permanentChildren]
+			node.isOpen = true
+		}
+
+		await reCalcLayout()
+	}
+
+	function updateFlowNodes(rootElkNode: RootElkNode) {
+		const newElkNodesFlat = flattenElkNodes(rootElkNode.children)
+		_elkNodeMapById = newElkNodesFlat.reduce((mapById, node) => {
+			mapById[node.id] = node
+			return mapById
+		}, {} as ElkNodeMapById)
+
+		_flowNodes.value = newElkNodesFlat.map(elkNodeToFlowNode)
 	}
 }
 
 function recordToElkNode(record: DatabaseRecord): ElkNodeWithRecord {
+	const isOpen = Boolean(record.children && record.children.length > 0)
+
 	return {
 		id: record.id,
 		width: NODE_WIDTH,
 		height: NODE_HEIGHT,
 		record,
+		isOpen,
+		permanentChildren: [],
 	}
 }
 
@@ -107,6 +170,7 @@ function setupRelationships(nodes: ElkNodeWithRecord[]) {
 		}
 
 		parentNode.children.push(node)
+		parentNode.permanentChildren.push(node)
 	}
 
 	return nodesWithChildren
@@ -128,16 +192,18 @@ function flattenElkNodes(elkNodes: ElkNodeWithRecord[]): ElkNodeWithRecord[] {
 
 function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 	const extractLabel = getLabelExtractor(elkNode.record.tagName)
+	const hasChildren = elkNode.record.children && elkNode.record.children.length > 0
 
 	return {
 		id: elkNode.id,
 		// TODO: temporary, this should depent on the records tagname
-		type: 'bay',
+		type: 'expandable',
 		data: {
 			label: extractLabel(elkNode.record),
 			tagName: elkNode.record.tagName,
 			width: elkNode.width,
 			height: elkNode.height,
+			hasChildren,
 		},
 		parentNode: elkNode.record.parent?.id,
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
@@ -154,8 +220,6 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 		deletable: false,
 	}
 }
-
-type ElkNodeWithRecord = ElkNode & { record: DatabaseRecord }
 
 function getLabelExtractor(tagName: string): LabelExtractor {
 	const extractor = labelExtractors[tagName]

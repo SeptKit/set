@@ -1,7 +1,7 @@
 <template>
 	<div class="root" name="ext-structure-root">
 		<h3>Data Structure</h3>
-		<Diagram :nodes="flowNodes" :edges="[]" />
+		<Diagram :nodes="layout.flowNodes.value" :edges="[]" @expand="onExpand" />
 	</div>
 </template>
 
@@ -10,17 +10,17 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import Diagram from './diagram/diagram.vue'
 import { useSDK, type SDK } from './sdk'
 import Dexie from 'dexie'
-import { useLayout } from './layout'
-import type { Node } from '@vue-flow/core'
+import { type Layout, useLayout } from './layout'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
+let layout: Layout = useLayout()
+
 let fileName = ref('')
 let unsubscribeFromFileName = () => {}
 let sdk: SDK | undefined
-let flowNodes = ref<Node[]>([])
 
 onMounted(() => {
 	unsubscribeFromFileName = props.api.activeFileName.subscribe((newFileName: string) => {
@@ -33,8 +33,6 @@ onMounted(() => {
 onUnmounted(() => {
 	unsubscribeFromFileName()
 })
-
-const { calcLayout } = useLayout()
 
 async function onFileChange(newFileName: string) {
 	fileName.value = newFileName
@@ -85,14 +83,19 @@ async function onFileChange(newFileName: string) {
 	).flat()
 
 	const allElements = [...substations, ...substationsChildren]
+	layout.setRecords(allElements)
+	await layout.calcLayout()
+}
 
-	const newFlowNodes = await calcLayout(allElements, [])
-	flowNodes.value = newFlowNodes
+function onExpand(event: { id: string }) {
+	console.debug('appvue::expanding a node', { event })
+	layout.toggleNode(event.id)
 }
 </script>
 
 <style>
 @import './app.css';
+@import '@septkit/ui/configcss';
 </style>
 
 <style scoped>
