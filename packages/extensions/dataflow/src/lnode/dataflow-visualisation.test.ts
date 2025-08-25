@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import DataflowVisualisation from './dataflow-visualisation.vue'
-import type { LNodeSDK } from './lnode-database'
+import type { LNodeSDK } from './use-lnodes'
 import type { LNode } from './lnode'
 
 const mockLNodes: LNode[] = [
@@ -185,16 +185,16 @@ describe('DataflowVisualisation', () => {
 
 function createLNodeSDKMock(): LNodeSDK {
 	return {
-		findAllEnrichedLNodesFromDB: () => {
+		findAllEnrichedFromDB: () => {
 			return Promise.resolve(mockLNodes)
 		},
-		enrichLNodesWithDataObjects: (lnodes) => {
+		enrichWithDataObjects: (lnodes) => {
 			return Promise.resolve(lnodes)
 		},
-		enrichLNodesWithDataAttributes: (lnodes) => {
+		enrichWithDataAttributes: (lnodes) => {
 			return Promise.resolve(lnodes)
 		},
-		enrichLNodesWithDataObjectSpecifications: (lnodes) => {
+		enrichWithDataObjectSpecifications: (lnodes) => {
 			return Promise.resolve(lnodes)
 		},
 		close: () => {},

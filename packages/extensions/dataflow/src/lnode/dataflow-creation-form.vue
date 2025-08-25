@@ -139,7 +139,7 @@ import {
 	useDataflow,
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
-} from '@/lnode/dataflow'
+} from '@/lnode/use-dataflow'
 import { openDatabase } from '@/x/database'
 
 const props = defineProps<{

@@ -6,35 +6,35 @@ import type {
 	LNode,
 	SubscriberLNode,
 } from '@/lnode/lnode'
-import type { DatabaseRecord } from '../../node_modules/@septkit/fileio/dist/common/common.types'
+import type { DatabaseRecord } from '@septkit/fileio'
 import Dexie from 'dexie'
 import { DataflowType } from './connection'
 
-export type LNodeSDK = ReturnType<typeof createLNodeSDK>
+export type LNodeSDK = ReturnType<typeof useLNodes>
 
-export function createLNodeSDK(db: Dexie) {
+export function useLNodes(db: Dexie) {
 	return {
-		findAllEnrichedLNodesFromDB,
-		enrichLNodesWithDataObjects,
-		enrichLNodesWithDataAttributes,
-		enrichLNodesWithDataObjectSpecifications,
+		findAllEnrichedFromDB,
+		enrichWithDataObjects,
+		enrichWithDataAttributes,
+		enrichWithDataObjectSpecifications,
 		close,
 	}
 
 	//Main function to get enriched LNodes from the database
-	async function findAllEnrichedLNodesFromDB(): Promise<LNode[]> {
+	async function findAllEnrichedFromDB(): Promise<LNode[]> {
 		const lnodes = await findAllNodesFromDB()
 		if (!lnodes.length) return []
 
-		const lnodesWithDOs = await enrichLNodesWithDataObjects(lnodes)
-		const lnodesWithDAs = await enrichLNodesWithDataAttributes(lnodesWithDOs)
-		const lnodesWithDOSs = await enrichLNodesWithDataObjectSpecifications(lnodesWithDAs)
+		const lnodesWithDOs = await enrichWithDataObjects(lnodes)
+		const lnodesWithDAs = await enrichWithDataAttributes(lnodesWithDOs)
+		const lnodesWithDOSs = await enrichWithDataObjectSpecifications(lnodesWithDAs)
 
 		return lnodesWithDOSs
 	}
 
 	// Get the DataObjects for each LNode
-	async function enrichLNodesWithDataObjects(lnodes: LNode[]): Promise<LNode[]> {
+	async function enrichWithDataObjects(lnodes: LNode[]): Promise<LNode[]> {
 		const allLNodeTypes = await db.table<DatabaseRecord>('LNodeType').toArray()
 		return Promise.all(
 			lnodes.map(async (lnode) => {
@@ -66,7 +66,7 @@ export function createLNodeSDK(db: Dexie) {
 	}
 
 	//Get the DataAttributes for each DataObject in each LNode
-	async function enrichLNodesWithDataAttributes(lnodes: LNode[]): Promise<LNode[]> {
+	async function enrichWithDataAttributes(lnodes: LNode[]): Promise<LNode[]> {
 		const allDOTypes = await db.table<DatabaseRecord>('DOType').toArray()
 		const allDARecords = await db.table<DatabaseRecord>('DA').toArray()
 
@@ -115,7 +115,7 @@ export function createLNodeSDK(db: Dexie) {
 		)
 	}
 
-	async function enrichLNodesWithDataObjectSpecifications(lnodes: LNode[]): Promise<LNode[]> {
+	async function enrichWithDataObjectSpecifications(lnodes: LNode[]): Promise<LNode[]> {
 		const allPrivates = await db.table<DatabaseRecord>('Private').toArray()
 		const allDOS = await db.table<DatabaseRecord>('DOS').toArray()
 		const allDAS = await db.table<DatabaseRecord>('DAS').toArray()
