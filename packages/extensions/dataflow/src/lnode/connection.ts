@@ -14,7 +14,7 @@ export type Connection = {
 	sourceDataAttribute: string
 	dataflowType?: DataflowType
 	inputInstance: string
-	inputName: string
+	input: string
 }
 
 export const DataflowTypeToFCMap: Record<DataflowType, string[]> = {

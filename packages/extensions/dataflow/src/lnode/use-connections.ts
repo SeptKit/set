@@ -70,7 +70,7 @@ export function useConnections(db: Dexie) {
 				sourceDataAttribute: sourceDaName!,
 				dataflowType: extractDataflowTypeValue(sourceRef, 'service'),
 				inputInstance: extractAttributeValue(sourceRef, 'inputInst') || '',
-				inputName: extractAttributeValue(sourceRef, 'inputName') || '',
+				input: extractAttributeValue(sourceRef, 'input') || '',
 			}
 
 			connections.push(connection)
