@@ -23,7 +23,7 @@
 				<div v-for="(dos, dosIdx) in activeLNode.dataObjectSpecifications" :key="dos.id">
 					<!-- Filter specs: only DAS with subscriberLNode -->
 					<template
-						v-for="(das, idx) in dos.dataAttributeSpecification.filter((d) => d.subscriberLNode)"
+						v-for="(das, idx) in dos.dataAttributeSpecifications.filter((d) => d.subscriberLNode)"
 						:key="das.id"
 					>
 						<div
@@ -69,7 +69,7 @@ function getPortCount(lnode: LNode): number {
 		lnode.dataObjectSpecifications?.reduce(
 			(count, dos) =>
 				count +
-				(dos.dataAttributeSpecification?.filter((das) => !!das.subscriberLNode).length ?? 0),
+				(dos.dataAttributeSpecifications?.filter((das) => !!das.subscriberLNode).length ?? 0),
 			0,
 		) ?? 0
 	)
@@ -80,7 +80,7 @@ function portIdx(dosIdx: number, dasIdx: number) {
 	let idx = 0
 	if (!activeLNode.value?.dataObjectSpecifications) return 0
 	for (let i = 0; i < dosIdx; i++) {
-		idx += activeLNode.value.dataObjectSpecifications[i].dataAttributeSpecification.filter(
+		idx += activeLNode.value.dataObjectSpecifications[i].dataAttributeSpecifications.filter(
 			(das: any) => !!das.subscriberLNode,
 		).length
 	}
