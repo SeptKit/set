@@ -1,7 +1,5 @@
 <template>
-	<div class="flex flex-col items-center justify-center">
-		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
-
+	<div class="p-10">
 		<DataflowView :sdks="sdks" />
 	</div>
 </template>
