@@ -1,3 +1,5 @@
+import type { DataflowType } from './connection'
+
 export type DataObject = {
 	id: string
 	uuid: string
@@ -10,7 +12,7 @@ export type DataObjectSpecification = {
 	id: string
 	name: string
 	desc: string
-	dataAttributeSpecification: DataAttributeSpecification[]
+	dataAttributeSpecifications: DataAttributeSpecification[]
 	lNodeId: string
 }
 
@@ -25,7 +27,16 @@ export type DataAttribute = {
 export type DataAttributeSpecification = {
 	id: string
 	name: string
+	desc: string
 	dataObjectSpecificationId: string
+	subscriberLNode?: SubscriberLNode
+}
+
+export type SubscriberLNode = {
+	id: string
+	inputName: string
+	service?: DataflowType
+	pLN: string
 }
 
 export type LNode = {

@@ -18,18 +18,24 @@
 			<div class="node-element-card-title">
 				{{ activeLNode ? getLNodeLabel(activeLNode) : 'Logical Node' }}
 			</div>
-			<!-- Ports right (only for input LN) -->
-			<template v-if="type === 'input' && activeLNode">
-				<div
-					v-for="(dataObject, idx) in activeLNode.dataObjects"
-					:key="dataObject.id"
-					:style="getPortPositionStyle(idx, activeLNode.dataObjects.length, 'right')"
-					class="node-element-port-row"
-				>
-					<div class="node-element-port-label">
-						{{ getPortLabel(dataObject) }}
-					</div>
-					<div class="node-element-port-dot"></div>
+			<!-- Ports right (only for input LN, only with subscriberLNode) -->
+			<template v-if="type === 'input' && activeLNode && activeLNode.dataObjectSpecifications">
+				<div v-for="(dos, dosIdx) in activeLNode.dataObjectSpecifications" :key="dos.id">
+					<!-- Filter specs: only DAS with subscriberLNode -->
+					<template
+						v-for="(das, idx) in dos.dataAttributeSpecifications.filter((d) => d.subscriberLNode)"
+						:key="das.id"
+					>
+						<div
+							:style="
+								getPortPositionStyle(portIdx(dosIdx, idx), getPortCount(activeLNode), 'right')
+							"
+							class="node-element-port-row"
+						>
+							<div class="node-element-port-label">{{ dos.name }}.{{ das.name }}</div>
+							<div class="node-element-port-dot"></div>
+						</div>
+					</template>
 				</div>
 			</template>
 		</div>
@@ -57,10 +63,28 @@ function onSelect(lnodeId: string) {
 	emit('change', lnodeId)
 }
 
-// Get the label for the port (e.g., "DataObject.Name.DataAttribute.Name")
-function getPortLabel(dataObject: any): string {
-	const daNames = (dataObject.dataAttributes ?? []).map((da: any) => da.name)
-	return [dataObject.name, ...daNames].join('.')
+function getPortCount(lnode: LNode): number {
+	// only DOS.DAS with subscriberLNode
+	return (
+		lnode.dataObjectSpecifications?.reduce(
+			(count, dos) =>
+				count +
+				(dos.dataAttributeSpecifications?.filter((das) => !!das.subscriberLNode).length ?? 0),
+			0,
+		) ?? 0
+	)
+}
+
+// Port-Index-Function
+function portIdx(dosIdx: number, dasIdx: number) {
+	let idx = 0
+	if (!activeLNode.value?.dataObjectSpecifications) return 0
+	for (let i = 0; i < dosIdx; i++) {
+		idx += activeLNode.value.dataObjectSpecifications[i].dataAttributeSpecifications.filter(
+			(das: any) => !!das.subscriberLNode,
+		).length
+	}
+	return idx + dasIdx
 }
 
 function getPortPositionStyle(idx: number, total: number, side: 'left' | 'right') {

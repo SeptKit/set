@@ -2,8 +2,9 @@ import { expect, describe, it } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import DataflowVisualisation from './dataflow-visualisation.vue'
 import type { LNodeSDK } from './lnode-database'
+import type { LNode } from './lnode'
 
-const mockLNodes = [
+const mockLNodes: LNode[] = [
 	{
 		id: '1',
 		uuid: 'uuid-1',
@@ -38,8 +39,8 @@ const mockLNodes = [
 				id: 'dos1',
 				name: 'MySpec1',
 				desc: 'Desc1',
-				dataAttributeSpecification: [
-					{ id: 'das1', name: 'SpecAttr1', dataObjectSpecificationId: 'dos1' },
+				dataAttributeSpecifications: [
+					{ id: 'das1', name: 'SpecAttr1', desc: 'dummy', dataObjectSpecificationId: 'dos1' },
 				],
 				lNodeId: '1',
 			},
@@ -69,8 +70,8 @@ const mockLNodes = [
 				id: 'dos2',
 				name: 'MySpec2',
 				desc: 'Desc2',
-				dataAttributeSpecification: [
-					{ id: 'das2', name: 'SpecAttr2', dataObjectSpecificationId: 'dos2' },
+				dataAttributeSpecifications: [
+					{ id: 'das2', name: 'SpecAttr2', desc: 'dummy', dataObjectSpecificationId: 'dos2' },
 				],
 				lNodeId: '2',
 			},

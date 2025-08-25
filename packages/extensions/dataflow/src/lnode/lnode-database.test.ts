@@ -9,7 +9,11 @@ const sclData = `
 <SCL xmlns:eIEC61850-6-100="http://www.iec.ch/61850/2019/SCL/6-100">
   <LNode id="l1" iedName="PIU" ldInst="CB" lnClass="XCBR" lnInst="1" lnType="LT1" prefix="P1">
     <Private type="eIEC61850-6-100">
-      <eIEC61850-6-100:DOS desc="DOS Description" name="AmpSv"/>
+      <eIEC61850-6-100:DOS desc="Trip (electrical protection function)" name="Tr">
+        <eIEC61850-6-100:DAS desc="General Trip" name="general">
+            <eIEC61850-6-100:SubscriberLNode inputName="Trip" pLN="XCBR" service="GOOSE"/>
+        </eIEC61850-6-100:DAS>
+      </eIEC61850-6-100:DOS>
     </Private>
   </LNode>
   <DataTypeTemplates>
@@ -61,15 +65,26 @@ describe('use-lnode-records to map the XML', () => {
 		expect(result[0].dataObjects[1].dataAttributes[0].name).toBe('ctlVal')
 	})
 
-	it('enrichLNodesWithDataObjectSpecifications finds DOS in Private', async () => {
+	it('DataObjectSpecifications has DOS, DAS, and SubscriberLNode attached', async () => {
 		// Arrange
 		const lnodeSdk = createLNodeSDK(db)
 		// Act: Enrich LNodes with DataObjectSpecifications
 		const result = await lnodeSdk.enrichLNodesWithDataObjectSpecifications(lnodes)
-		// Assert: Check if DataObjectSpecifications are enriched correctly
+
+		// Assert: DOS, DAS, and SubscriberLNode are present
 		expect(result[0].dataObjectSpecifications?.length).toBeGreaterThanOrEqual(1)
-		expect(result[0].dataObjectSpecifications?.[0].name).toBe('AmpSv')
-		expect(result[0].dataObjectSpecifications?.[0].desc).toBe('DOS Description')
+
+		const dosSpec = result[0].dataObjectSpecifications![0]
+		expect(dosSpec.name).toBe('Tr')
+		expect(dosSpec.dataAttributeSpecifications?.length).toBeGreaterThanOrEqual(1)
+
+		const dasSpec = dosSpec.dataAttributeSpecifications[0]
+		expect(dasSpec.name).toBe('general')
+
+		expect(dasSpec.subscriberLNode).toBeDefined()
+		expect(dasSpec.subscriberLNode?.inputName).toBe('Trip')
+		expect(dasSpec.subscriberLNode?.pLN).toBe('XCBR')
+		expect(dasSpec.subscriberLNode?.service).toBe('GOOSE')
 	})
 })
 
@@ -87,6 +102,8 @@ async function loadMinimalTestDB() {
 		DA: 'id',
 		Private: 'id',
 		DOS: 'id',
+		DAS: 'id',
+		SubscriberLNode: 'id',
 	})
 	await db.open()
 	return db
