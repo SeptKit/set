@@ -1,15 +1,13 @@
 <template>
 	<div>
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
-		<div class="dataflow-app-center">
-			<DataflowVisualisation :sdks="sdks" />
-		</div>
+		<Dataflow :sdks="sdks" />
+
 	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
 import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
 import { openDatabase } from './x/database'
 import { useConnections, type ConnectionSDK } from '@/lnode/use-connections'
