@@ -76,6 +76,15 @@
 				{{ connection.dataflowType }}
 			</div>
 
+			<svg
+				height="12"
+				width="8"
+				class="col-start-3 col-span-1 self-center justify-self-end mr-[9px]"
+				:style="{ gridRowStart: idx + 2 }"
+			>
+				<polygon points="0,0 8,6 0,12" :style="{ fill: 'var(--color-ocean-gray-100)' }" />
+			</svg>
+
 			<div
 				class="col-start-5 col-span-1 self-center justify-self-start"
 				:style="{ gridRowStart: idx + 2 }"
