@@ -9,6 +9,7 @@ import type {
 import type { DatabaseRecord } from '@septkit/fileio'
 import Dexie from 'dexie'
 import { DataflowType } from './connection'
+import { extractAttributeValue } from '../x/use-database'
 
 export type LNodeSDK = ReturnType<typeof useLNodes>
 
@@ -18,7 +19,6 @@ export function useLNodes(db: Dexie) {
 		enrichWithDataObjects,
 		enrichWithDataAttributes,
 		enrichWithDataObjectSpecifications,
-		close,
 	}
 
 	//Main function to get enriched LNodes from the database
@@ -206,23 +206,10 @@ export function useLNodes(db: Dexie) {
 			dataObjects: [],
 		}))
 	}
-
-	// Close the database connection
-	function close() {
-		db.close()
-	}
-}
-
-// Helper function to get an attribute value from a record
-function extractAttributeValue(
-	record: DatabaseRecord | undefined,
-	name: string,
-): string | undefined {
-	return record?.attributes?.find((a) => a.name === name)?.value
 }
 
 // Helper function to get DataflowType value from a record
-function extractDataflowTypeValue(
+export function extractDataflowTypeValue(
 	record: DatabaseRecord | undefined,
 	name: string,
 ): DataflowType | undefined {

@@ -2,7 +2,7 @@
 	<div>
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
 		<div class="dataflow-app-center">
-			<DataflowVisualisation :lnodeSDK="lnodeSDK" />
+			<DataflowVisualisation :sdks="sdks" />
 		</div>
 	</div>
 </template>
@@ -12,12 +12,20 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
 import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
 import { openDatabase } from './x/database'
+import { useConnections, type ConnectionSDK } from '@/lnode/use-connections'
+import type Dexie from 'dexie'
+
+export type SDKs = {
+	db: Dexie
+	lnodeSDK: LNodeSDK
+	connectionSDK: ConnectionSDK
+}
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
-let lnodeSDK = ref<LNodeSDK | undefined>()
+let sdks = ref<SDKs | undefined>()
 
 onMounted(() => {
 	window.addEventListener('storage', onActiveFileChange)
@@ -36,7 +44,8 @@ async function onActiveFileChange(event: StorageEvent) {
 	if (!newActiveFile) {
 		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
-	await initSDK(newActiveFile)
+
+	await initSDKs(newActiveFile)
 }
 
 async function initWithCurrentActiveFile() {
@@ -44,18 +53,22 @@ async function initWithCurrentActiveFile() {
 	if (!newActiveFile) {
 		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
-	await initSDK(newActiveFile)
+	await initSDKs(newActiveFile)
 }
 
-async function initSDK(newActiveFile: string) {
-	if (lnodeSDK.value) {
-		lnodeSDK.value.close()
+async function initSDKs(newActiveFile: string) {
+	if (sdks.value) {
+		sdks.value.db.close()
 	}
 
 	const db = await openDatabase(newActiveFile)
 	if (!db) throw new Error('database is not initialized.')
 
-	lnodeSDK.value = useLNodes(db)
+	sdks.value = {
+		db: db,
+		lnodeSDK: useLNodes(db),
+		connectionSDK: useConnections(db),
+	}
 }
 </script>
 

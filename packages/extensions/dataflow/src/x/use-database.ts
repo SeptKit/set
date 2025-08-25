@@ -7,6 +7,7 @@ export function useDatabase(db: Dexie) {
 		addRecord,
 		findChildRecordsByTagName,
 		ensureRelationship,
+		findParentRecordsWithinDepthAndGivenTagName,
 		db,
 	}
 
@@ -87,6 +88,44 @@ export function useDatabase(db: Dexie) {
 
 		return childRecords
 	}
+
+	async function findParentRecordsWithinDepthAndGivenTagName(
+		record: DatabaseRecord,
+		depth: number,
+		tagNames: string[] = [],
+	): Promise<DatabaseRecord[]> {
+		const allParents: DatabaseRecord[] = []
+
+		let currentRecord = record
+
+		for (let currentLevel = 0; currentLevel < depth; currentLevel++) {
+			if (!currentRecord.parent) {
+				return allParents
+			}
+
+			const parent = await db
+				.table<DatabaseRecord>(currentRecord.parent.tagName)
+				.get(currentRecord.parent.id)
+
+			if (!parent) {
+				const errMsg = {
+					msg: 'Parent record not found',
+					table: currentRecord.parent.tagName,
+					id: currentRecord.parent.id,
+				}
+				console.error(errMsg)
+				throw new Error(JSON.stringify(errMsg))
+			}
+
+			if (tagNames.length == 0 || (tagNames.length > 0 && tagNames.includes(parent.tagName))) {
+				allParents.push(parent)
+			}
+
+			currentRecord = parent
+		}
+
+		return allParents
+	}
 }
 
 export type DatabaseSDK = ReturnType<typeof useDatabase>
@@ -96,4 +135,12 @@ export function extractAttr(
 	name: string,
 ): Attribute | QualifiedAttribute | undefined {
 	return record.attributes?.find((attr) => attr.name === name)
+}
+
+// Helper function to get an attribute value from a record
+export function extractAttributeValue(
+	record: DatabaseRecord | undefined,
+	name: string,
+): string | undefined {
+	return record?.attributes?.find((a) => a.name === name)?.value
 }

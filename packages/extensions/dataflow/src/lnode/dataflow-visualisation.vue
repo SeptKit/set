@@ -30,16 +30,18 @@
 
 <script setup lang="ts">
 import LNodeElement from './lnode-element.vue'
-import type { LNodeSDK } from './use-lnodes'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import type { LNode } from '@/lnode/lnode'
 import DataflowCreationForm from './dataflow-creation-form.vue'
+import type { Connection } from './connection'
+import type { SDKs } from '../app.vue'
 
 const props = defineProps<{
-	lnodeSDK: LNodeSDK | undefined
+	sdks: SDKs | undefined
 }>()
 
 const lNodes = ref<LNode[]>([])
+const connections = ref<Connection[]>([])
 
 const activeInputLNodeId = ref<string | undefined>()
 const activeOutputLNodeId = ref<string | undefined>()
@@ -47,20 +49,34 @@ const activeInputLNode = ref<LNode | null>(null)
 const activeOutputLNode = ref<LNode | null>(null)
 const isCreationDialogOpen = ref(false)
 
-onMounted(initLnode)
-watch(() => props.lnodeSDK, initLnode)
+watch(
+	() => props.sdks,
+	() => {
+		initLnodes()
+		initConnections()
+	},
+	{ immediate: true },
+)
 
-async function initLnode() {
-	if (!props.lnodeSDK) {
+async function initLnodes() {
+	if (!props.sdks) {
 		return
 	}
-	lNodes.value = await props.lnodeSDK.findAllEnrichedFromDB()
+	lNodes.value = await props.sdks.lnodeSDK.findAllEnrichedFromDB()
+}
+
+async function initConnections() {
+	if (!props.sdks) {
+		return
+	}
+	connections.value = await props.sdks.connectionSDK.findAllExistingFromDB()
 }
 
 function onActiveInputLNodeIdChange(newLNodeId?: string) {
 	activeInputLNodeId.value = newLNodeId
 	activeInputLNode.value = getActiveLNodeById(newLNodeId)
 }
+
 function onActiveOutputLNodeIdChange(newLNodeId?: string) {
 	activeOutputLNodeId.value = newLNodeId
 	activeOutputLNode.value = getActiveLNodeById(newLNodeId)

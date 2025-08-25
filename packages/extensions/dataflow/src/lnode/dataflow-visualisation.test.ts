@@ -3,6 +3,8 @@ import { render } from 'vitest-browser-vue'
 import DataflowVisualisation from './dataflow-visualisation.vue'
 import type { LNodeSDK } from './use-lnodes'
 import type { LNode } from './lnode'
+import type { SDKs } from '../app.vue'
+import Dexie from 'dexie'
 
 const mockLNodes: LNode[] = [
 	{
@@ -84,7 +86,7 @@ describe('DataflowVisualisation', () => {
 		// Arrange
 		const { container } = render(DataflowVisualisation, {
 			props: {
-				lnodeSDK: createLNodeSDKMock(),
+				sdks: createSdksMock(),
 			},
 		})
 
@@ -98,7 +100,7 @@ describe('DataflowVisualisation', () => {
 		it('should disable create connection button if sending and receiving lnodes are not selected', async () => {
 			const screen = render(DataflowVisualisation, {
 				props: {
-					lnodeSDK: createLNodeSDKMock(),
+					sdks: createSdksMock(),
 				},
 			})
 
@@ -117,7 +119,7 @@ describe('DataflowVisualisation', () => {
 		it('enables create connection button when both sending and receiving lnodes are selected', async () => {
 			const screen = render(DataflowVisualisation, {
 				props: {
-					lnodeSDK: createLNodeSDKMock(),
+					sdks: createSdksMock(),
 				},
 			})
 
@@ -138,7 +140,7 @@ describe('DataflowVisualisation', () => {
 		it('opens dataflow creation dialog when create connection button is clicked', async () => {
 			const screen = render(DataflowVisualisation, {
 				props: {
-					lnodeSDK: createLNodeSDKMock(),
+					sdks: createSdksMock(),
 				},
 			})
 
@@ -159,7 +161,7 @@ describe('DataflowVisualisation', () => {
 		it('closes dataflow creation dialog when close button is clicked', async () => {
 			const screen = render(DataflowVisualisation, {
 				props: {
-					lnodeSDK: createLNodeSDKMock(),
+					sdks: createSdksMock(),
 				},
 			})
 
@@ -183,6 +185,16 @@ describe('DataflowVisualisation', () => {
 	})
 })
 
+function createSdksMock(): SDKs {
+	return {
+		db: new Dexie('test-db'),
+		lnodeSDK: createLNodeSDKMock(),
+		connectionSDK: {
+			findAllExistingFromDB: () => Promise.resolve([]),
+		},
+	}
+}
+
 function createLNodeSDKMock(): LNodeSDK {
 	return {
 		findAllEnrichedFromDB: () => {
@@ -197,6 +209,5 @@ function createLNodeSDKMock(): LNodeSDK {
 		enrichWithDataObjectSpecifications: (lnodes) => {
 			return Promise.resolve(lnodes)
 		},
-		close: () => {},
 	}
 }
