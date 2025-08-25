@@ -12,7 +12,7 @@ export type DataObjectSpecification = {
 	id: string
 	name: string
 	desc: string
-	dataAttributeSpecification: DataAttributeSpecification[]
+	dataAttributeSpecifications: DataAttributeSpecification[]
 	lNodeId: string
 }
 
@@ -34,9 +34,8 @@ export type DataAttributeSpecification = {
 
 export type SubscriberLNode = {
 	id: string
-	uuid: string
 	inputName: string
-	service: DataflowType | undefined
+	service?: DataflowType
 	pLN: string
 }
 

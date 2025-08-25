@@ -161,7 +161,6 @@ export function createLNodeSDK(db: Dexie) {
 									if (subRec) {
 										subscriberLNode = {
 											id: subRec.id,
-											uuid: extractAttributeValue(subRec, 'uuid') ?? '',
 											inputName: extractAttributeValue(subRec, 'inputName') ?? '',
 											service: extractDataflowTypeValue(subRec, 'service'),
 											pLN: extractAttributeValue(subRec, 'pLN') ?? '',
@@ -184,7 +183,7 @@ export function createLNodeSDK(db: Dexie) {
 						id: dosRecord.id,
 						name: extractAttributeValue(dosRecord, 'name') ?? '',
 						desc: extractAttributeValue(dosRecord, 'desc') ?? '',
-						dataAttributeSpecification: dasSpecs,
+						dataAttributeSpecifications: dasSpecs,
 						lNodeId: lnode.id,
 					})
 				}
