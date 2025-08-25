@@ -2,8 +2,8 @@ import type Dexie from 'dexie'
 import type { DatabaseRecord, Namespace } from '@septkit/fileio'
 import type { PartialBy } from '@/x/types'
 import { extractAttr, useDatabase, type DatabaseSDK } from '@/x/use-database'
-import type { DataflowType } from '@/lnode/connection'
-import type { LNode } from '@/lnode/lnode'
+import type { DataflowType } from './connection'
+import type { LNode } from './lnode'
 import { toRaw } from 'vue'
 
 export type DataflowCreationForm = {

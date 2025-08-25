@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import Dexie from 'dexie'
 import { useLNodes } from './use-lnodes'
-import type { LNode } from '@/lnode/lnode'
+import type { LNode } from './lnode'
 import { importXmlFiles, type DatabaseRecord } from '@septkit/fileio'
 
 // XML Test Data

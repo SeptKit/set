@@ -1,6 +1,6 @@
 {
 	"name": "Dataflow Extension",
-	"version": "2",
+	"version": "3",
 	"description": "extension for SET Platform that provides dataflow capabilities between Logic-Nodes",
 	"private": true,
 	"type": "module",

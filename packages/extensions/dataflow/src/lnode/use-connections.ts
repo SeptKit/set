@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { type Connection } from './connection'
 import type { DatabaseRecord } from '@septkit/fileio'
-import { extractAttributeValue, useDatabase } from '../x/use-database'
+import { extractAttributeValue, useDatabase } from '@/x/use-database'
 import { extractDataflowTypeValue } from './use-lnodes'
 
 export type ConnectionSDK = ReturnType<typeof useConnections>
@@ -25,7 +25,6 @@ export function useConnections(db: Dexie) {
 			const sourceLNodeUuid = extractAttributeValue(sourceRef, 'sourceLNodeUuid')
 			const sourceDoName = extractAttributeValue(sourceRef, 'sourceDoName')
 			const sourceDaName = extractAttributeValue(sourceRef, 'sourceDaName')
-			const source = extractAttributeValue(sourceRef, 'source')
 
 			const sourceLNodeId =
 				(await db
@@ -40,7 +39,11 @@ export function useConnections(db: Dexie) {
 							)?.id,
 					)) || null
 
-			const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, source, sourceLNodeId]
+			// TODO: Excluding "source" attribute in this validation temporarily because we currently create dataflows/SourceRefs without this attribute
+			// const source = extractAttributeValue(sourceRef, 'source')
+			// const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, source, sourceLNodeId]
+
+			const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, sourceLNodeId]
 
 			// TODO: later create Connection object with missing source as placeholder destination LNode
 			if (sourceAttributes.some((attr) => !attr)) {

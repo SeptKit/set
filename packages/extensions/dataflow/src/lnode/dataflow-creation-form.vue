@@ -139,7 +139,7 @@ import {
 	useDataflow,
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
-} from '@/lnode/use-dataflow'
+} from './use-dataflow'
 import { openDatabase } from '@/x/database'
 
 const props = defineProps<{
@@ -150,6 +150,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: 'update:isOpen', isOpenValue: boolean): void
+	(e: 'connectionCreated'): void
 }>()
 
 const dataflowCreationFormFields = ref<DataflowCreationForm>(getDataflowCreationFormDefaultValues())
@@ -244,7 +245,6 @@ function closeModal() {
 	emit('update:isOpen', false)
 }
 
-// TODO: extract to smaller functions
 async function createConnection() {
 	try {
 		if (!validateDataflowCreationForm(dataflowCreationFormFields.value)) {
@@ -265,6 +265,7 @@ async function createConnection() {
 		)
 
 		db.close()
+		emit('connectionCreated')
 		closeModal()
 	} catch (e) {
 		console.error('Error creating dataflow:', e)
@@ -298,7 +299,3 @@ function resetForm() {
 	dataflowCreationFormFields.value = getDataflowCreationFormDefaultValues()
 }
 </script>
-
-<style scoped>
-@import '@/assets/main.css';
-</style>
