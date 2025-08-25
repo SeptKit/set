@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { type Connection } from './connection'
 import type { DatabaseRecord } from '@septkit/fileio'
-import { extractAttributeValue, useDatabase } from '../x/use-database'
+import { extractAttributeValue, useDatabase } from '@/x/use-database'
 import { extractDataflowTypeValue } from './use-lnodes'
 
 export type ConnectionSDK = ReturnType<typeof useConnections>

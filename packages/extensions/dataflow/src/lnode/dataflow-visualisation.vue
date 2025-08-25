@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { getLNodeLabel, type LNode } from '@/lnode/lnode'
+import { getLNodeLabel, type LNode } from './lnode'
 import type { Connection } from './connection'
 
 const emit = defineEmits<{
@@ -138,7 +138,3 @@ function onDestinationLNodeSelect(lnodeId: string) {
 	emit('destinationLNodeChange', lnodeId)
 }
 </script>
-
-<style>
-@import '@/assets/main.css';
-</style>

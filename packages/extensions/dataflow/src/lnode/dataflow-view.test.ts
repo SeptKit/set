@@ -2,6 +2,9 @@ import { expect, describe, it } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import DataflowView from './dataflow-view.vue'
 import type { LNode } from '@/lnode/lnode'
+import Dexie from 'dexie'
+import type { SDKs } from '@/app.vue'
+import type { LNodeSDK } from './use-lnodes'
 
 const mockLNodes: LNode[] = [
 	{
@@ -82,8 +85,7 @@ describe('DataflowView: Dataflow creation', () => {
 	it('should disable create connection button if sending and receiving lnodes are not selected', async () => {
 		const screen = render(DataflowView, {
 			props: {
-				lnodes: mockLNodes,
-				connections: [],
+				sdks: createSdksMock(),
 			},
 		})
 
@@ -102,8 +104,7 @@ describe('DataflowView: Dataflow creation', () => {
 	it('enables create connection button when both sending and receiving lnodes are selected', async () => {
 		const screen = render(DataflowView, {
 			props: {
-				lnodes: mockLNodes,
-				connections: [],
+				sdks: createSdksMock(),
 			},
 		})
 
@@ -124,8 +125,7 @@ describe('DataflowView: Dataflow creation', () => {
 	it('opens dataflow creation dialog when create connection button is clicked', async () => {
 		const screen = render(DataflowView, {
 			props: {
-				lnodes: mockLNodes,
-				connections: [],
+				sdks: createSdksMock(),
 			},
 		})
 
@@ -146,8 +146,7 @@ describe('DataflowView: Dataflow creation', () => {
 	it('closes dataflow creation dialog when close button is clicked', async () => {
 		const screen = render(DataflowView, {
 			props: {
-				lnodes: mockLNodes,
-				connections: [],
+				sdks: createSdksMock(),
 			},
 		})
 
@@ -169,3 +168,30 @@ describe('DataflowView: Dataflow creation', () => {
 		await expect.element(screen.getByText('Create Connection', { exact: true })).not.toBeVisible()
 	})
 })
+
+function createSdksMock(): SDKs {
+	return {
+		db: new Dexie('test-db'),
+		lnodeSDK: createLNodeSDKMock(),
+		connectionSDK: {
+			findAllExistingFromDB: () => Promise.resolve([]),
+		},
+	}
+}
+
+function createLNodeSDKMock(): LNodeSDK {
+	return {
+		findAllEnrichedFromDB: () => {
+			return Promise.resolve(mockLNodes)
+		},
+		enrichWithDataObjects: (lnodes) => {
+			return Promise.resolve(lnodes)
+		},
+		enrichWithDataAttributes: (lnodes) => {
+			return Promise.resolve(lnodes)
+		},
+		enrichWithDataObjectSpecifications: (lnodes) => {
+			return Promise.resolve(lnodes)
+		},
+	}
+}

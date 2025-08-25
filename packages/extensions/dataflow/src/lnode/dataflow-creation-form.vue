@@ -139,7 +139,7 @@ import {
 	useDataflow,
 	type DataflowCreationForm,
 	type ValidatedDataflowCreationForm,
-} from '@/lnode/use-dataflow'
+} from './use-dataflow'
 import { openDatabase } from '@/x/database'
 
 const props = defineProps<{
@@ -297,7 +297,3 @@ function resetForm() {
 	dataflowCreationFormFields.value = getDataflowCreationFormDefaultValues()
 }
 </script>
-
-<style scoped>
-@import '@/assets/main.css';
-</style>
