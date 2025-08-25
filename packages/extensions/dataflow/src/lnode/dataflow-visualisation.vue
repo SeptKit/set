@@ -1,111 +1,123 @@
 <template>
-	<div class="flex flex-col items-center justify-center">
-		<div class="visualisation-row">
-			<LNodeElement
-				:lnodes="lNodes"
-				type="input"
-				:activeLNodeId="activeInputLNodeId"
-				@change="onActiveInputLNodeIdChange"
-			/>
-			<div class="visualisation-connections">- Connections -</div>
-			<LNodeElement
-				:lnodes="lNodes"
-				type="output"
-				:activeLNodeId="activeOutputLNodeId"
-				@change="onActiveOutputLNodeIdChange"
-			/>
-		</div>
-		<button :disabled="!activeInputLNode || !activeOutputLNode" class="btn" @click="showModal">
-			+
-		</button>
+	<div
+		class="grid grid-cols-[1fr_20px_1fr_20px_1fr] w-full"
+		:style="{ gridTemplateRows: `100px repeat(${connections.length + 1}, 50px)` }"
+	>
+		<div
+			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3"
+		></div>
 
-		<DataflowCreationForm
-			v-if="activeInputLNode && activeOutputLNode"
-			v-model:isOpen="isCreationDialogOpen"
-			:sourceLNode="activeInputLNode"
-			:destinationLNode="activeOutputLNode"
-		/>
+		<div
+			class="col-start-1 col-span-2 self-center justify-self-center row-start-1 rounded-md border-2 border-(--color-ocean-gray-100) px-3 py-2 bg-white"
+		>
+			<select
+				:value="sourceLNodeId ?? ''"
+				@change="(e) => onSourceLNodeSelect((e.target as HTMLSelectElement).value)"
+				data-testid="select-source-lnode"
+			>
+				<option key="null" value="">Select LNode</option>
+				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+					{{ getLNodeLabel(ln) }}
+				</option>
+			</select>
+		</div>
+
+		<div
+			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3"
+		></div>
+
+		<div
+			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 rounded-md border-2 border-(--color-ocean-gray-100) px-3 py-2 bg-white"
+		>
+			<select
+				:value="destinationLNodeId ?? ''"
+				@change="(e) => onDestinationLNodeSelect((e.target as HTMLSelectElement).value)"
+				data-testid="select-destination-lnode"
+			>
+				<option key="null" value="">Select LNode</option>
+				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+					{{ getLNodeLabel(ln) }}
+				</option>
+			</select>
+		</div>
+
+		<template v-for="(connection, idx) of connections">
+			<div
+				class="col-start-1 col-span-1 self-center justify-self-end"
+				:style="{ gridRowStart: idx + 2 }"
+			>
+				<span class="border-2 border-(--color-ocean-gray-100) px-2 py-1 mr-2 rounded-sm">{{
+					connection.sourceDataObject
+				}}</span>
+				<span class="border-2 border-(--color-ocean-gray-100) px-2 py-1 rounded-sm">{{
+					connection.sourceDataAttribute
+				}}</span>
+			</div>
+
+			<div
+				class="rounded-full w-[20px] h-[20px] col-start-2 col-span-1 bg-(--color-ocean-gray-100) self-center justify-self-end -mr-[9px]"
+				:style="{ gridRowStart: idx + 2 }"
+			></div>
+
+			<div
+				class="col-start-3 col-span-1 h-[2px] bg-(--color-ocean-gray-100) self-center"
+				:style="{ gridRowStart: idx + 2 }"
+			></div>
+
+			<div
+				class="rounded-full w-[20px] h-[20px] col-start-4 col-span-1 bg-(--color-ocean-gray-100) self-center justify-self-start -ml-[9px]"
+				:style="{ gridRowStart: idx + 2 }"
+			></div>
+
+			<div
+				class="bg-(--color-chart-3) text-white col-start-3 self-center justify-self-center z-1 relative p-1 rounded-sm text-sm"
+				:style="{ gridRowStart: idx + 2 }"
+			>
+				{{ connection.dataflowType }}
+			</div>
+
+			<div
+				class="col-start-5 col-span-1 self-center justify-self-start"
+				:style="{ gridRowStart: idx + 2 }"
+			>
+				<span class="border-2 border-(--color-ocean-gray-100) px-2 py-1 mr-2 rounded-sm">{{
+					connection.input
+				}}</span>
+				<span class="border-2 border-(--color-ocean-gray-100) px-2 py-1 rounded-sm">{{
+					connection.inputInstance
+				}}</span>
+			</div>
+		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
-import LNodeElement from './lnode-element.vue'
-import { ref, watch } from 'vue'
-import type { LNode } from '@/lnode/lnode'
-import DataflowCreationForm from './dataflow-creation-form.vue'
+import { ref } from 'vue'
+import { getLNodeLabel, type LNode } from '@/lnode/lnode'
 import type { Connection } from './connection'
-import type { SDKs } from '../app.vue'
 
-const props = defineProps<{
-	sdks: SDKs | undefined
+const emit = defineEmits<{
+	(e: 'sourceLNodeChange', value: string | undefined): void
+	(e: 'destinationLNodeChange', value: string | undefined): void
 }>()
 
-const lNodes = ref<LNode[]>([])
-const connections = ref<Connection[]>([])
+const props = defineProps<{
+	lnodes: LNode[]
+	connections: Connection[]
+}>()
 
-const activeInputLNodeId = ref<string | undefined>()
-const activeOutputLNodeId = ref<string | undefined>()
-const activeInputLNode = ref<LNode | null>(null)
-const activeOutputLNode = ref<LNode | null>(null)
-const isCreationDialogOpen = ref(false)
+const sourceLNodeId = ref<string | undefined>()
+const destinationLNodeId = ref<string | undefined>()
 
-watch(
-	() => props.sdks,
-	() => {
-		initLnodes()
-		initConnections()
-	},
-	{ immediate: true },
-)
-
-async function initLnodes() {
-	if (!props.sdks) {
-		return
-	}
-	lNodes.value = await props.sdks.lnodeSDK.findAllEnrichedFromDB()
+function onSourceLNodeSelect(lnodeId: string) {
+	emit('sourceLNodeChange', lnodeId)
 }
 
-async function initConnections() {
-	if (!props.sdks) {
-		return
-	}
-	connections.value = await props.sdks.connectionSDK.findAllExistingFromDB()
-}
-
-function onActiveInputLNodeIdChange(newLNodeId?: string) {
-	activeInputLNodeId.value = newLNodeId
-	activeInputLNode.value = getActiveLNodeById(newLNodeId)
-}
-
-function onActiveOutputLNodeIdChange(newLNodeId?: string) {
-	activeOutputLNodeId.value = newLNodeId
-	activeOutputLNode.value = getActiveLNodeById(newLNodeId)
-}
-
-function getActiveLNodeById(id: string | undefined) {
-	return lNodes.value.find((ln) => ln.id === id) ?? null
-}
-
-function showModal() {
-	isCreationDialogOpen.value = true
+function onDestinationLNodeSelect(lnodeId: string) {
+	emit('destinationLNodeChange', lnodeId)
 }
 </script>
 
-<style scoped>
+<style>
 @import '@/assets/main.css';
-
-.visualisation-row {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-}
-
-.visualisation-connections {
-	width: 200px;
-	height: 200px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
 </style>

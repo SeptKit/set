@@ -244,7 +244,6 @@ function closeModal() {
 	emit('update:isOpen', false)
 }
 
-// TODO: extract to smaller functions
 async function createConnection() {
 	try {
 		if (!validateDataflowCreationForm(dataflowCreationFormFields.value)) {

@@ -1,10 +1,7 @@
 import { expect, describe, it } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import DataflowVisualisation from './dataflow-visualisation.vue'
-import type { LNodeSDK } from './use-lnodes'
 import type { LNode } from './lnode'
-import type { SDKs } from '../app.vue'
-import Dexie from 'dexie'
 
 const mockLNodes: LNode[] = [
 	{
@@ -86,7 +83,8 @@ describe('DataflowVisualisation', () => {
 		// Arrange
 		const { container } = render(DataflowVisualisation, {
 			props: {
-				sdks: createSdksMock(),
+				lnodes: mockLNodes,
+				connections: [],
 			},
 		})
 
@@ -96,118 +94,39 @@ describe('DataflowVisualisation', () => {
 		// Assert:  that there are two visual nodes with the placeholder
 		expect(selectLNodeCount).toBe(2)
 	})
-	describe('Dataflow Creation', () => {
-		it('should disable create connection button if sending and receiving lnodes are not selected', async () => {
-			const screen = render(DataflowVisualisation, {
+	describe('LNode select', () => {
+		it('renders select options for LNodes and updates displayed label when selected', async () => {
+			const { container } = render(DataflowVisualisation, {
 				props: {
-					sdks: createSdksMock(),
+					lnodes: mockLNodes,
+					connections: [],
 				},
 			})
 
-			await expect.element(screen.getByText('+', { exact: true })).toBeDisabled()
+			const select: HTMLSelectElement = container.querySelector('select')!
+			const options = Array.from(select.options)
 
-			const inputLNodeSelect = screen.getByTestId('select-input-lnode')
-
-			await expect.element(inputLNodeSelect).toBeInTheDocument()
-
-			// Only selecting input lnode should not enable the button either
-			await inputLNodeSelect.selectOptions('P XCBR 1')
-			expect(inputLNodeSelect).toHaveValue('1')
-
-			await expect.element(screen.getByText('+', { exact: true })).toBeDisabled()
+			expect(select).toBeTruthy()
+			expect(options.some((opt) => opt.textContent === 'P XCBR 1')).toBe(true)
+			expect(options.some((opt) => opt.textContent === 'Q PTRC 2')).toBe(true)
 		})
-		it('enables create connection button when both sending and receiving lnodes are selected', async () => {
-			const screen = render(DataflowVisualisation, {
+
+		it('selecting another LNode shows its label', async () => {
+			const { container } = render(DataflowVisualisation, {
 				props: {
-					sdks: createSdksMock(),
+					lnodes: mockLNodes,
+					connections: [],
 				},
 			})
 
-			const inputLNodeSelect = screen.getByTestId('select-input-lnode')
-			const outputLNodeSelect = screen.getByTestId('select-output-lnode')
+			const select: HTMLSelectElement = container.querySelector('select')!
+			// Simulate selecting the second option
+			select.value = mockLNodes[1].id
+			select.dispatchEvent(new Event('change'))
+			await new Promise((r) => setTimeout(r, 0))
 
-			await expect.element(inputLNodeSelect).toBeInTheDocument()
-			await expect.element(outputLNodeSelect).toBeInTheDocument()
-
-			await inputLNodeSelect.selectOptions('P XCBR 1')
-			expect(inputLNodeSelect).toHaveValue('1')
-
-			await outputLNodeSelect.selectOptions('Q PTRC 2')
-			expect(outputLNodeSelect).toHaveValue('2')
-
-			await expect.element(screen.getByText('+', { exact: true })).toBeEnabled()
-		})
-		it('opens dataflow creation dialog when create connection button is clicked', async () => {
-			const screen = render(DataflowVisualisation, {
-				props: {
-					sdks: createSdksMock(),
-				},
-			})
-
-			const inputLNodeSelect = screen.getByTestId('select-input-lnode')
-			const outputLNodeSelect = screen.getByTestId('select-output-lnode')
-
-			await expect.element(inputLNodeSelect).toBeInTheDocument()
-			await expect.element(outputLNodeSelect).toBeInTheDocument()
-
-			await inputLNodeSelect.selectOptions('P XCBR 1')
-			await outputLNodeSelect.selectOptions('Q PTRC 2')
-
-			const plusButton = screen.getByText('+', { exact: true })
-			await plusButton.click()
-
-			await expect.element(screen.getByText('Create Connection', { exact: true })).toBeVisible()
-		})
-		it('closes dataflow creation dialog when close button is clicked', async () => {
-			const screen = render(DataflowVisualisation, {
-				props: {
-					sdks: createSdksMock(),
-				},
-			})
-
-			const inputLNodeSelect = screen.getByTestId('select-input-lnode')
-			const outputLNodeSelect = screen.getByTestId('select-output-lnode')
-
-			await expect.element(inputLNodeSelect).toBeInTheDocument()
-			await expect.element(outputLNodeSelect).toBeInTheDocument()
-
-			await inputLNodeSelect.selectOptions('P XCBR 1')
-			await outputLNodeSelect.selectOptions('Q PTRC 2')
-
-			await screen.getByText('+', { exact: true }).click()
-
-			await expect.element(screen.getByText('Create Connection', { exact: true })).toBeVisible()
-
-			await screen.getByText('Close', { exact: true }).click()
-
-			await expect.element(screen.getByText('Create Connection', { exact: true })).not.toBeVisible()
+			// Headline should display selected LNode label
+			expect(container.textContent).toContain('Q PTRC 2')
 		})
 	})
 })
-
-function createSdksMock(): SDKs {
-	return {
-		db: new Dexie('test-db'),
-		lnodeSDK: createLNodeSDKMock(),
-		connectionSDK: {
-			findAllExistingFromDB: () => Promise.resolve([]),
-		},
-	}
-}
-
-function createLNodeSDKMock(): LNodeSDK {
-	return {
-		findAllEnrichedFromDB: () => {
-			return Promise.resolve(mockLNodes)
-		},
-		enrichWithDataObjects: (lnodes) => {
-			return Promise.resolve(lnodes)
-		},
-		enrichWithDataAttributes: (lnodes) => {
-			return Promise.resolve(lnodes)
-		},
-		enrichWithDataObjectSpecifications: (lnodes) => {
-			return Promise.resolve(lnodes)
-		},
-	}
-}

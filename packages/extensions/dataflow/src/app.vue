@@ -1,8 +1,8 @@
 <template>
-	<div>
+	<div class="flex flex-col items-center justify-center">
 		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
-		<Dataflow :sdks="sdks" />
 
+		<DataflowView :connections="connections" :lnodes="lnodes" />
 	</div>
 </template>
 
@@ -12,6 +12,9 @@ import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
 import { openDatabase } from './x/database'
 import { useConnections, type ConnectionSDK } from '@/lnode/use-connections'
 import type Dexie from 'dexie'
+import type { LNode } from './lnode/lnode'
+import type { Connection } from './lnode/connection'
+import DataflowView from '@/lnode/dataflow-view.vue'
 
 export type SDKs = {
 	db: Dexie
@@ -24,6 +27,8 @@ const props = defineProps<{
 }>()
 
 let sdks = ref<SDKs | undefined>()
+const lnodes = ref<LNode[]>([])
+const connections = ref<Connection[]>([])
 
 onMounted(() => {
 	window.addEventListener('storage', onActiveFileChange)
@@ -32,6 +37,20 @@ onMounted(() => {
 onUnmounted(() => {
 	window.removeEventListener('storage', onActiveFileChange)
 })
+
+async function initLnodes() {
+	if (!sdks.value) {
+		return
+	}
+	lnodes.value = await sdks.value.lnodeSDK.findAllEnrichedFromDB()
+}
+
+async function initConnections() {
+	if (!sdks.value) {
+		return
+	}
+	connections.value = await sdks.value.connectionSDK.findAllExistingFromDB()
+}
 
 async function onActiveFileChange(event: StorageEvent) {
 	if (event.key !== 'currentActiveFileDatabaseName') {
@@ -44,6 +63,8 @@ async function onActiveFileChange(event: StorageEvent) {
 	}
 
 	await initSDKs(newActiveFile)
+	initLnodes()
+	initConnections()
 }
 
 async function initWithCurrentActiveFile() {
@@ -52,6 +73,8 @@ async function initWithCurrentActiveFile() {
 		throw new Error('incorrect active file name: ' + newActiveFile)
 	}
 	await initSDKs(newActiveFile)
+	initLnodes()
+	initConnections()
 }
 
 async function initSDKs(newActiveFile: string) {
@@ -70,17 +93,4 @@ async function initSDKs(newActiveFile: string) {
 }
 </script>
 
-<style scoped>
-/*
-	We import it here and not on the top so it is scoped and does not affect
-	the rest of the ui
-*/
-@import '@/assets/main.css';
-
-.dataflow-app-center {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-</style>
+<style scoped></style>
