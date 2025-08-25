@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="grid grid-cols-[1fr_20px_1fr_20px_1fr] w-full"
-		:style="{ gridTemplateRows: `100px repeat(${connections.length + 1}, 50px)` }"
+		:style="{ gridTemplateRows: `100px repeat(${filteredConnections.length + 1}, 50px)` }"
 	>
 		<div
 			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3"
@@ -41,7 +41,7 @@
 			</select>
 		</div>
 
-		<template v-for="(connection, idx) of connections">
+		<template v-for="(connection, idx) of filteredConnections">
 			<div
 				class="col-start-1 col-span-1 self-center justify-self-end"
 				:style="{ gridRowStart: idx + 2 }"
@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { getLNodeLabel, type LNode } from '@/lnode/lnode'
 import type { Connection } from './connection'
 
@@ -106,14 +106,35 @@ const props = defineProps<{
 	connections: Connection[]
 }>()
 
+watch(
+	() => props.lnodes,
+	() => {
+		sourceLNodeId.value = undefined
+		destinationLNodeId.value = undefined
+	},
+)
+
 const sourceLNodeId = ref<string | undefined>()
 const destinationLNodeId = ref<string | undefined>()
 
+const filteredConnections = computed(() => {
+	if (sourceLNodeId.value && destinationLNodeId.value) {
+		return props.connections.filter(
+			(c) =>
+				c.sourceLNodeId === sourceLNodeId.value &&
+				c.destinationLNodeId === destinationLNodeId.value,
+		)
+	}
+	return []
+})
+
 function onSourceLNodeSelect(lnodeId: string) {
+	sourceLNodeId.value = lnodeId
 	emit('sourceLNodeChange', lnodeId)
 }
 
 function onDestinationLNodeSelect(lnodeId: string) {
+	destinationLNodeId.value = lnodeId
 	emit('destinationLNodeChange', lnodeId)
 }
 </script>

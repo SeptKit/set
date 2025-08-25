@@ -70,7 +70,7 @@ async function onActiveFileChange(event: StorageEvent) {
 async function initWithCurrentActiveFile() {
 	const newActiveFile = localStorage.getItem('currentActiveFileDatabaseName')
 	if (!newActiveFile) {
-		throw new Error('incorrect active file name: ' + newActiveFile)
+		return
 	}
 	await initSDKs(newActiveFile)
 	initLnodes()
