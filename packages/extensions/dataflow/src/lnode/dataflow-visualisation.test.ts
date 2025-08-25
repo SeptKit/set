@@ -39,8 +39,8 @@ const mockLNodes: LNode[] = [
 				id: 'dos1',
 				name: 'MySpec1',
 				desc: 'Desc1',
-				dataAttributeSpecification: [
-					{ id: 'das1', name: 'SpecAttr1', desc: 'test', dataObjectSpecificationId: 'dos1' },
+				dataAttributeSpecifications: [
+					{ id: 'das1', name: 'SpecAttr1', desc: 'dummy', dataObjectSpecificationId: 'dos1' },
 				],
 				lNodeId: '1',
 			},
@@ -70,8 +70,8 @@ const mockLNodes: LNode[] = [
 				id: 'dos2',
 				name: 'MySpec2',
 				desc: 'Desc2',
-				dataAttributeSpecification: [
-					{ id: 'das2', name: 'SpecAttr2', desc: 'test', dataObjectSpecificationId: 'dos2' },
+				dataAttributeSpecifications: [
+					{ id: 'das2', name: 'SpecAttr2', desc: 'dummy', dataObjectSpecificationId: 'dos2' },
 				],
 				lNodeId: '2',
 			},

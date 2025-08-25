@@ -81,9 +81,9 @@ describe('use-lnode-records to map the XML', () => {
 
 		const dosSpec = result[0].dataObjectSpecifications![0]
 		expect(dosSpec.name).toBe('Tr')
-		expect(dosSpec.dataAttributeSpecification?.length).toBeGreaterThanOrEqual(1)
+		expect(dosSpec.dataAttributeSpecifications?.length).toBeGreaterThanOrEqual(1)
 
-		const dasSpec = dosSpec.dataAttributeSpecification[0]
+		const dasSpec = dosSpec.dataAttributeSpecifications[0]
 		expect(dasSpec.name).toBe('general')
 
 		expect(dasSpec.subscriberLNode).toBeDefined()
