@@ -20,6 +20,7 @@
 			v-model:isOpen="isCreationDialogOpen"
 			:sourceLNode="sourceLNode"
 			:destinationLNode="destinationLNode"
+			@connectionCreated="initConnections"
 		/>
 	</div>
 </template>

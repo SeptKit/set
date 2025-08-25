@@ -150,6 +150,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: 'update:isOpen', isOpenValue: boolean): void
+	(e: 'connectionCreated'): void
 }>()
 
 const dataflowCreationFormFields = ref<DataflowCreationForm>(getDataflowCreationFormDefaultValues())
@@ -264,6 +265,7 @@ async function createConnection() {
 		)
 
 		db.close()
+		emit('connectionCreated')
 		closeModal()
 	} catch (e) {
 		console.error('Error creating dataflow:', e)

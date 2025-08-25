@@ -1,10 +1,10 @@
 <template>
 	<div
-		class="grid grid-cols-[1fr_20px_1fr_20px_1fr] w-full"
+		class="grid grid-cols-[1fr_20px_1fr_20px_1fr] w-full min-h-[500px] mb-8"
 		:style="{ gridTemplateRows: `100px repeat(${filteredConnections.length + 1}, 50px)` }"
 	>
 		<div
-			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3"
+			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
 		<div
@@ -23,7 +23,7 @@
 		</div>
 
 		<div
-			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3"
+			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
 		<div

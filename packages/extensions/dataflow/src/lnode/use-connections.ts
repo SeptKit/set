@@ -40,7 +40,9 @@ export function useConnections(db: Dexie) {
 							)?.id,
 					)) || null
 
-			const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, source, sourceLNodeId]
+			// TODO: Excluding "source" attribute in this validation temporarily because we currently create dataflows/SourceRefs without this attribute
+			// const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, source, sourceLNodeId]
+			const sourceAttributes = [sourceLNodeUuid, sourceDoName, sourceDaName, sourceLNodeId]
 
 			// TODO: later create Connection object with missing source as placeholder destination LNode
 			if (sourceAttributes.some((attr) => !attr)) {
