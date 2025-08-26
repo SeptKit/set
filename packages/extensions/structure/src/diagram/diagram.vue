@@ -40,7 +40,6 @@ import { MiniMap } from '@vue-flow/minimap'
 import { Controls, ControlButton } from '@vue-flow/controls'
 import Icon from './icon.vue'
 import FlowNodeExpandable from './node-expandable/flow-node-expandable.vue'
-import { watch } from 'vue'
 
 const props = defineProps<{
 	nodes: Node[]
