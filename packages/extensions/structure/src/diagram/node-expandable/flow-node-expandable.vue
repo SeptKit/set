@@ -52,10 +52,20 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 
 	/* shadow/base */
 	box-shadow:
-		0 var(--shadow-y-axis-base-1, 1px) var(--shadow-blur-base-1, 3px) var(--shadow-spread-base, 0)
-			var(--shadow-color-opacity-2, rgba(14, 14, 14, 0.1)),
-		0 var(--shadow-y-axis-base-1, 1px) var(--shadow-blur-base-2, 2px) var(--shadow-spread-base, 0)
-			var(--shadow-color-opacity-0, rgba(0, 0, 0, 0.06));
+		0 1px 3px 0 rgba(14, 14, 14, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+	transition:
+		border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+		box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.node-root:hover {
+	border: 1px solid var(--color-chart-9);
+}
+
+.node-root:hover .header {
+	background: #e6f0f2;
 }
 
 .header {
@@ -70,6 +80,7 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 	display: grid;
 	grid-template-columns: 1fr 24px;
 	place-items: center;
+	transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .collapsed {
