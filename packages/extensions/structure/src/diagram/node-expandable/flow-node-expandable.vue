@@ -1,25 +1,23 @@
 <template>
-	<Transition name="fade">
-		<div class="node-root" name="expandable-node" :title="title" :style="style">
-			<div v-if="!props.data.isExpanded" class="collapsed">
-				<div class="header">
-					<div class="node-label">{{ props.data.label }}</div>
-					<span class="toggle-icon">
-						<IconCollapsed v-if="props.data.hasChildren" @click="emitExpand" />
-					</span>
-				</div>
-			</div>
-
-			<div v-if="props.data.isExpanded" class="expanded">
-				<div class="header">
-					<div class="node-label">{{ props.data.label }}</div>
-					<span class="toggle-icon">
-						<IconExpanded v-if="props.data.hasChildren" @click="emitCollapse" />
-					</span>
-				</div>
+	<div class="node-root" name="expandable-node" :title="title" :style="style">
+		<div v-if="!props.data.isExpanded" class="collapsed">
+			<div class="header">
+				<div class="node-label">{{ props.data.label }}</div>
+				<span class="toggle-icon">
+					<IconCollapsed v-if="props.data.hasChildren" @click="emitExpand" />
+				</span>
 			</div>
 		</div>
-	</Transition>
+
+		<div v-if="props.data.isExpanded" class="expanded">
+			<div class="header">
+				<div class="node-label">{{ props.data.label }}</div>
+				<span class="toggle-icon">
+					<IconExpanded v-if="props.data.hasChildren" @click="emitCollapse" />
+				</span>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -98,15 +96,5 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 100%;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
 }
 </style>

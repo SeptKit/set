@@ -37,6 +37,7 @@
 import { VueFlow, useVueFlow, type Node, type Edge } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
+import { Controls, ControlButton } from '@vue-flow/controls'
 import Icon from './icon.vue'
 import FlowNodeExpandable from './node-expandable/flow-node-expandable.vue'
 import { watch } from 'vue'
