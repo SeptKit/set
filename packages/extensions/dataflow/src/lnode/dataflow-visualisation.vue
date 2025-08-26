@@ -42,6 +42,7 @@
 		</div>
 
 		<template v-for="(connection, idx) of filteredConnections">
+			<!-- Left Port Label -->
 			<div
 				class="col-start-1 col-span-1 self-center justify-self-end"
 				:style="{ gridRowStart: idx + 2 }"
@@ -54,28 +55,18 @@
 				}}</span>
 			</div>
 
+			<!-- Left LNode Port -->
 			<div
 				class="rounded-full w-[20px] h-[20px] col-start-2 col-span-1 bg-(--color-ocean-gray-100) self-center justify-self-end -mr-[9px]"
 				:style="{ gridRowStart: idx + 2 }"
 			></div>
 
+			<!-- Dataflow Line -->
 			<div
 				class="col-start-3 col-span-1 h-[2px] bg-(--color-ocean-gray-100) self-center"
 				:style="{ gridRowStart: idx + 2 }"
+				:data-testid="`dataflow-line-${idx}`"
 			></div>
-
-			<div
-				class="rounded-full w-[20px] h-[20px] col-start-4 col-span-1 bg-(--color-ocean-gray-100) self-center justify-self-start -ml-[9px]"
-				:style="{ gridRowStart: idx + 2 }"
-			></div>
-
-			<div
-				class="bg-(--color-chart-3) text-white col-start-3 self-center justify-self-center z-1 relative p-1 rounded-sm text-sm"
-				:style="{ gridRowStart: idx + 2 }"
-			>
-				{{ connection.dataflowType }}
-			</div>
-
 			<svg
 				height="12"
 				width="8"
@@ -85,6 +76,21 @@
 				<polygon points="0,0 8,6 0,12" :style="{ fill: 'var(--color-ocean-gray-100)' }" />
 			</svg>
 
+			<!-- Dataflow Line Label -->
+			<div
+				class="bg-(--color-chart-3) text-white col-start-3 self-center justify-self-center z-1 relative p-1 rounded-sm text-sm"
+				:style="{ gridRowStart: idx + 2 }"
+			>
+				{{ connection.dataflowType }}
+			</div>
+
+			<!-- Right LNode Port -->
+			<div
+				class="rounded-full w-[20px] h-[20px] col-start-4 col-span-1 bg-(--color-ocean-gray-100) self-center justify-self-start -ml-[9px]"
+				:style="{ gridRowStart: idx + 2 }"
+			></div>
+
+			<!-- Right Port Label -->
 			<div
 				class="col-start-5 col-span-1 self-center justify-self-start"
 				:style="{ gridRowStart: idx + 2 }"
