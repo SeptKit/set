@@ -7,15 +7,14 @@ import { ref } from 'vue'
 // Note: this is a useful function to print out
 // all the possible configuration of elk into the console
 // @ts-expect-error
-window.printElkInfo = printElkInfo
+window.provideElkOptionstoWindow = provideElkOptionstoWindow
 
 const NODE_WIDTH = 140
 const NODE_HEIGHT = 50
 
 type ElkNodeWithRecord = ElkNode & {
 	record: DatabaseRecord
-	isOpen: boolean
-	permanentChildren: ElkNodeWithRecord[]
+	childrenCache: ElkNodeWithRecord[]
 }
 export type RootElkNode = ElkNode & {
 	children: ElkNodeWithRecord[]
@@ -38,9 +37,12 @@ export function useLayout() {
 	let _connections: Connection[] = []
 	const elk = new Elk({
 		defaultLayoutOptions: {
-			'elk.algorithm': 'layered',
+			'elk.algorithm': 'box',
+			'elk.direction': 'RIGHT',
 			'elk.padding': '[top=50,right=10,bottom=10,left=10]',
-			'elk.spacing.nodeNode': '100',
+			'elk.spacing.nodeNode': '30',
+			'elk.interactive': 'true',
+			interactiveLayout: 'true',
 		},
 	})
 
@@ -51,6 +53,11 @@ export function useLayout() {
 		setRecords,
 		setConnections,
 		toggleNode,
+		hasNodeLoadedChildren,
+		addChildren,
+		borrowRecordById,
+		expandNode,
+		collapseNode,
 	}
 
 	async function calcLayout(): Promise<void> {
@@ -62,9 +69,13 @@ export function useLayout() {
 			id: 'root',
 			children: elkNodes,
 			edges: elkEdges,
+			layoutOptions: {
+				'layering.layerChoiceConstraint': '0',
+			},
 		}
 
 		_rootElkNode = (await elk.layout(graph)) as RootElkNode
+
 		updateFlowNodes(_rootElkNode)
 	}
 
@@ -84,23 +95,49 @@ export function useLayout() {
 		_connections = newConnection
 	}
 
-	async function toggleNode(id: string) {
-		const node = _elkNodeMapById[id]
-		if (!node) {
-			throw Error(`could not toggle node state, id: ${id}`)
-		}
+	async function expandNode(nodeId: string) {
+		const node = getNodeById(nodeId)
 
-		if (node.isOpen) {
-			node.children = []
-			node.width = NODE_WIDTH
-			node.height = NODE_HEIGHT
-			node.isOpen = false
-		} else {
-			node.children = [...node.permanentChildren]
-			node.isOpen = true
-		}
-
+		node.children = [...node.childrenCache]
 		await reCalcLayout()
+	}
+
+	async function collapseNode(nodeId: string) {
+		const node = getNodeById(nodeId)
+		node.children = []
+		node.width = NODE_WIDTH
+		node.height = NODE_HEIGHT
+		await reCalcLayout()
+	}
+
+	async function toggleNode(nodeId: string) {
+		const node = getNodeById(nodeId)
+
+		const isExpanded = Boolean(node.children && node.children.length > 0)
+
+		if (isExpanded) {
+			collapseNode(nodeId)
+		} else {
+			expandNode(nodeId)
+		}
+	}
+
+	function hasNodeLoadedChildren(nodeId: string): Boolean {
+		const node = getNodeById(nodeId)
+
+		const hasChildren = Boolean(node.childrenCache && node.childrenCache.length > 0)
+
+		return hasChildren
+	}
+
+	function addChildren(nodeId: string, children: DatabaseRecord[]) {
+		const node = getNodeById(nodeId)
+
+		_records.push(...children)
+		const elkNodes = children.map(recordToElkNode)
+
+		node.children = elkNodes
+		node.childrenCache = elkNodes
 	}
 
 	function updateFlowNodes(rootElkNode: RootElkNode) {
@@ -112,18 +149,31 @@ export function useLayout() {
 
 		_flowNodes.value = newElkNodesFlat.map(elkNodeToFlowNode)
 	}
+
+	function getNodeById(nodeId: string): ElkNodeWithRecord {
+		const node = _elkNodeMapById[nodeId]
+		if (!node) {
+			throw Error(`not not found, id: ${nodeId}`)
+		}
+		return node
+	}
+
+	function borrowRecordById(recordId: string): DatabaseRecord | undefined {
+		const record = _records.find((r) => r.id === recordId)
+		return record
+	}
 }
 
 function recordToElkNode(record: DatabaseRecord): ElkNodeWithRecord {
-	const isOpen = Boolean(record.children && record.children.length > 0)
-
 	return {
 		id: record.id,
 		width: NODE_WIDTH,
 		height: NODE_HEIGHT,
 		record,
-		isOpen,
-		permanentChildren: [],
+		childrenCache: [],
+		layoutOptions: {
+			'layering.layerChoiceConstraint': '0',
+		},
 	}
 }
 
@@ -170,7 +220,7 @@ function setupRelationships(nodes: ElkNodeWithRecord[]) {
 		}
 
 		parentNode.children.push(node)
-		parentNode.permanentChildren.push(node)
+		parentNode.childrenCache.push(node)
 	}
 
 	return nodesWithChildren
@@ -193,6 +243,7 @@ function flattenElkNodes(elkNodes: ElkNodeWithRecord[]): ElkNodeWithRecord[] {
 function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 	const extractLabel = getLabelExtractor(elkNode.record.tagName)
 	const hasChildren = elkNode.record.children && elkNode.record.children.length > 0
+	const isExpanded = Boolean(elkNode.children && elkNode.children.length > 0)
 
 	return {
 		id: elkNode.id,
@@ -204,6 +255,7 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 			width: elkNode.width,
 			height: elkNode.height,
 			hasChildren,
+			isExpanded,
 		},
 		parentNode: elkNode.record.parent?.id,
 		position: { x: elkNode.x ?? 0, y: elkNode.y ?? 0 },
@@ -222,9 +274,11 @@ function elkNodeToFlowNode(elkNode: ElkNodeWithRecord): FlowNode {
 }
 
 function getLabelExtractor(tagName: string): LabelExtractor {
+	const defaultLabelExtractor = extractNameAttributeValue
 	const extractor = labelExtractors[tagName]
 	if (!extractor) {
-		throw new Error(`not label extractor for tagName: ${tagName}`)
+		console.warn({ msg: 'no label extractor found, using default', tagName })
+		return defaultLabelExtractor
 	}
 	return extractor
 }
@@ -237,6 +291,12 @@ const labelExtractors: { [tagName: string]: LabelExtractor } = {
 	SubFunction: extractNameAttributeValue,
 	Private: extractTypeAttributeValue,
 	Application: extractNameAttributeValue,
+	AllocationRole: extractNameAttributeValue,
+	ConductingEquipment: extractNameAttributeValue,
+	SubEquipment: extractNameAttributeValue,
+	BehaviorDescription: extractNameAttributeValue,
+	InputVar: inputVarLabelExtractor,
+	FunctionCategory: extractNameAttributeValue,
 }
 type LabelExtractor = (r: DatabaseRecord) => string
 
@@ -261,6 +321,15 @@ function extractTypeAttributeValue(record: DatabaseRecord): string {
 
 	return typeAttr.value
 }
+// varName
+function inputVarLabelExtractor(record: DatabaseRecord): string {
+	const defaultLabel = `<${record.tagName} without varName>`
+	const varNameAttr = extractAttr(record, 'varName')
+	if (!varNameAttr) {
+		return defaultLabel
+	}
+	return varNameAttr.value
+}
 
 function lnodeLabelExtractor(record: DatabaseRecord) {
 	if (record.tagName !== 'LNode') {
@@ -283,25 +352,22 @@ function lnodeLabelExtractor(record: DatabaseRecord) {
 	return `${lnTypeAttr.value}-${lnInstAttr.value}`
 }
 
-async function printElkInfo() {
+async function provideElkOptionstoWindow() {
 	const elk = new Elk()
 
-	const algos = await elk.knownLayoutAlgorithms()
-	const options = await elk.knownLayoutOptions()
-	const cats = await elk.knownLayoutCategories()
+	// @ts-expect-error
+	window.elkAlgos = await elk.knownLayoutAlgorithms()
+	// @ts-expect-error
+	window.elkoptions = await elk.knownLayoutOptions()
+	// @ts-expect-error
+	window.elkCats = await elk.knownLayoutCategories()
 
-	console.info(
-		'elk algos:',
-		algos.map((a) => a.id),
-	)
-
-	console.info(
-		'elk options',
-		options.map((o) => o.id),
-	)
-
-	console.info(
-		'elk cats',
-		cats.map((c) => c.id),
-	)
+	console.debug('options has been set on the window object', {
+		// @ts-expect-error
+		elkAlgos: window.elkAlgos,
+		// @ts-expect-error
+		elkoptions: window.elkoptions,
+		// @ts-expect-error
+		elkCats: window.elkCats,
+	})
 }

@@ -1,7 +1,12 @@
 <template>
 	<div class="root" name="ext-structure-root">
 		<h3>Data Structure</h3>
-		<Diagram :nodes="layout.flowNodes.value" :edges="[]" @expand="onExpand" />
+		<Diagram
+			:nodes="layout.flowNodes.value"
+			:edges="[]"
+			@expand="onExpand"
+			@collapse="onCollapse"
+		/>
 	</div>
 </template>
 
@@ -74,7 +79,7 @@ async function onFileChange(newFileName: string) {
 			substations.map(async (substation) => {
 				const children = await sdk!.findChildRecordsWithinDepthAndGivenTagName(
 					substation,
-					10,
+					3,
 					includeList,
 				)
 				return children
@@ -87,9 +92,29 @@ async function onFileChange(newFileName: string) {
 	await layout.calcLayout()
 }
 
-function onExpand(event: { id: string }) {
-	console.debug('appvue::expanding a node', { event })
-	layout.toggleNode(event.id)
+async function onExpand(event: { id: string }) {
+	const nodeId = event.id
+
+	if (!layout.hasNodeLoadedChildren(nodeId)) {
+		const record = layout.borrowRecordById(nodeId)
+		if (!record) {
+			console.warn({ msg: 'record not found by id, cannot load children', id: nodeId })
+			return
+		}
+		if (!sdk) {
+			console.error({ msg: 'no sdk instance available to find child records' })
+			return
+		}
+
+		const children = await sdk.findChildRecords(record)
+		layout.addChildren(nodeId, children)
+	}
+
+	layout.expandNode(nodeId)
+}
+
+function onCollapse(nodeId: string) {
+	layout.collapseNode(nodeId)
 }
 </script>
 

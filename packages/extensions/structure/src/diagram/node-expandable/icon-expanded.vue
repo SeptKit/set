@@ -18,8 +18,6 @@
 	</svg>
 </template>
 
-<script setup lang="ts"></script>
-
 <style scoped>
 svg {
 	stroke: var(--color-ocean-gray-800);

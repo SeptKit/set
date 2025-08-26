@@ -11,7 +11,11 @@
 			<Background pattern-color="#aaa" :gap="16" />
 
 			<template #node-expandable="props">
-				<FlowNodeExpandable v-bind="props" @expand="(event) => $emit('expand', event)" />
+				<FlowNodeExpandable
+					v-bind="props"
+					@expand="(event) => $emit('expand', event)"
+					@collapse="(event) => $emit('collapse', event)"
+				/>
 			</template>
 
 			<MiniMap />
@@ -56,12 +60,7 @@ const {
 } = useVueFlow()
 
 onInit((vueFlowInstance) => {
-	// instance is the same as the return of `useVueFlow`
 	vueFlowInstance.fitView()
-})
-
-onNodesChange(() => {
-	fitView()
 })
 
 onNodeDragStop(({ event, nodes, node }) => {
@@ -81,13 +80,19 @@ function resetTransform() {
 }
 </script>
 
+<style scoped>
+.root {
+	padding-bottom: 1rem;
+}
+</style>
+
 <style>
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
 @import '@vue-flow/controls/dist/style.css';
 @import '@vue-flow/minimap/dist/style.css';
 
-.root {
-	padding-bottom: 1rem;
+.vue-flow__node {
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

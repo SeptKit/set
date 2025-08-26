@@ -1,21 +1,32 @@
 <template>
-	<div class="root" name="bay-node" :title="props.data.tagName" :style="style">
-		<div class="header">
-			<div>{{ props.data.label }}</div>
-			<span class="close-icon">
-				<IconClosed v-if="props.data.hasChildren && props.data.isOpen" @click="onIconClick" />
-				<IconOpened v-if="props.data.hasChildren && !props.data.isOpen" @click="onIconClick" />
-			</span>
+	<Transition name="fade">
+		<div class="node-root" name="expandable-node" :title="title" :style="style">
+			<div v-if="!props.data.isExpanded" class="collapsed">
+				<div class="header">
+					<div class="node-label">{{ props.data.label }}</div>
+					<span class="toggle-icon">
+						<IconCollapsed v-if="props.data.hasChildren" @click="emitExpand" />
+					</span>
+				</div>
+			</div>
+
+			<div v-if="props.data.isExpanded" class="expanded">
+				<div class="header">
+					<div class="node-label">{{ props.data.label }}</div>
+					<span class="toggle-icon">
+						<IconExpanded v-if="props.data.hasChildren" @click="emitCollapse" />
+					</span>
+				</div>
+			</div>
 		</div>
-		<div class="body"></div>
-	</div>
+	</Transition>
 </template>
 
 <script setup lang="ts">
 import type { NodeProps } from '@vue-flow/core'
 import { computed } from 'vue'
-import IconClosed from './icon-closed.vue'
-import IconOpened from './icon-opened.vue'
+import IconCollapsed from './icon-collapsed.vue'
+import IconExpanded from './icon-expanded.vue'
 
 const props = defineProps<NodeProps>()
 const emits = defineEmits<{
@@ -23,15 +34,20 @@ const emits = defineEmits<{
 	(e: 'collapse', id: string): void
 }>()
 
-function onIconClick() {
+function emitExpand() {
 	emits('expand', props)
+}
+function emitCollapse() {
+	emits('collapse', props.id)
 }
 
 const style = computed(() => ({ width: `${props.data.width}px`, height: `${props.data.height}px` }))
+const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 </script>
 
 <style scoped>
-.root {
+.node-root {
+	cursor: default;
 	border-radius: 4px;
 	border: 1px solid var(--color-ocean-gray-200);
 	background: var(--color-ocean-gray-50);
@@ -45,19 +61,52 @@ const style = computed(() => ({ width: `${props.data.width}px`, height: `${props
 }
 
 .header {
-	border-bottom: 1px solid var(--color-base-300);
-	background: var(--color-base-200);
-	padding: 0.5rem 0.25rem;
+	padding: 0rem 0.5rem;
 	font-size: 1rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 
+	background: var(--color-base-200);
+
 	display: grid;
 	grid-template-columns: 1fr 24px;
+	place-items: center;
 }
 
-.close-icon {
+.collapsed {
+	height: 100%;
+}
+
+.collapsed .header {
+	height: 100%;
+	border-radius: 4px;
+}
+
+.expanded .header {
+	border-bottom: 1px solid var(--color-base-300);
+	border-radius: 4px 4px 0 0;
+	padding: 0.5rem;
+}
+
+.toggle-icon {
 	cursor: pointer;
+}
+
+.node-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>
