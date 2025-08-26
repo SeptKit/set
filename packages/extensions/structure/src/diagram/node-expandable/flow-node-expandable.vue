@@ -1,20 +1,23 @@
 <template>
 	<div class="node-root" name="expandable-node" :title="title" :style="style">
-		<div v-if="!props.data.isExpanded" class="collapsed">
+		<div :class="{ collapsed: !props.data.isExpanded, expanded: props.data.isExpanded }">
 			<div class="header">
-				<div class="node-label">{{ props.data.label }}</div>
-				<span class="toggle-icon">
-					<IconCollapsed v-if="props.data.hasChildren" @click="emitExpand" />
-				</span>
-			</div>
-		</div>
-
-		<div v-if="props.data.isExpanded" class="expanded">
-			<div class="header">
-				<div class="node-label">{{ props.data.label }}</div>
-				<span class="toggle-icon">
-					<IconExpanded v-if="props.data.hasChildren" @click="emitCollapse" />
-				</span>
+				<div class="node-type tooltip" :data-tip="props.data.tagName">
+					<div class="badge badge-neutral badge-xs">{{ Array.from(props.data.tagName)[0] }}</div>
+				</div>
+				<div class="node-label">
+					{{ props.data.label }}
+				</div>
+				<div class="toggle-icon">
+					<IconCollapsed
+						v-if="!props.data.isExpanded && props.data.hasChildren"
+						@click="emitExpand"
+					/>
+					<IconExpanded
+						v-if="props.data.isExpanded && props.data.hasChildren"
+						@click="emitCollapse"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -49,6 +52,7 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 	border-radius: 4px;
 	border: 1px solid var(--color-ocean-gray-200);
 	background: var(--color-ocean-gray-50);
+	font-family: monospace;
 
 	/* shadow/base */
 	box-shadow:
@@ -71,16 +75,28 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 .header {
 	padding: 0rem 0.5rem;
 	font-size: 1rem;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 
 	background: var(--color-base-200);
 
 	display: grid;
-	grid-template-columns: 1fr 24px;
+	grid-template-columns: 24px 1fr 24px;
 	place-items: center;
+	gap: 0.5rem;
 	transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.node-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0; /* This allows the flex item to shrink below its content size */
+	width: 100%; /* Ensures it takes full available width in the grid cell */
+}
+
+.node-type {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .collapsed {
@@ -100,12 +116,5 @@ const title = computed(() => `${props.data.tagName}: ${props.data.label}`)
 
 .toggle-icon {
 	cursor: pointer;
-}
-
-.node-label {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	max-width: 100%;
 }
 </style>

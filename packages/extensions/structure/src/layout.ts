@@ -9,7 +9,7 @@ import { ref } from 'vue'
 // @ts-expect-error
 window.provideElkOptionstoWindow = provideElkOptionstoWindow
 
-const NODE_WIDTH = 140
+const NODE_WIDTH = 240
 const NODE_HEIGHT = 50
 
 type ElkNodeWithRecord = ElkNode & {
@@ -302,7 +302,7 @@ const labelExtractors: { [tagName: string]: LabelExtractor } = {
 type LabelExtractor = (r: DatabaseRecord) => string
 
 function extractNameAttributeValue(record: DatabaseRecord): string {
-	const defaultLabel = `<${record.tagName} without name>`
+	const defaultLabel = `[${record.tagName} without name]`
 	const nameAttr = extractAttr(record, 'name')
 	if (!nameAttr) {
 		console.error('record does not have a name attribute, returning default label', record)
@@ -313,7 +313,7 @@ function extractNameAttributeValue(record: DatabaseRecord): string {
 }
 
 function extractTypeAttributeValue(record: DatabaseRecord): string {
-	const defaultLabel = `<${record.tagName} without type>`
+	const defaultLabel = `[${record.tagName} without type]`
 	const typeAttr = extractAttr(record, 'type')
 	if (!typeAttr) {
 		console.error('record does not have a type attribute, returning default label', record)
@@ -324,7 +324,7 @@ function extractTypeAttributeValue(record: DatabaseRecord): string {
 }
 // varName
 function inputVarLabelExtractor(record: DatabaseRecord): string {
-	const defaultLabel = `<${record.tagName} without varName>`
+	const defaultLabel = `[${record.tagName} without varName]`
 	const varNameAttr = extractAttr(record, 'varName')
 	if (!varNameAttr) {
 		return defaultLabel
