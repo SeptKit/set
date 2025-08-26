@@ -1,5 +1,5 @@
 <template>
-	<div class="join">
+	<div class="tabs tabs-box">
 		<input
 			v-for="widget in widgets"
 			:key="widget.id"
@@ -7,7 +7,10 @@
 			v-model="activeWidget"
 			:value="widget.id"
 			@change="onChange"
-			class="join-item btn"
+			class="tab"
+			:class="{
+				'[--tab-bg:var(--color-primary)] ': activeWidget === widget.id,
+			}"
 			type="radio"
 			name="options"
 		/>
