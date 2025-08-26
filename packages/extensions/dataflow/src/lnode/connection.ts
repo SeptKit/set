@@ -8,13 +8,13 @@ export enum DataflowType {
 }
 
 export type Connection = {
-	id: string
-	sourceLNodeId: string
-	sourceAttributeId: string
-	destinationLNodeId: string
-	dataflowType: DataflowType
+	sourceLNodeId: string | null
+	destinationLNodeId: string | null
+	sourceDataObject: string
+	sourceDataAttribute: string
+	dataflowType?: DataflowType
 	inputInstance: string
-	inputName: string
+	input: string
 }
 
 export const DataflowTypeToFCMap: Record<DataflowType, string[]> = {

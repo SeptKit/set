@@ -21,6 +21,8 @@ export type ValidatedDataflowCreationForm = Omit<DataflowCreationForm, 'type'> &
 }
 
 export function useDataflow(db: Dexie) {
+	const databaseSdk = useDatabase(db)
+
 	return {
 		create,
 	}
@@ -30,8 +32,6 @@ export function useDataflow(db: Dexie) {
 		sourceLNode: LNode,
 		destinationLNode: LNode,
 	) {
-		const databaseSdk = useDatabase(db)
-
 		const lNodeInputsElement = await getLNodeInputsElement(db, databaseSdk, destinationLNode)
 		await addSourceRefElements(databaseSdk, sourceLNode, lNodeInputsElement, formValues)
 	}
