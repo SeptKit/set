@@ -13,7 +13,7 @@
 			:value="sourceLNodeId ?? ''"
 			@change="(e) => onSourceLNodeSelect((e.target as HTMLSelectElement).value)"
 			data-testid="select-source-lnode"
-			class="col-start-1 col-span-2 self-center justify-self-center row-start-1 text-2xl"
+			class="col-start-1 col-span-2 self-center justify-self-center row-start-1 text-2xl text-center"
 		>
 			>
 			<option key="null" value="">Select LNode</option>
@@ -32,7 +32,7 @@
 			:value="destinationLNodeId ?? ''"
 			@change="(e) => onDestinationLNodeSelect((e.target as HTMLSelectElement).value)"
 			data-testid="select-destination-lnode"
-			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 text-2xl"
+			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 text-2xl text-center"
 		>
 			<option key="null" value="">Select LNode</option>
 			<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
@@ -71,6 +71,7 @@
 				width="8"
 				class="col-start-3 col-span-1 self-center justify-self-end mr-[9px]"
 				:style="{ gridRowStart: idx + 2 }"
+				xmlns="http://www.w3.org/2000/svg"
 			>
 				<polygon points="0,0 8,6 0,12" :style="{ fill: 'var(--color-ocean-gray-100)' }" />
 			</svg>
