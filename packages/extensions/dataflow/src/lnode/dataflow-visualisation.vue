@@ -3,43 +3,42 @@
 		class="grid grid-cols-[1fr_20px_1fr_20px_1fr] w-full min-h-[500px] mb-8"
 		:style="{ gridTemplateRows: `100px repeat(${filteredConnections.length + 1}, 50px)` }"
 	>
+		<!-- Left LNode Background -->
 		<div
 			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
-		<div
-			class="col-start-1 col-span-2 self-center justify-self-center row-start-1 rounded-md border-2 border-(--color-ocean-gray-100) px-3 py-2 bg-white"
+		<!-- Left LNode Select -->
+		<select
+			:value="sourceLNodeId ?? ''"
+			@change="(e) => onSourceLNodeSelect((e.target as HTMLSelectElement).value)"
+			data-testid="select-source-lnode"
+			class="col-start-1 col-span-2 self-center justify-self-center row-start-1 text-2xl"
 		>
-			<select
-				:value="sourceLNodeId ?? ''"
-				@change="(e) => onSourceLNodeSelect((e.target as HTMLSelectElement).value)"
-				data-testid="select-source-lnode"
 			>
-				<option key="null" value="">Select LNode</option>
-				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
-					{{ getLNodeLabel(ln) }}
-				</option>
-			</select>
-		</div>
+			<option key="null" value="">Select LNode</option>
+			<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+				{{ getLNodeLabel(ln) }}
+			</option>
+		</select>
 
+		<!-- Right LNode Background -->
 		<div
 			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
-		<div
-			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 rounded-md border-2 border-(--color-ocean-gray-100) px-3 py-2 bg-white"
+		<!-- Right LNode Select -->
+		<select
+			:value="destinationLNodeId ?? ''"
+			@change="(e) => onDestinationLNodeSelect((e.target as HTMLSelectElement).value)"
+			data-testid="select-destination-lnode"
+			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 text-2xl"
 		>
-			<select
-				:value="destinationLNodeId ?? ''"
-				@change="(e) => onDestinationLNodeSelect((e.target as HTMLSelectElement).value)"
-				data-testid="select-destination-lnode"
-			>
-				<option key="null" value="">Select LNode</option>
-				<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
-					{{ getLNodeLabel(ln) }}
-				</option>
-			</select>
-		</div>
+			<option key="null" value="">Select LNode</option>
+			<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+				{{ getLNodeLabel(ln) }}
+			</option>
+		</select>
 
 		<template v-for="(connection, idx) of filteredConnections">
 			<!-- Left Port Label -->
