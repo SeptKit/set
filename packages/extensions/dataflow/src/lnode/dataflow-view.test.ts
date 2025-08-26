@@ -163,7 +163,7 @@ describe('DataflowView: Dataflow creation', () => {
 
 		await expect.element(screen.getByText('Create Connection', { exact: true })).toBeVisible()
 
-		await screen.getByText('Close', { exact: true }).click()
+		await screen.getByLabelText('Close', { exact: true }).click()
 
 		await expect.element(screen.getByText('Create Connection', { exact: true })).not.toBeVisible()
 	})
