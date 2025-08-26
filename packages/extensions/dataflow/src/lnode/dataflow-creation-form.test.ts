@@ -251,7 +251,7 @@ describe('DataflowCreationForm', () => {
 			expect(screen.getByLabelText('Include Quality')).not.toBeChecked()
 			expect(screen.getByLabelText('Include Timestamp')).not.toBeChecked()
 		})
-		it.only('shows correct signal select options', async () => {
+		it('shows correct signal select options', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
 					sourceLNode: sendingLNode,
