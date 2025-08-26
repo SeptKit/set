@@ -116,7 +116,8 @@ describe('Component', () => {
 
 		const featureTests: TestCase[] = [
 			{
-				desc: 'toggling an opened node, closes it and hides the children',
+				desc: 'toggling an expanded node, collapses it and hides the children',
+
 				records: [
 					{
 						id: '1',
@@ -237,7 +238,6 @@ describe('Component', () => {
 			},
 			{
 				desc: 'a nodes keeps its expanded/collapse state even if its parent not gets collapsed and expanded',
-				only: true,
 				records: [
 					{
 						id: '1',

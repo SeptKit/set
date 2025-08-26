@@ -116,13 +116,13 @@ export function useLayout() {
 		const isExpanded = Boolean(node.children && node.children.length > 0)
 
 		if (isExpanded) {
-			collapseNode(nodeId)
+			await collapseNode(nodeId)
 		} else {
-			expandNode(nodeId)
+			await expandNode(nodeId)
 		}
 	}
 
-	function hasNodeLoadedChildren(nodeId: string): Boolean {
+	function hasNodeLoadedChildren(nodeId: string): boolean {
 		const node = getNodeById(nodeId)
 
 		const hasChildren = Boolean(node.childrenCache && node.childrenCache.length > 0)
@@ -147,7 +147,8 @@ export function useLayout() {
 			return mapById
 		}, {} as ElkNodeMapById)
 
-		_flowNodes.value = newElkNodesFlat.map(elkNodeToFlowNode)
+		const newFlowNodes = newElkNodesFlat.map(elkNodeToFlowNode)
+		_flowNodes.value = newFlowNodes
 	}
 
 	function getNodeById(nodeId: string): ElkNodeWithRecord {
@@ -362,7 +363,7 @@ async function provideElkOptionstoWindow() {
 	// @ts-expect-error
 	window.elkCats = await elk.knownLayoutCategories()
 
-	console.debug('options has been set on the window object', {
+	console.info({
 		// @ts-expect-error
 		elkAlgos: window.elkAlgos,
 		// @ts-expect-error
