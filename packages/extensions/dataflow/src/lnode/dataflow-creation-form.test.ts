@@ -5,7 +5,7 @@ import { type LNode } from './lnode'
 
 const createDataflowMock = vi.fn()
 
-vi.mock('@/lnode/use-dataflow.ts', () => ({
+vi.mock('./use-dataflow.ts', () => ({
 	useDataflow: () => ({
 		create: createDataflowMock,
 	}),
