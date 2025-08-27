@@ -8,9 +8,11 @@
 			:value="widget.id"
 			@change="onChange"
 			class="tab"
-			:class="{
-				'[--tab-bg:var(--color-primary)] ': activeWidget === widget.id,
-			}"
+			:style="
+				activeWidget === widget.id
+					? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-content)' }
+					: {}
+			"
 			type="radio"
 			name="options"
 		/>
