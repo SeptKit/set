@@ -6,7 +6,7 @@ packages:
   - 'packages/fileio'
 catalog:
   '@septkit/fileio': 0.0.3
-  '@septkit/ui': 0.0.6
+  '@septkit/ui': 0.0.7
   dexie: ^4.2.0
 
 linkWorkspacePackages: true
