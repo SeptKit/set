@@ -1,5 +1,5 @@
 <template>
-	<div class="wrapper">
+	<div class="layout">
 		<div class="menubar">
 			<slot name="menubar"></slot>
 		</div>
@@ -21,9 +21,7 @@
 <script setup lang="ts"></script>
 
 <style scoped>
-@reference "@/assets/main.css";
-
-.wrapper {
+.layout {
 	display: grid;
 	height: 100vh;
 	grid-template-rows: auto 1fr;

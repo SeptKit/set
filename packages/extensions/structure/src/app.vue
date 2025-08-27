@@ -1,38 +1,127 @@
 <template>
-	<Layout>
-		<div
-			class="min-h-screen flex flex-col items-center justify-center"
-			:style="{
-				background: 'repeating-linear-gradient(45deg, #ffe066, #ffe066 30px, #fff 30px, #fff 60px)',
-			}"
-		>
-			<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Structure</h1>
-			<h2 class="text-2xl text-center font-semibold my-4">Template for SET Extensions</h2>
-			<h2 class="text-2xl text-center font-semibold my-4">file: {{ fileName }}</h2>
-		</div>
-	</Layout>
+	<div class="root" name="ext-structure-root">
+		<h3>Data Structure</h3>
+		<Diagram
+			:nodes="layout.flowNodes.value"
+			:edges="[]"
+			@expand="onExpand"
+			@collapse="onCollapse"
+		/>
+	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import Diagram from './diagram/diagram.vue'
+import { useSDK, type SDK } from './sdk'
+import Dexie from 'dexie'
+import { type Layout, useLayout } from './layout'
 
 const props = defineProps<{
 	api: { [key: string]: any }
 }>()
 
+let layout: Layout = useLayout()
+
 let fileName = ref('')
-let unsubscribe = () => {}
+let unsubscribeFromFileName = () => {}
+let sdk: SDK | undefined
 
 onMounted(() => {
-	unsubscribe = props.api.activeFileName.subscribe((newFile: string, oldFile: any) => {
-		fileName.value = newFile
+	unsubscribeFromFileName = props.api.activeFileName.subscribe((newFileName: string) => {
+		onFileChange(newFileName)
 	})
+
+	onFileChange(props.api.activeFileName.value)
 })
 
 onUnmounted(() => {
-	unsubscribe()
+	unsubscribeFromFileName()
 })
+
+async function onFileChange(newFileName: string) {
+	fileName.value = newFileName
+
+	if (sdk) {
+		sdk.close()
+	}
+
+	const db = new Dexie(newFileName)
+	await db.open()
+	sdk = useSDK(db)
+
+	// Find all substations
+	const substations = await sdk.findRecordsByTagName('Substation')
+	if (substations.length === 0) {
+		console.warn('no substations found in the database:', newFileName)
+		return
+	}
+
+	const includeList = [
+		'AllocationRole',
+		'Application',
+		'Bay',
+		'BehaviorDescription',
+		'ConductingEquipment',
+		'Function',
+		'LNode',
+		'PowerTransformers',
+		'Private',
+		'SubEquipment',
+		'SubFunction',
+		'Substation',
+		'VoltageLevel',
+	]
+
+	// Gather their children
+	const substationsChildren = (
+		await Promise.all(
+			substations.map(async (substation) => {
+				const children = await sdk!.findChildRecordsWithinDepthAndGivenTagName(
+					substation,
+					3,
+					includeList,
+				)
+				return children
+			}),
+		)
+	).flat()
+
+	const allElements = [...substations, ...substationsChildren]
+	layout.setRecords(allElements)
+	await layout.calcLayout()
+}
+
+async function onExpand(event: { id: string }) {
+	const nodeId = event.id
+
+	if (!layout.hasNodeLoadedChildren(nodeId)) {
+		const record = layout.borrowRecordById(nodeId)
+		if (!record) {
+			console.warn({ msg: 'record not found by id, cannot load children', id: nodeId })
+			return
+		}
+		if (!sdk) {
+			console.error({ msg: 'no sdk instance available to find child records' })
+			return
+		}
+
+		const children = await sdk.findChildRecords(record)
+		layout.addChildren(nodeId, children)
+	}
+
+	layout.expandNode(nodeId)
+}
+
+function onCollapse(nodeId: string) {
+	layout.collapseNode(nodeId)
+}
 </script>
+
+<style>
+@import './app.css';
+@import '@septkit/ui/configcss';
+</style>
 
 <style scoped>
 /*
@@ -40,5 +129,7 @@ onUnmounted(() => {
 	the rest of the ui
 */
 
-@reference "@/assets/main.css";
+.root {
+	height: 100%;
+}
 </style>

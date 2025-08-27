@@ -1,0 +1,26 @@
+name: Quality Check @septkit/ext-dataflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'packages/extensions/dataflow/**'
+
+jobs:
+  install:
+    name: Install Dependencies
+    uses: ./.github/workflows/_install-ext-dataflow.yml
+
+  test:
+    name: Run Tests
+    needs: install
+    uses: ./.github/workflows/_test.yml
+    with:
+      package-name: extensions/dataflow
+
+  lint:
+    name: Lint Code
+    needs: install
+    uses: ./.github/workflows/_lint.yml
+    with:
+      package-name: extensions/dataflow

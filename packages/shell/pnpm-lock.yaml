@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@septkit/fileio':
-      specifier: 0.0.2
-      version: 0.0.2
+      specifier: 0.0.3
+      version: 0.0.3
     '@septkit/ui':
-      specifier: 0.0.5
-      version: 0.0.5
+      specifier: 0.0.7
+      version: 0.0.7
 
 importers:
 

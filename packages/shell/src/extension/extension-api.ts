@@ -1,3 +1,5 @@
+import { watch } from 'vue'
+import { useFileStore } from '../data-management/data-management.store'
 import type { Optional } from '../x/types'
 import type { WidgetContribution } from './extension'
 import { useSecondarySidebarWidgetStore } from './extension-store'
@@ -23,30 +25,32 @@ function createAPI() {
 }
 
 function createActiveFileNameStore() {
-	let listeners: Listener[] = []
-	let activeFileName: string | undefined
+	let _listeners: Listener[] = []
+	let _activeFileName: string | undefined
+	const _fileStore = useFileStore()
 
-	setTimeout(() => sendRandomFileName(), 2_000)
+	watch(() => _fileStore.currentActiveFileDatabaseName, sendNewFileName)
+	_activeFileName = _fileStore.currentActiveFileDatabaseName
 
 	return {
 		get value() {
-			return activeFileName
+			return _activeFileName
 		},
 		subscribe,
 	}
 
 	function subscribe(listener: Listener) {
-		listeners.push(listener)
+		_listeners.push(listener)
 
 		return function unsubscribe() {
-			listeners = listeners.filter((ln) => ln !== listener)
+			_listeners = _listeners.filter((ln) => ln !== listener)
 		}
 	}
-	function sendRandomFileName() {
-		for (const listener of listeners) {
-			listener(activeFileName ?? '' + Math.random(), activeFileName)
+	function sendNewFileName(newFileName: string) {
+		for (const listener of _listeners) {
+			listener(newFileName, _activeFileName)
 		}
-		setTimeout(() => sendRandomFileName(), 2_000)
+		_activeFileName = newFileName
 	}
 }
 

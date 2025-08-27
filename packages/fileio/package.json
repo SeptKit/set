@@ -1,6 +1,6 @@
 {
 	"name": "@septkit/fileio",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -28,7 +28,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"dexie": "^4.0.11",
+		"dexie": "catalog:",
 		"sax": "^1.4.1",
 		"vite": "^7.0.0"
 	},

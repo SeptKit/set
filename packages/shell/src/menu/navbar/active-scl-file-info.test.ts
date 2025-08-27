@@ -17,7 +17,7 @@ describe('ActiveFile.vue', () => {
 		fileStore.currentActiveFileDatabaseName = ''
 		expect(screen.getByText('No active file')).toBeInTheDocument()
 		fileStore.currentActiveFileDatabaseName = 'projektX'
-		await nextTick
+		await nextTick()
 		expect(screen.getByText('Active file: projektX')).toBeInTheDocument()
 	})
 })
