@@ -33,7 +33,6 @@ export default defineConfig({
 			entry: {
 				shell: fileURLToPath(new URL('./src/shell.js', import.meta.url)),
 				'sidebar-primary': fileURLToPath(new URL('./src/sidebar-primary.js', import.meta.url)),
-				'sidebar-secondary': fileURLToPath(new URL('./src/sidebar-secondary.js', import.meta.url)),
 				// menu: fileURLToPath(new URL('./src/menu.js', import.meta.url)),
 			},
 			formats: ['es'],

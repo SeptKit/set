@@ -1,5 +1,5 @@
 <template>
-	<div class="root" name="main-area">
+	<div class="main-area" name="main-area">
 		<div class="editors">
 			<EditorBar :widgets="store.widgets" @change="onWidgetChange" />
 		</div>
@@ -48,7 +48,7 @@ function onWidgetChange(widgetId: Optional<string>) {
 	align-items: center;
 	gap: 1rem;
 }
-.root {
+.main-area {
 	height: 100%;
 	display: grid;
 	grid-template-rows: auto 1fr;

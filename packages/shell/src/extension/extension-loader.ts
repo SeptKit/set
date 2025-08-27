@@ -36,10 +36,6 @@ async function fetchExtensionDefinitions(
 								mapWidgets(def, extUrl, 'primarySidebar'),
 							) ?? []),
 
-							...(extDef.contributes.secondarySidebars?.map((def) =>
-								mapWidgets(def, extUrl, 'secondarySidebar'),
-							) ?? []),
-
 							...(extDef.contributes.menu?.map((def) => mapMenu(def, extUrl)) ?? []),
 						],
 					}
@@ -105,7 +101,6 @@ export type ExtensionDefinition = {
 	contributes: {
 		customEditors?: CustomEditorDefinition[]
 		primarySidebars?: SidebarWidgetDefinition[]
-		secondarySidebars?: SidebarWidgetDefinition[]
 		menu?: MenuDefinition[]
 	}
 }

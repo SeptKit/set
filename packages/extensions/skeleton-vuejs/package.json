@@ -24,14 +24,6 @@
 				"icon": "/assets/icon.svg",
 				"entryPoint": "/sidebar-primary.js"
 			}
-		],
-		"secondarySidebars": [
-			{
-				"id": "sprinteins.ext-skeleton-vuejs.secondary-sidebar",
-				"displayName": "VueJS Skeleton",
-				"icon": "/assets/icon.svg",
-				"entryPoint": "/sidebar-secondary.js"
-			}
 		]
 	},
 	"scripts": {

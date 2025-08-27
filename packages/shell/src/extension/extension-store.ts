@@ -32,7 +32,6 @@ export type ExtensionStore = ReturnType<typeof useExtensionStore>
 
 export const useMainAreaWidgetStore = makeWidgetStore('mainArea')
 export const usePrimarySidebarWidgetStore = makeWidgetStore('primarySidebar')
-export const useSecondarySidebarWidgetStore = makeWidgetStore('secondarySidebar')
 export const useMenuContributionsStore = defineStore('menuContributionStore', () => {
 	const _extensionStore = useExtensionStore()
 

@@ -1,8 +1,6 @@
 import { watch } from 'vue'
 import { useFileStore } from '../data-management/data-management.store'
 import type { Optional } from '../x/types'
-import type { WidgetContribution } from './extension'
-import { useSecondarySidebarWidgetStore } from './extension-store'
 
 let _extensionAPI: API
 
@@ -20,7 +18,6 @@ export function useExtensionAPI(): API {
 function createAPI() {
 	return {
 		activeFileName: createActiveFileNameStore(),
-		secondarySidebar: createSecondarySidebarAPI(),
 	}
 }
 
@@ -51,22 +48,6 @@ function createActiveFileNameStore() {
 			listener(newFileName, _activeFileName)
 		}
 		_activeFileName = newFileName
-	}
-}
-
-function createSecondarySidebarAPI() {
-	const _store = useSecondarySidebarWidgetStore()
-
-	return {
-		get widgets() {
-			return _store.widgets
-		},
-		findWidgetById,
-		activateWidget: _store.activateWidget,
-	}
-
-	function findWidgetById(id: string): WidgetContribution | undefined {
-		return _store.widgets.find((w) => w.id === id)
 	}
 }
 

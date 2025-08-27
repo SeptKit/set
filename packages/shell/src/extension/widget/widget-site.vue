@@ -1,17 +1,15 @@
 <template>
-	<div>
-		<div class="root-widget" name="widget-site">
-		<div ref="widget-root" :id="props.rootId">&nbsp;</div>
+	<div class="root" name="widget-site">
+		<div class="widget-root" ref="widget-root" :id="props.rootId">&nbsp;</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, useTemplateRef, watch } from 'vue'
+import { useTemplateRef, watch } from 'vue'
 import type { Optional } from '../../x/types'
 import type { WidgetContribution } from '../extension'
 import { fetchWidgetStartFn } from '../extension-loader'
 import { useExtensionAPI, type API } from '../extension-api'
-import { useSecondarySidebarWidgetStore } from '../extension-store'
 
 const props = defineProps<{
 	widget: Optional<WidgetContribution>
@@ -19,13 +17,11 @@ const props = defineProps<{
 }>()
 
 let api: API = useExtensionAPI()
-let secondarySidebarStore = useSecondarySidebarWidgetStore()
 const widgetRoot = useTemplateRef<HTMLDivElement>('widget-root')
 let previousETag: string = ''
 let runningTimeout: number
 
 watch(() => props.widget, watchPluginChange)
-// onMounted(() => (api = useExtensionAPI()))
 
 // TODO: only reload in dev mode
 async function watchPluginChange() {
@@ -110,8 +106,11 @@ function addCachBusterToURL(url: string): string {
 </script>
 
 <style scoped>
-.root-widget {
+.root {
 	height: 100%;
-	display: grid;
+}
+
+.widget-root {
+	height: 100%;
 }
 </style>
