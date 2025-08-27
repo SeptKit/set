@@ -94,7 +94,7 @@ describe('use-lnode-records to map the XML', () => {
 })
 
 async function loadMinimalTestDB() {
-	const sclFile = new File([sclData], 'test.ssd', { type: 'text/xml' })
+	const sclFile = new File([sclData], 'use-lnodes-test.ssd', { type: 'text/xml' })
 	const [fileName] = await importXmlFiles({ files: [sclFile] })
 	localStorage.setItem('currentActiveFileDatabaseName', fileName)
 
