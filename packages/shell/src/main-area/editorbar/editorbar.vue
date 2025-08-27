@@ -8,11 +8,6 @@
 			:value="widget.id"
 			@change="onChange"
 			class="tab"
-			:style="
-				activeWidget === widget.id
-					? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-content)' }
-					: {}
-			"
 			type="radio"
 			name="options"
 		/>
@@ -38,3 +33,10 @@ function onChange() {
 	emit('change', activeWidget.value)
 }
 </script>
+
+<style scoped>
+input:checked {
+	background-color: var(--color-primary);
+	color: var(--color-primary-content);
+}
+</style>
