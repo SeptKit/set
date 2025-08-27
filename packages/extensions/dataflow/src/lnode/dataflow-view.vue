@@ -9,7 +9,7 @@
 
 		<button
 			:disabled="!sourceLNode || !destinationLNode"
-			class="btn bg-(--color-chart-3) border-none text-white disabled:text-(--color-ocean-gray-300)"
+			class="btn bg-(--color-primary) border-none text-white disabled:text-(--color-ocean-gray-300)"
 			@click="showModal"
 		>
 			+

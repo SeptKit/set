@@ -141,7 +141,7 @@
 			</div>
 
 			<div class="modal-action">
-				<button class="btn bg-(--color-chart-3) border-none text-white" @click="createConnection">
+				<button class="btn bg-(--color-primary) border-none text-white" @click="createConnection">
 					Save
 				</button>
 			</div>

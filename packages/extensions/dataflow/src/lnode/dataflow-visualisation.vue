@@ -78,7 +78,7 @@
 
 			<!-- Dataflow Line Label -->
 			<div
-				class="bg-(--color-chart-3) text-white col-start-3 self-center justify-self-center z-1 relative p-1 rounded-sm text-sm"
+				class="bg-(--color-primary) text-white col-start-3 self-center justify-self-center z-1 relative p-1 rounded-sm text-sm"
 				:style="{ gridRowStart: idx + 2 }"
 			>
 				{{ connection.dataflowType }}
