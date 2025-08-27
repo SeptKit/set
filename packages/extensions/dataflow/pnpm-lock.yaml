@@ -10,8 +10,8 @@ catalogs:
       specifier: 0.0.3
       version: 0.0.3
     '@septkit/ui':
-      specifier: 0.0.7
-      version: 0.0.7
+      specifier: 0.0.6
+      version: 0.0.6
     dexie:
       specifier: ^4.2.0
       version: 4.2.0
@@ -25,7 +25,7 @@ importers:
         version: link:../../fileio
       '@septkit/ui':
         specifier: 'catalog:'
-        version: link:../../ui
+        version: 0.0.6(daisyui@5.0.46)(tailwindcss@4.1.12)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
@@ -610,6 +610,12 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
+  '@septkit/ui@0.0.6':
+    resolution: {integrity: sha512-LumXuISjU28gbMasOaa1gZj+08nRxSn4MftE+u2wiERe2WWQiqg0EPOg77EUtL419AsH4O3qmSzJofUFpMyVvA==}
+    peerDependencies:
+      daisyui: ^5.0.0
+      tailwindcss: ^4.0.0
+
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
@@ -899,16 +905,34 @@ packages:
       vue:
         optional: true
 
+  '@vueuse/components@13.8.0':
+    resolution: {integrity: sha512-lAunbZhYdQB/eVQVJqTKTfPnyZUYgd5wgWDl6HymnM1jF1RT/lI/a2oLZNBu49Yr1cY2Eq/7jNvuZz/dMa1EIw==}
+    peerDependencies:
+      vue: ^3.5.0
+
   '@vueuse/core@13.5.0':
     resolution: {integrity: sha512-wV7z0eUpifKmvmN78UBZX8T7lMW53Nrk6JP5+6hbzrB9+cJ3jr//hUlhl9TZO/03bUkMK6gGkQpqOPWoabr72g==}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@vueuse/core@13.8.0':
+    resolution: {integrity: sha512-rmBcgpEpxY0ZmyQQR94q1qkUcHREiLxQwNyWrtjMDipD0WTH/JBcAt0gdcn2PsH0SA76ec291cHFngmyaBhlxA==}
     peerDependencies:
       vue: ^3.5.0
 
   '@vueuse/metadata@13.5.0':
     resolution: {integrity: sha512-euhItU3b0SqXxSy8u1XHxUCdQ8M++bsRs+TYhOLDU/OykS7KvJnyIFfep0XM5WjIFry9uAPlVSjmVHiqeshmkw==}
 
+  '@vueuse/metadata@13.8.0':
+    resolution: {integrity: sha512-BYMp3Gp1kBUPv7AfQnJYP96mkX7g7cKdTIgwv/Jgd+pfQhz678naoZOAcknRtPLP4cFblDDW7rF4e3KFa+PfIA==}
+
   '@vueuse/shared@13.5.0':
     resolution: {integrity: sha512-K7GrQIxJ/ANtucxIXbQlUHdB0TPA8c+q5i+zbrjxuhJCnJ9GtBg75sBSnvmLSxHKPg2Yo8w62PWksl9kwH0Q8g==}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@vueuse/shared@13.8.0':
+    resolution: {integrity: sha512-x4nfM0ykW+RmNJ4/1IzZsuLuWWrNTxlTWUiehTGI54wnOxIgI9EDdu/O5S77ac6hvQ3hk2KpOVFHaM0M796Kbw==}
     peerDependencies:
       vue: ^3.5.0
 
@@ -2604,6 +2628,20 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
+  '@septkit/ui@0.0.6(daisyui@5.0.46)(tailwindcss@4.1.12)(typescript@5.8.3)(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))':
+    dependencies:
+      '@tailwindcss/vite': 4.1.11(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
+      '@vueuse/components': 13.8.0(vue@3.5.17(typescript@5.8.3))
+      '@vueuse/core': 13.5.0(vue@3.5.17(typescript@5.8.3))
+      daisyui: 5.0.46
+      pinia: 3.0.3(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
+      tailwindcss: 4.1.12
+      vite-plugin-static-copy: 3.1.1(vite@7.0.5(@types/node@22.16.5)(jiti@2.4.2)(lightningcss@1.30.1))
+      vue: 3.5.17(typescript@5.8.3)
+    transitivePeerDependencies:
+      - typescript
+      - vite
+
   '@sindresorhus/merge-streams@4.0.0': {}
 
   '@tailwindcss/node@4.1.11':
@@ -2958,6 +2996,12 @@ snapshots:
       typescript: 5.8.3
       vue: 3.5.17(typescript@5.8.3)
 
+  '@vueuse/components@13.8.0(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      '@vueuse/core': 13.8.0(vue@3.5.17(typescript@5.8.3))
+      '@vueuse/shared': 13.8.0(vue@3.5.17(typescript@5.8.3))
+      vue: 3.5.17(typescript@5.8.3)
+
   '@vueuse/core@13.5.0(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.21
@@ -2965,9 +3009,22 @@ snapshots:
       '@vueuse/shared': 13.5.0(vue@3.5.17(typescript@5.8.3))
       vue: 3.5.17(typescript@5.8.3)
 
+  '@vueuse/core@13.8.0(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.21
+      '@vueuse/metadata': 13.8.0
+      '@vueuse/shared': 13.8.0(vue@3.5.17(typescript@5.8.3))
+      vue: 3.5.17(typescript@5.8.3)
+
   '@vueuse/metadata@13.5.0': {}
 
+  '@vueuse/metadata@13.8.0': {}
+
   '@vueuse/shared@13.5.0(vue@3.5.17(typescript@5.8.3))':
+    dependencies:
+      vue: 3.5.17(typescript@5.8.3)
+
+  '@vueuse/shared@13.8.0(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       vue: 3.5.17(typescript@5.8.3)
 
