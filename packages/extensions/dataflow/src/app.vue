@@ -1,19 +1,16 @@
 <template>
-	<div>
-		<h1 class="text-5xl font-bold text-center my-8 uppercase tracking-wider">Dataflow Extension</h1>
-		<div class="dataflow-app-center">
-			<DataflowVisualisation :sdks="sdks" />
-		</div>
+	<div class="p-10">
+		<DataflowView :sdks="sdks" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import DataflowVisualisation from '@/lnode/dataflow-visualisation.vue'
-import { useLNodes, type LNodeSDK } from '@/lnode/use-lnodes'
+import { useLNodes, type LNodeSDK } from './lnode/use-lnodes'
 import { openDatabase } from './x/database'
-import { useConnections, type ConnectionSDK } from '@/lnode/use-connections'
+import { useConnections, type ConnectionSDK } from './lnode/use-connections'
 import type Dexie from 'dexie'
+import DataflowView from './lnode/dataflow-view.vue'
 
 export type SDKs = {
 	db: Dexie
@@ -51,7 +48,7 @@ async function onActiveFileChange(event: StorageEvent) {
 async function initWithCurrentActiveFile() {
 	const newActiveFile = localStorage.getItem('currentActiveFileDatabaseName')
 	if (!newActiveFile) {
-		throw new Error('incorrect active file name: ' + newActiveFile)
+		return
 	}
 	await initSDKs(newActiveFile)
 }
@@ -72,17 +69,6 @@ async function initSDKs(newActiveFile: string) {
 }
 </script>
 
-<style scoped>
-/*
-	We import it here and not on the top so it is scoped and does not affect
-	the rest of the ui
-*/
+<style>
 @import '@/assets/main.css';
-
-.dataflow-app-center {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
 </style>

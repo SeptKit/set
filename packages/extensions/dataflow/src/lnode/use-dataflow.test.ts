@@ -95,7 +95,7 @@ describe('create dataflow into XML', () => {
 		)
 
 		// Assert: Check if SourceRef element was created
-		const { xmlDocument } = await exportFile({ databaseName: 'test' })
+		const { xmlDocument } = await exportFile({ databaseName: 'use-dataflow-test' })
 		const xmlAsString = new XMLSerializer().serializeToString(xmlDocument).replace(/></g, '>\n<')
 
 		// For some reason the export does not keep the <DataTypeTemplates> element at the end
@@ -189,7 +189,7 @@ describe('create dataflow into XML', () => {
 		)
 
 		// Assert: Check if SourceRef elements were created
-		const { xmlDocument } = await exportFile({ databaseName: 'test' })
+		const { xmlDocument } = await exportFile({ databaseName: 'use-dataflow-test' })
 		const xmlAsString = new XMLSerializer().serializeToString(xmlDocument).replace(/></g, '>\n<')
 
 		// For some reason the export does not keep the <DataTypeTemplates> element at the end
@@ -263,7 +263,8 @@ describe('create dataflow into XML', () => {
 })
 
 async function loadMinimalTestDB() {
-	const sclFile = new File([sclData], 'test.ssd', { type: 'text/xml' })
+	const uniqueFileName = `use-dataflow-test.ssd`
+	const sclFile = new File([sclData], uniqueFileName, { type: 'text/xml' })
 	const [fileName] = await importXmlFiles({ files: [sclFile] })
 	localStorage.setItem('currentActiveFileDatabaseName', fileName)
 

@@ -133,7 +133,7 @@ describe('useConnections to map the XML data', () => {
 })
 
 async function loadMinimalTestDB() {
-	const sclFile = new File([sclData], 'test.ssd', { type: 'text/xml' })
+	const sclFile = new File([sclData], 'use-connections-test.ssd', { type: 'text/xml' })
 	const [fileName] = await importXmlFiles({ files: [sclFile] })
 	localStorage.setItem('currentActiveFileDatabaseName', fileName)
 

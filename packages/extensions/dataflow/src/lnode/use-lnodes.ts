@@ -5,11 +5,11 @@ import type {
 	DataObjectSpecification,
 	LNode,
 	SubscriberLNode,
-} from '@/lnode/lnode'
+} from './lnode'
 import type { DatabaseRecord } from '@septkit/fileio'
 import Dexie from 'dexie'
 import { DataflowType } from './connection'
-import { extractAttributeValue } from '../x/use-database'
+import { extractAttributeValue } from '@/x/use-database'
 
 export type LNodeSDK = ReturnType<typeof useLNodes>
 
