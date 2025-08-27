@@ -1,7 +1,6 @@
 <template>
 	<div class="root" name="main-area">
 		<div class="editors">
-			<!-- <span>Views</span> -->
 			<EditorBar :widgets="store.widgets" @change="onWidgetChange" />
 		</div>
 		<div class="content">

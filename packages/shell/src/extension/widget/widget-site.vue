@@ -19,15 +19,25 @@ const props = defineProps<{
 const api = useExtensionAPI()
 const widgetRoot = useTemplateRef<HTMLDivElement>('widget-root')
 let previousETag: string = ''
+let runningTimeout: number
 
 watch(() => props.widget, watchPluginChange)
 
 async function watchPluginChange() {
-	await reloadPluginIfNeeded()
-	setTimeout(watchPluginChange, 1_000)
+	if (runningTimeout !== undefined) {
+		clearTimeout(runningTimeout)
+	}
+	previousETag = ''
+	startWidgetLoading()
 }
 
-async function reloadPluginIfNeeded() {
+async function startWidgetLoading() {
+	await reloadWidgetIfNeeded()
+
+	runningTimeout = window.setTimeout(startWidgetLoading, 1_000)
+}
+
+async function reloadWidgetIfNeeded() {
 	if (!props.widget) {
 		return
 	}
@@ -36,7 +46,9 @@ async function reloadPluginIfNeeded() {
 		const response = await fetch(props.widget.startFnUrl, { method: 'HEAD' })
 		const currentETag = response.headers.get('ETag') || response.headers.get('Last-Modified')
 
-		if (!currentETag || currentETag === previousETag) {
+		const needsReload = currentETag && currentETag !== previousETag
+
+		if (!needsReload) {
 			return
 		}
 
@@ -59,13 +71,13 @@ async function reloadPluginIfNeeded() {
 		//
 		// Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#module_namespace_object
 		const url = addCachBusterToURL(props.widget.startFnUrl)
-		loadAndStartExtension(url)
+		loadAndStartWidget(url)
 	} catch (error) {
 		console.error('Failed to reload plugin:', error)
 	}
 }
 
-async function loadAndStartExtension(startFnUrl: Optional<string>) {
+async function loadAndStartWidget(startFnUrl: Optional<string>) {
 	if (!startFnUrl) {
 		console.info({ msg: 'no startFnUrl yet' })
 		return
@@ -79,6 +91,7 @@ async function loadAndStartExtension(startFnUrl: Optional<string>) {
 		console.error({ msg: 'could not find widget root', widgetRoot })
 		return
 	}
+
 	widgetRoot.value.innerHTML = ''
 	startFn('main-area-widget-root', api)
 }
