@@ -20,7 +20,7 @@ import type { Optional } from '../x/types'
 const store = useMainAreaWidgetStore()
 
 const extensionList = [
-	'https://septkit.github.io/extensions/structure/4/', // Structure Prod
+	'https://septkit.github.io/extensions/structure/5/', // Structure Prod
 	'https://septkit.github.io/extensions/dataflow/3/', // Dataflow Prod
 	// 'http://localhost:54945/', //Structure DEV
 	// 'http://localhost:54944/',
