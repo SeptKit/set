@@ -37,8 +37,8 @@ const props = defineProps<{
 	sdks: SDKs | undefined
 }>()
 
-const sourceLNode = ref<LNode | null>(null)
-const destinationLNode = ref<LNode | null>(null)
+const sourceLNode = ref<LNode | undefined>()
+const destinationLNode = ref<LNode | undefined>()
 const isCreationDialogOpen = ref(false)
 
 const lnodes = ref<LNode[]>([])
@@ -76,7 +76,7 @@ function onDestinationLNodeChange(newLNodeId?: string) {
 }
 
 function getActiveLNodeById(id: string | undefined) {
-	return lnodes.value.find((ln) => ln.id === id) ?? null
+	return lnodes.value.find((ln) => ln.id === id) ?? undefined
 }
 
 function showModal() {

@@ -5,7 +5,7 @@
 	>
 		<!-- Left LNode Background -->
 		<div
-			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
+			class="col-start-1 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
 		<!-- Left LNode Select -->
@@ -17,14 +17,14 @@
 		>
 			>
 			<option key="null" value="">Select LNode</option>
-			<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+			<option v-for="ln in sourceLnodeOptions" :key="ln.id" :value="ln.id">
 				{{ getLNodeLabel(ln) }}
 			</option>
 		</select>
 
 		<!-- Right LNode Background -->
 		<div
-			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-3xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
+			class="col-start-4 col-span-2 row-span-full bg-(--color-ocean-gray-50) relative rounded-xl -z-1 border-(--color-ocean-gray-100) border-3 min-h-[500px]"
 		></div>
 
 		<!-- Right LNode Select -->
@@ -35,7 +35,7 @@
 			class="col-start-4 col-span-2 self-center justify-self-center row-start-1 text-2xl text-center"
 		>
 			<option key="null" value="">Select LNode</option>
-			<option v-for="ln in lnodes" :key="ln.id" :value="ln.id">
+			<option v-for="ln in destinationLnodeOptions" :key="ln.id" :value="ln.id">
 				{{ getLNodeLabel(ln) }}
 			</option>
 		</select>
@@ -132,15 +132,23 @@ watch(
 const sourceLNodeId = ref<string | undefined>()
 const destinationLNodeId = ref<string | undefined>()
 
+const sourceLnodeOptions = computed(() =>
+	props.lnodes.filter((ln) => ln.id !== destinationLNodeId.value),
+)
+
+const destinationLnodeOptions = computed(() =>
+	props.lnodes.filter((ln) => ln.id !== sourceLNodeId.value),
+)
+
 const filteredConnections = computed(() => {
-	if (sourceLNodeId.value && destinationLNodeId.value) {
-		return props.connections.filter(
-			(c) =>
-				c.sourceLNodeId === sourceLNodeId.value &&
-				c.destinationLNodeId === destinationLNodeId.value,
-		)
+	if (!sourceLNodeId.value || !destinationLNodeId.value) {
+		return []
 	}
-	return []
+
+	return props.connections.filter(
+		(c) =>
+			c.sourceLNodeId === sourceLNodeId.value && c.destinationLNodeId === destinationLNodeId.value,
+	)
 })
 
 function onSourceLNodeSelect(lnodeId: string) {

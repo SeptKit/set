@@ -1,7 +1,7 @@
 import { expect, describe, it, vi } from 'vitest'
 import { render } from 'vitest-browser-vue'
 import DataflowCreationForm from './dataflow-creation-form.vue'
-import { getLNodeLabel, type LNode } from './lnode'
+import { type LNode } from './lnode'
 
 const createDataflowMock = vi.fn()
 
@@ -17,7 +17,7 @@ vi.mock('@/x/database.ts', () => {
 	}
 })
 
-const sendingLNode: LNode = {
+const sourceLNode: LNode = {
 	id: '1',
 	uuid: 'dc91b40a-d48d-4218-bfa5-8dfaf66c7a59',
 	iedName: 'PIU',
@@ -81,7 +81,7 @@ const sendingLNode: LNode = {
 	dataObjectSpecifications: [],
 }
 
-const receivingLNode: LNode = {
+const destinationLNode: LNode = {
 	id: '2',
 	uuid: '80dee19b-e263-4904-a54e-6191183a9877',
 	iedName: 'P1',
@@ -98,8 +98,8 @@ describe('DataflowCreationForm', () => {
 		it('renders form elements ', () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -122,21 +122,21 @@ describe('DataflowCreationForm', () => {
 		it('renders source and destination lnode label', () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
-			expect(screen.getByText(getLNodeLabel(sendingLNode))).toBeInTheDocument()
-			expect(screen.getByText(getLNodeLabel(receivingLNode))).toBeInTheDocument()
+			expect(screen.getByText('I01A TCTR 11')).toBeInTheDocument()
+			expect(screen.getByText('PTRC 1')).toBeInTheDocument()
 		})
 	})
 	describe('Form actions', () => {
 		it('shows alert when mandatory field is not filled', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -152,8 +152,8 @@ describe('DataflowCreationForm', () => {
 
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -173,8 +173,8 @@ describe('DataflowCreationForm', () => {
 					includeQuality: true,
 					includeTimestamp: false,
 				},
-				sendingLNode,
-				receivingLNode,
+				sourceLNode,
+				destinationLNode,
 			)
 		})
 	})
@@ -182,8 +182,8 @@ describe('DataflowCreationForm', () => {
 		it('clears form fields which are dependent on dataflow type', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -202,8 +202,8 @@ describe('DataflowCreationForm', () => {
 		it('clears form fields which are dependent on signal', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -225,8 +225,8 @@ describe('DataflowCreationForm', () => {
 		it('preselects checkboxes depending on selected dataflow type', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -254,8 +254,8 @@ describe('DataflowCreationForm', () => {
 		it('shows correct signal select options', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
@@ -279,8 +279,8 @@ describe('DataflowCreationForm', () => {
 		it('shows correct data attribute select options', async () => {
 			const screen = render(DataflowCreationForm, {
 				props: {
-					sourceLNode: sendingLNode,
-					destinationLNode: receivingLNode,
+					sourceLNode: sourceLNode,
+					destinationLNode: destinationLNode,
 					isOpen: true,
 				},
 			})
