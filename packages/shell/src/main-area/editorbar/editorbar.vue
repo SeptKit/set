@@ -1,5 +1,5 @@
 <template>
-	<div class="join">
+	<div class="tabs tabs-box">
 		<input
 			v-for="widget in widgets"
 			:key="widget.id"
@@ -7,7 +7,7 @@
 			v-model="activeWidget"
 			:value="widget.id"
 			@change="onChange"
-			class="join-item btn"
+			class="tab"
 			type="radio"
 			name="options"
 		/>
@@ -33,3 +33,10 @@ function onChange() {
 	emit('change', activeWidget.value)
 }
 </script>
+
+<style scoped>
+input:checked {
+	background-color: var(--color-primary);
+	color: var(--color-primary-content);
+}
+</style>

@@ -1,8 +1,8 @@
 <template>
 	<div class="root" name="diagram">
 		<VueFlow
-			:nodes="nodes"
-			:edges="edges"
+			:nodes="props.nodes"
+			:edges="props.edges"
 			class="basic-flow"
 			:default-viewport="{ zoom: 1.0 }"
 			:min-zoom="0.2"
@@ -10,8 +10,12 @@
 		>
 			<Background pattern-color="#aaa" :gap="16" />
 
-			<template #node-bay="props">
-				<FlowNodeBay v-bind="props" />
+			<template #node-expandable="props">
+				<FlowNodeExpandable
+					v-bind="props"
+					@expand="(event) => $emit('expand', event)"
+					@collapse="(event) => $emit('collapse', event)"
+				/>
 			</template>
 
 			<MiniMap />
@@ -30,35 +34,32 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, watchEffect } from 'vue'
 import { VueFlow, useVueFlow, type Node, type Edge } from '@vue-flow/core'
-import { ControlButton, Controls } from '@vue-flow/controls'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
+import { Controls, ControlButton } from '@vue-flow/controls'
 import Icon from './icon.vue'
-import { useLayout } from '../layout'
-import FlowNodeBay from './flow-node-bay.vue'
+import FlowNodeExpandable from './node-expandable/flow-node-expandable.vue'
 
 const props = defineProps<{
 	nodes: Node[]
 	edges: Edge[]
 }>()
 
-const { calcLayout } = useLayout()
 const {
 	onInit,
 	onNodeDragStop,
 	onConnect,
 	addEdges,
+	onNodesChange,
 	setViewport,
 	toObject,
-	setEdges,
+	edges,
 	setNodes,
 	fitView,
 } = useVueFlow()
 
 onInit((vueFlowInstance) => {
-	// instance is the same as the return of `useVueFlow`
 	vueFlowInstance.fitView()
 })
 
@@ -79,13 +80,19 @@ function resetTransform() {
 }
 </script>
 
+<style scoped>
+.root {
+	padding-bottom: 1rem;
+}
+</style>
+
 <style>
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
 @import '@vue-flow/controls/dist/style.css';
 @import '@vue-flow/minimap/dist/style.css';
 
-.root {
-	padding-bottom: 1rem;
+.vue-flow__node {
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>
