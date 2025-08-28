@@ -103,6 +103,7 @@
 				}}</span>
 			</div>
 		</template>
+		<Button2>test</Button2>
 	</div>
 </template>
 
@@ -110,6 +111,7 @@
 import { computed, ref, watch } from 'vue'
 import { getLNodeLabel, type LNode } from './lnode'
 import type { Connection } from './connection'
+import { Button2 } from '@septkit/ui'
 
 const emit = defineEmits<{
 	(e: 'sourceLNodeChange', value: string | undefined): void
