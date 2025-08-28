@@ -45,8 +45,12 @@ jobs:
 
       - name: Delete comment if only one or zero folders changed
         if: steps.count-changed.outputs.unique_folders == '0' || steps.count-changed.outputs.unique_folders == '1'
-        uses: peter-evans/delete-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Checking Package Changes
+            Nothing to worry about, all looks good! :heavy_check_mark:
           comment-id: package-change-checklist
+          edit-mode: replace
