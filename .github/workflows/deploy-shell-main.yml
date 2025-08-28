@@ -36,6 +36,12 @@ jobs:
       package-name: shell
       deployed-folder: .
 
+  extract-version:
+    name: Extract Version
+    uses: ./.github/workflows/_extract-version.yml
+    with:
+      package-name: shell
+
   lint:
     name: Lint Code
     needs: install
