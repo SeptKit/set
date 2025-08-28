@@ -30,27 +30,48 @@ jobs:
           count=$(echo "$folders" | wc -l)
           echo "unique_folders=$count" >> $GITHUB_OUTPUT
 
-      - name: Add or update comment if multiple packages or extensions changed
-        if: steps.count-changed.outputs.unique_folders != '0' && steps.count-changed.outputs.unique_folders != '1'
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Checking Package Changes
+
+      - name: Create comment
         uses: peter-evans/create-or-update-comment@v4
+        if: steps.fc.outputs.comment-id == '' && steps.count-changed.outputs.unique_folders != '0' && steps.count-changed.outputs.unique_folders != '1'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
+            ## Checking Package Changes
             :warning: Changes detected in **multiple** packages or extensions!
             Please consider to split up your changes into separate PRs, each focusing on a single package or extension.
             Beware that if the packages and their unpublished versions are dependent on each other, the build, test and deployment might fail.
-          comment-id: package-change-checklist
+
+      - name: Update comment with warning
+        uses: peter-evans/create-or-update-comment@v4
+        if: steps.fc.outputs.comment-id != '' && steps.count-changed.outputs.unique_folders != '0' && steps.count-changed.outputs.unique_folders != '1'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Checking Package Changes
+            :warning: Changes detected in **multiple** packages or extensions!
+            Please consider to split up your changes into separate PRs, each focusing on a single package or extension.
+            Beware that if the packages and their unpublished versions are dependent on each other, the build, test and deployment might fail.
+          comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
 
-      - name: Delete comment if only one or zero folders changed
-        if: steps.count-changed.outputs.unique_folders == '0' || steps.count-changed.outputs.unique_folders == '1'
+      - name: Update comment with no warning
         uses: peter-evans/create-or-update-comment@v4
+        if: steps.fc.outputs.comment-id != '' && (steps.count-changed.outputs.unique_folders == '0' || steps.count-changed.outputs.unique_folders == '1')
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Checking Package Changes
             Nothing to worry about, all looks good! :heavy_check_mark:
-          comment-id: package-change-checklist
+          comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
