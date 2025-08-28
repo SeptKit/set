@@ -1,4 +1,5 @@
 import type { Optional } from '../x/types'
+import { generateLocationBasedFileUrl } from '../x/url'
 import type { Extension, MenuContribution, StartFn, WidgetContribution } from './extension'
 import { useExtensionStore } from './extension-store'
 
@@ -60,7 +61,7 @@ function mapWidgets(
 		label: def.displayName,
 		icon: def.icon,
 		location: location,
-		startFnUrl: generateEntrypointUrl(def.entryPoint, extUrl),
+		startFnUrl: generateLocationBasedFileUrl(def.entryPoint, extUrl),
 	}
 }
 
@@ -71,7 +72,7 @@ function mapMenu(def: MenuDefinition, extUrl: string): MenuContribution {
 		label: def.displayName,
 		icon: def.icon,
 		menuPath: def.path ?? [],
-		actionFnUrl: generateEntrypointUrl(def.entryPoint, extUrl),
+		actionFnUrl: generateLocationBasedFileUrl(def.entryPoint, extUrl),
 	}
 }
 
@@ -134,16 +135,4 @@ export async function fetchWidgetStartFn(url: string): Promise<Optional<StartFn>
 		throw new Error(`Default export not found in the loaded module from ${url}`)
 	}
 	return module.default as StartFn
-}
-
-function generateEntrypointUrl(relativeStartFnUrl: string, baseUrl: string): string {
-	const baseUrlObj = new URL(baseUrl)
-
-	const startFnFile = relativeStartFnUrl.replace('/', '')
-	const pathParts = baseUrlObj.pathname.split('/').filter(Boolean)
-	pathParts.push(startFnFile)
-	pathParts.unshift(baseUrlObj.origin)
-	const fullPath = pathParts.join('/')
-
-	return fullPath
 }
