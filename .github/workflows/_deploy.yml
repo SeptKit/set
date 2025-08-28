@@ -58,3 +58,4 @@ jobs:
             README.md
             pr-preview/
             extensions/
+            extensions.json
