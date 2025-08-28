@@ -19,13 +19,30 @@ import type { Optional } from '../x/types'
 
 const store = useMainAreaWidgetStore()
 
-const extensionList = [
-	'https://septkit.github.io/extensions/structure/5/', // Structure Prod
-	'https://septkit.github.io/extensions/dataflow/3/', // Dataflow Prod
-	'http://localhost:55608/',
-]
+onMounted(async () => {
+	const extensions = await fetchExtensionList()
+	loadExtensions(extensions)
+})
 
-onMounted(() => loadExtensions(extensionList))
+async function fetchExtensionList(): Promise<string[]> {
+	//Note: We load the `extensions.json` from the origin's root
+	// because the app currently only deployed to their
+	// and the only time it is deployed to a sub folder is when we crate pr-reviews.
+	// However, they will not going to have an `extensions.json` and they need to use
+	// the one from the root.
+	const url = '/extensions.json'
+
+	try {
+		const response = await fetch(url)
+		if (!response.ok) {
+			throw new Error(`Failed to fetch extension list: ${response.statusText}, url:${url}`)
+		}
+		return await response.json()
+	} catch (error) {
+		console.error(error)
+		return []
+	}
+}
 
 function onWidgetChange(widgetId: Optional<string>) {
 	const newActiveWidget = store.widgets.find((w) => w.id === widgetId)
