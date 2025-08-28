@@ -16,6 +16,14 @@
 				],
 				"entryPoint": "/shell.js"
 			}
+		],
+		"primarySidebars": [
+			{
+				"id": "sprinteins.ext-skeleton-vuejs.primary-sidebar",
+				"displayName": "VueJS Skeleton",
+				"icon": "/assets/icon.svg",
+				"entryPoint": "/sidebar-primary.js"
+			}
 		]
 	},
 	"scripts": {

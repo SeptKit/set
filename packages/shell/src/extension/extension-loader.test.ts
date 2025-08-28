@@ -83,6 +83,40 @@ describe('Extension Loader', () => {
 					],
 				},
 			},
+			{
+				desc: 'primary sidebar widget',
+				extDefinition: {
+					name: 'test-extension',
+					description: 'a test extension to test the primary sidebar',
+					displayName: 'A Test Extension For Primary Sidebar',
+					version: '0.0.1-test-primary',
+					contributes: {
+						primarySidebars: [
+							{
+								id: 'extension.test.primary-sidebar',
+								displayName: 'A Test Primary Sidebar Widget',
+								icon: '',
+								entryPoint: '/sidebar-primary.js',
+							},
+						],
+					},
+				},
+				expectedExtension: {
+					id: 'test-extension',
+					label: 'A Test Extension For Primary Sidebar',
+					version: '0.0.1-test-primary',
+					contributions: [
+						{
+							id: 'extension.test.primary-sidebar',
+							label: 'A Test Primary Sidebar Widget',
+							type: 'widget',
+							icon: '',
+							location: 'primarySidebar',
+							startFnUrl: 'http://localhost/sidebar-primary.js',
+						},
+					],
+				},
+			},
 		]
 
 		featureTests.forEach(testFeature)
