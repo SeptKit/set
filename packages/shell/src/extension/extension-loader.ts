@@ -1,5 +1,5 @@
 import type { Optional } from '../x/types'
-import { generateLocationAwareFileUrl } from '../x/url'
+import { generateLocationBasedFileUrl } from '../x/url'
 import type { Extension, MenuContribution, StartFn, WidgetContribution } from './extension'
 import { useExtensionStore } from './extension-store'
 
@@ -61,7 +61,7 @@ function mapWidgets(
 		label: def.displayName,
 		icon: def.icon,
 		location: location,
-		startFnUrl: generateLocationAwareFileUrl(def.entryPoint, extUrl),
+		startFnUrl: generateLocationBasedFileUrl(def.entryPoint, extUrl),
 	}
 }
 
@@ -72,7 +72,7 @@ function mapMenu(def: MenuDefinition, extUrl: string): MenuContribution {
 		label: def.displayName,
 		icon: def.icon,
 		menuPath: def.path ?? [],
-		actionFnUrl: generateLocationAwareFileUrl(def.entryPoint, extUrl),
+		actionFnUrl: generateLocationBasedFileUrl(def.entryPoint, extUrl),
 	}
 }
 

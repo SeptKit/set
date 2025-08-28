@@ -1,4 +1,4 @@
-export function generateLocationAwareFileUrl(relativeFileUrl: string, baseUrl: string): string {
+export function generateLocationBasedFileUrl(relativeFileUrl: string, baseUrl: string): string {
 	const baseUrlObj = new URL(baseUrl)
 
 	const startFnFile = relativeFileUrl.replace('/', '')

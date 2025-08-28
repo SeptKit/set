@@ -16,7 +16,6 @@ import WidgetSite from '../extension/widget/widget-site.vue'
 import { onMounted } from 'vue'
 import { loadExtensions } from '../extension/extension-loader'
 import type { Optional } from '../x/types'
-import { generateLocationAwareFileUrl } from '../x/url'
 
 const store = useMainAreaWidgetStore()
 
@@ -26,7 +25,12 @@ onMounted(async () => {
 })
 
 async function fetchExtensionList(): Promise<string[]> {
-	const url = generateLocationAwareFileUrl('/extensions.json', window.location.href)
+	//Note: We load the `extensions.json` from the origin's root
+	// because the app currently only deployed to their
+	// and the only time it is deployed to a sub folder is when we crate pr-reviews.
+	// However, they will not going to have an `extensions.json` and they need to use
+	// the one from the root.
+	const url = '/extensions.json'
 
 	try {
 		const response = await fetch(url)
