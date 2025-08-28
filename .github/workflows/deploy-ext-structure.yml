@@ -11,7 +11,9 @@ on:
 jobs:
   install:
     name: Install Dependencies
-    uses: ./.github/workflows/_install-ext-structure.yml
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: extensions/structure
 
   build:
     name: Build Project
@@ -62,3 +64,17 @@ jobs:
       target-folder: extensions/structure/${{ needs.extract-version.outputs.version }}
     secrets:
       deployment-token: ${{ secrets.SHELL_DEPLOYMENT_PAT }}
+
+  create-release-tag:
+    name: Create Release Tag
+    if: needs.version.outputs.version_changed == 'true'
+    needs:
+      - version
+      - extract-version
+      - deploy
+    uses: ./.github/workflows/_tag-release.yml
+    with:
+      package-name: extensions/structure
+      version: ${{ needs.extract-version.outputs.version }}
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}

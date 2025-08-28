@@ -13,31 +13,11 @@ on:
         value: ${{ jobs.build.outputs.build-cache-key }}
 
 jobs:
-  # TODO: Extract these checks together with the restore build output part below into a separate custom action
-  check-fileio:
-    name: Check if fileio version exists in npm registry
-    if: inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow'
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
-    with:
-      package-name: fileio
-
-  check-ui:
-    name: Check if ui version exists in npm registry
-    if: inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow'
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
-    with:
-      package-name: ui
-
   build:
     runs-on: ubuntu-latest
 
     outputs:
       build-cache-key: ${{ steps.cache-build-output.outputs.cache-hit }}
-
-    needs:
-      - check-fileio
-      - check-ui
-    if: always()
 
     steps:
       - name: Checkout
@@ -61,45 +41,6 @@ jobs:
         run: |
           VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      # TODO: Extract the restore build output part into a separate custom action
-      - name: Extract fileio version
-        id: fileio-version
-        working-directory: packages/fileio
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-fileio.outputs.npm_version_exists == 'false'
-        run: |
-          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Restore fileio build output cache
-        uses: actions/cache@v3
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-fileio.outputs.npm_version_exists == 'false'
-        with:
-          path: 'packages/fileio/dist'
-          key: ${{ runner.os }}-build-output-fileio-${{ hashFiles( '**/packages/fileio/pnpm-lock.yaml', '**/packages/fileio/src/**', '**/packages/fileio/package.json' ) }}-${{ steps.fileio-version.outputs.version }}
-
-      - name: Verify fileio build output exists
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-fileio.outputs.npm_version_exists == 'false'
-        run: ls -la 'packages/fileio/dist'
-
-      - name: Extract ui version
-        id: ui-version
-        working-directory: packages/ui
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-ui.outputs.npm_version_exists == 'false'
-        run: |
-          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Restore ui build output cache
-        uses: actions/cache@v3
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-ui.outputs.npm_version_exists == 'false'
-        with:
-          path: 'packages/ui/dist'
-          key: ${{ runner.os }}-build-output-ui-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
-
-      - name: Verify ui build output exists
-        if: (inputs.package-name == 'shell' || inputs.package-name == 'extensions/structure' || inputs.package-name == 'extensions/dataflow') && needs.check-ui.outputs.npm_version_exists == 'false'
-        run: ls -la 'packages/ui/dist'
 
       - name: Setup build output cache
         id: cache-build-output

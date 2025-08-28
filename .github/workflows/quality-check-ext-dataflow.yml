@@ -9,7 +9,9 @@ on:
 jobs:
   install:
     name: Install Dependencies
-    uses: ./.github/workflows/_install-ext-dataflow.yml
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: extensions/dataflow
 
   test:
     name: Run Tests
