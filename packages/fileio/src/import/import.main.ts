@@ -38,9 +38,8 @@ export async function importXmlFiles({
 		}
 
 		const databaseName = await importFile({ file, options })
-		if (databaseName) {
-			databaseNames.push(databaseName)
-		}
+
+		databaseNames.push(databaseName)
 	}
 
 	return databaseNames
