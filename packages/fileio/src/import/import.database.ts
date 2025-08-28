@@ -109,3 +109,28 @@ export async function bulkCreateTables(params: {
 	databaseInstance.version(databaseInstanceCurrentVersion + 1).stores(newSchema)
 	databaseInstance.open()
 }
+
+/**
+ * Deletes a Dexie/IndexedDB database if it exists.
+ * Closes before deleting if open.
+ * @param dbName Name of the database to delete
+ * @returns if DB was deleted
+ */
+export async function deleteDatabaseIfExists(dbName: string): Promise<boolean> {
+	// Check existence
+	const dbs = (await indexedDB.databases?.()) || []
+	const found = dbs.some((db) => db.name === dbName)
+	if (!found) return false // DB does not exist
+
+	// Close any open instance
+	try {
+		const db = new Dexie(dbName)
+		await db.close()
+	} catch (e) {
+		console.warn(`Failed to close database ${dbName} before deletion`, e)
+	}
+
+	// Delete DB
+	await Dexie.delete(dbName)
+	return true
+}

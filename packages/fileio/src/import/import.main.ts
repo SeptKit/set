@@ -2,7 +2,7 @@ import * as sax from 'sax'
 // XML PARSER
 import { setSaxParser } from './import.parser'
 // DATABASE
-import { initializeDatabaseInstance } from './import.database'
+import { deleteDatabaseIfExists, initializeDatabaseInstance } from './import.database'
 // CONSTANTS
 import { SUPPORTED_EXTENSIONS } from '../common/common.constant'
 // QUEUE
@@ -38,8 +38,9 @@ export async function importXmlFiles({
 		}
 
 		const databaseName = await importFile({ file, options })
-
-		databaseNames.push(databaseName)
+		if (databaseName) {
+			databaseNames.push(databaseName)
+		}
 	}
 
 	return databaseNames
@@ -61,6 +62,7 @@ async function importFile(params: { file: File; options: ImportOptions }) {
 
 	try {
 		const databaseName = getDatabaseName(file)
+		await deleteDatabaseIfExists(databaseName)
 
 		const databaseInstance = initializeDatabaseInstance(databaseName)
 
