@@ -16,20 +16,29 @@ import WidgetSite from '../extension/widget/widget-site.vue'
 import { onMounted } from 'vue'
 import { loadExtensions } from '../extension/extension-loader'
 import type { Optional } from '../x/types'
+import { generateLocationAwareFileUrl } from '../x/url'
 
 const store = useMainAreaWidgetStore()
 
-const extensionList = [
-	'https://septkit.github.io/extensions/structure/5/', // Structure Prod
-	'https://septkit.github.io/extensions/dataflow/3/', // Dataflow Prod
-	// 'http://localhost:54945/', //Structure DEV
-	// 'http://localhost:54944/',
-	// 'http://localhost:54945/', //__TEMPLATE__
-	//'http://localhost:54945/',
-	// 'http://localhost:54947/', // Dataflow Extension
-]
+onMounted(async () => {
+	const extensions = await fetchExtensionList()
+	loadExtensions(extensions)
+})
 
-onMounted(() => loadExtensions(extensionList))
+async function fetchExtensionList(): Promise<string[]> {
+	const url = generateLocationAwareFileUrl('/extensions.json', window.location.href)
+
+	try {
+		const response = await fetch(url)
+		if (!response.ok) {
+			throw new Error(`Failed to fetch extension list: ${response.statusText}, url:${url}`)
+		}
+		return await response.json()
+	} catch (error) {
+		console.error(error)
+		return []
+	}
+}
 
 function onWidgetChange(widgetId: Optional<string>) {
 	const newActiveWidget = store.widgets.find((w) => w.id === widgetId)
