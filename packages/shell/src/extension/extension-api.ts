@@ -2,13 +2,17 @@ import { watch } from 'vue'
 import { useFileStore } from '../data-management/data-management.store'
 import type { Optional } from '../x/types'
 
-let extensionAPI: API
+let _extensionAPI: API
+
+// Note: we create the api on the first use because pinia first needs to be
+// initalized and that happens in setups scripts. If we would just create
+// a globla variable it would run before pinia gets initalised
 export function useExtensionAPI(): API {
-	if (!extensionAPI) {
-		extensionAPI = createAPI()
+	if (!_extensionAPI) {
+		_extensionAPI = createAPI()
 	}
 
-	return extensionAPI
+	return _extensionAPI
 }
 
 function createAPI() {
@@ -16,8 +20,6 @@ function createAPI() {
 		activeFileName: createActiveFileNameStore(),
 	}
 }
-
-export type API = ReturnType<typeof createAPI>
 
 function createActiveFileNameStore() {
 	let _listeners: Listener[] = []
@@ -48,5 +50,7 @@ function createActiveFileNameStore() {
 		_activeFileName = newFileName
 	}
 }
+
+export type API = ReturnType<typeof createAPI>
 
 type Listener = (newFile: Optional<string>, oldFile: Optional<string>) => void

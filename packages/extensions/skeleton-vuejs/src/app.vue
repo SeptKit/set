@@ -1,12 +1,20 @@
 <template>
-	<div>
-		<h1>Vue Extension Widget A</h1>
-		<span>file: {{ fileName }}</span>
-	</div>
+	<Layout>
+		<template #main>
+			<h1>Vue Extension Widget A</h1>
+			<span>file: {{ fileName }}</span>
+		</template>
+
+		<template #sidebar>
+			<Sidebar />
+		</template>
+	</Layout>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import Layout from './layout.vue'
+import Sidebar from './skeleton/sidebar.vue'
 
 const props = defineProps<{
 	api: { [key: string]: any }
@@ -19,6 +27,8 @@ onMounted(() => {
 	unsubscribe = props.api.activeFileName.subscribe((newFile, oldFile) => {
 		fileName.value = newFile
 	})
+
+	fileName.value = props.api.activeFileName.value
 })
 
 onUnmounted(() => {

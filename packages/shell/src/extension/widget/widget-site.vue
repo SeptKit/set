@@ -1,6 +1,6 @@
 <template>
-	<div class="root-widget" name="widget-site">
-		<div ref="widget-root" id="main-area-widget-root">&nbsp;</div>
+	<div class="root" name="widget-site">
+		<div class="widget-root" ref="widget-root" :id="props.rootId">&nbsp;</div>
 	</div>
 </template>
 
@@ -9,19 +9,21 @@ import { useTemplateRef, watch } from 'vue'
 import type { Optional } from '../../x/types'
 import type { WidgetContribution } from '../extension'
 import { fetchWidgetStartFn } from '../extension-loader'
-import { useExtensionAPI } from '../extension-api'
+import { useExtensionAPI, type API } from '../extension-api'
 
 const props = defineProps<{
 	widget: Optional<WidgetContribution>
+	rootId: string
 }>()
 
-const api = useExtensionAPI()
+let api: API = useExtensionAPI()
 const widgetRoot = useTemplateRef<HTMLDivElement>('widget-root')
 let previousETag: string = ''
 let runningTimeout: number
 
 watch(() => props.widget, watchPluginChange)
 
+// TODO: only reload in dev mode
 async function watchPluginChange() {
 	if (runningTimeout !== undefined) {
 		clearTimeout(runningTimeout)
@@ -92,7 +94,8 @@ async function loadAndStartWidget(startFnUrl: Optional<string>) {
 	}
 
 	widgetRoot.value.innerHTML = ''
-	startFn('main-area-widget-root', api)
+	// const api = useExtensionAPI()
+	startFn(props.rootId, api)
 }
 
 function addCachBusterToURL(url: string): string {
@@ -103,8 +106,11 @@ function addCachBusterToURL(url: string): string {
 </script>
 
 <style scoped>
-.root-widget {
+.root {
 	height: 100%;
-	display: grid;
+}
+
+.widget-root {
+	height: 100%;
 }
 </style>
