@@ -31,6 +31,20 @@ export const useFileStore = defineStore('file', () => {
 			if (!files || files.length === 0) return
 
 			const filesArray = Array.from(files)
+
+			//Check for existing DBs and confirm overwrite if file with same name exists
+			for (const file of filesArray) {
+				const dbName = file.name.replace(/\.[^.]+$/, '') // like getDatabaseName
+				const dbs = await (indexedDB.databases?.() || [])
+				const exists = dbs.some((db) => db.name === dbName)
+				if (exists) {
+					const confirmOverwrite = window.confirm(
+						`A file named "${dbName}" already exists in the database. Do you want to replace it?`,
+					)
+					if (!confirmOverwrite) return
+				}
+			}
+
 			const databaseNames = await importXmlFiles({ files: filesArray })
 			currentActiveFileDatabaseName.value = databaseNames[0]
 			if (databaseNames.length) {
