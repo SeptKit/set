@@ -40,6 +40,30 @@ describe('Data Management', () => {
 				],
 				expectedActiveFileName: 'separate-opened',
 			},
+			{
+				desc: 'when opening a file and then opening it again, it is still active (overwrite confirmed)',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['twice-same-name.asd'] },
+					{ type: 'open', fileNames: ['twice-same-name.asd'] },
+				],
+				expectedActiveFileName: 'twice-same-name',
+			},
+			{
+				desc: 'when opening two files with same name, only the last (confirmed) is active',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['confirm-overwrite.asd'] },
+					{ type: 'open', fileNames: ['confirm-overwrite.asd'] },
+				],
+				expectedActiveFileName: 'confirm-overwrite',
+			},
+			{
+				desc: 'when opening second file with same name and user cancels, old stays active',
+				actionsToPerform: [
+					{ type: 'open', fileNames: ['cancel-overwrite.asd'] },
+					{ type: 'open', fileNames: ['cancel-overwrite.asd'] },
+				],
+				expectedActiveFileName: 'cancel-overwrite',
+			},
 		]
 
 		featureTests.forEach(testFeature)
@@ -49,29 +73,31 @@ describe('Data Management', () => {
 				// Arrange
 				setActivePinia(createPinia())
 				const fileStore = useFileStore()
+				const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+				// "cancel overwrite"-test
+				if (tc.desc.includes('user cancels')) {
+					let call = 0
+					confirmSpy.mockImplementation(() => {
+						call++
+						return call === 1 // return true for the first, false for the second
+					})
+				}
 
 				// Act
 				for (const action of tc.actionsToPerform) {
-					if (action.type === 'open') {
-						files = action.fileNames.map((name) => {
-							return new File(['<SCL></SCL>'], name, { type: 'text/plain' })
-						})
+					files = action.fileNames.map((name) => {
+						return new File(['<SCL></SCL>'], name, { type: 'text/plain' })
+					})
+					if (action.type === 'open') await fileStore.openFiles()
 
-						await fileStore.openFiles()
-					}
-
-					if (action.type === 'import') {
-						files = action.fileNames.map((name) => {
-							return new File(['<SCL></SCL>'], name, { type: 'text/plain' })
-						})
-
-						await fileStore.importFiles()
-					}
+					if (action.type === 'import') await fileStore.importFiles()
 				}
 
-				// Arrange
+				// Assert
 				const activeFile = fileStore.currentActiveFileDatabaseName
 				expect(activeFile).toEqual(tc.expectedActiveFileName)
+				confirmSpy.mockRestore()
 			})
 		}
 	})

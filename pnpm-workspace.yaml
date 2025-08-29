@@ -5,7 +5,7 @@ packages:
   - 'packages/sclsdk'
   - 'packages/fileio'
 catalog:
-  '@septkit/fileio': 0.0.3
+  '@septkit/fileio': 0.0.4
   '@septkit/ui': 0.0.7
   dexie: ^4.2.0
 
