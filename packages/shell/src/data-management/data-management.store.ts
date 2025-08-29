@@ -31,25 +31,35 @@ export const useFileStore = defineStore('file', () => {
 			if (!files || files.length === 0) return
 
 			const filesArray = Array.from(files)
+			const filesToImport: File[] = []
 
-			//Check for existing DBs and confirm overwrite if file with same name exists
+			// Check for existing DBs and confirm overwrite if file with same name exists
 			for (const file of filesArray) {
-				const dbName = file.name.replace(/\.[^.]+$/, '') // like getDatabaseName
+				const dbName = file.name.replace(/\.[^.]+$/, '')
 				const dbs = await (indexedDB.databases?.() || [])
 				const exists = dbs.some((db) => db.name === dbName)
+
 				if (exists) {
 					const confirmOverwrite = window.confirm(
 						`A file named "${dbName}" already exists in the database. Do you want to replace it?`,
 					)
-					if (!confirmOverwrite) return
+
+					if (!confirmOverwrite) continue
 				}
+				filesToImport.push(file)
 			}
 
-			const databaseNames = await importXmlFiles({ files: filesArray })
+			if (filesToImport.length === 0) {
+				resolve()
+				return
+			}
+
+			const databaseNames = await importXmlFiles({ files: filesToImport })
 			currentActiveFileDatabaseName.value = databaseNames[0]
 			if (databaseNames.length) {
 				console.info(`Files imported successfully: ${databaseNames.join(', ')}`)
 			}
+
 			resolve()
 		})
 		open()
