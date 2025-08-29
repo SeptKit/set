@@ -1,0 +1,31 @@
+name: _tag-release
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      package-name: # the scripts appends the `packages/` part. eg.: shell is enough
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ inputs.package-name }}@v${{ inputs.version }}
+          git push origin ${{ inputs.package-name }}@v${{ inputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github-token }}

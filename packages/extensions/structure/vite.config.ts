@@ -11,7 +11,10 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 // https://vite.dev/config/
 export default defineConfig({
 	optimizeDeps: {
-		include: ['@septkit/fileio'],
+		// We exclude our own libraries so we can use the local versions
+		// to debug. This is needed because vite and vitest caches and optimizes
+		// the dependencies and do not updated them real time
+		exclude: ['@septkit/fileio', '@septkit/ui'],
 	},
 	server: {
 		port: 55676,

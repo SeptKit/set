@@ -18,7 +18,9 @@ concurrency:
 jobs:
   install:
     name: Install Dependencies
-    uses: ./.github/workflows/_install-shell.yml
+    uses: ./.github/workflows/_install.yml
+    with:
+      package-name: shell
 
   test:
     name: Run Tests
@@ -34,26 +36,19 @@ jobs:
     with:
       package-name: shell
 
-  # TODO: Extract these checks together with the restore build output part below into a separate custom action
-  check-fileio:
-    name: Check if fileio version exists in npm registry
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
+  version:
+    name: Check Version
+    uses: ./.github/workflows/_check-version.yml
     with:
-      package-name: fileio
-
-  check-ui:
-    name: Check if ui version exists in npm registry
-    uses: ./.github/workflows/_check-if-npm-version-exists.yml
-    with:
-      package-name: ui
+      package-name: shell
+      deployed-folder: .
 
   deploy-preview:
     name: Deploy Preview
     needs:
       - install
-      - check-fileio
-      - check-ui
     runs-on: ubuntu-latest
+    if: needs.version.outputs.version_changed == 'true'
     permissions:
       contents: write
       pages: write
@@ -75,48 +70,9 @@ jobs:
           path: packages/shell/node_modules
           key: ${{ runner.os }}-node-modules-shell-${{ hashFiles( '**/packages/shell/pnpm-lock.yaml' ) }}
 
-      # TODO: Extract the restore build output part into a separate custom action
-      - name: Extract fileio version
-        id: fileio-version
-        working-directory: packages/fileio
-        if: needs.check-fileio.outputs.npm_version_exists == 'false'
-        run: |
-          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Restore fileio build output cache
-        uses: actions/cache@v3
-        if: needs.check-fileio.outputs.npm_version_exists == 'false'
-        with:
-          path: 'packages/fileio/dist'
-          key: ${{ runner.os }}-build-output-fileio-${{ hashFiles( '**/packages/fileio/pnpm-lock.yaml', '**/packages/fileio/src/**', '**/packages/fileio/package.json' ) }}-${{ steps.fileio-version.outputs.version }}
-
-      - name: Verify fileio build output exists
-        if: needs.check-fileio.outputs.npm_version_exists == 'false'
-        run: ls -la 'packages/fileio/dist'
-
-      - name: Extract ui version
-        id: ui-version
-        working-directory: packages/ui
-        if: needs.check-ui.outputs.npm_version_exists == 'false'
-        run: |
-          VERSION=$(grep version package.json | sed 's/.*"version": "\(.*\)".*/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Restore ui build output cache
-        uses: actions/cache@v3
-        if: needs.check-ui.outputs.npm_version_exists == 'false'
-        with:
-          path: 'packages/ui/dist'
-          key: ${{ runner.os }}-build-output-ui-${{ hashFiles( '**/packages/ui/pnpm-lock.yaml', '**/packages/ui/src/**', '**/packages/ui/package.json' ) }}-${{ steps.ui-version.outputs.version }}
-
-      - name: Verify ui build output exists
-        if: needs.check-ui.outputs.npm_version_exists == 'false'
-        run: ls -la 'packages/ui/dist'
-
       - name: Build app
         working-directory: ./packages/shell
-        if: github.event.action != 'closed' # You might want to skip the build if the PR has been closed
+        if: github.event.action != 'closed' # Skip the build if the PR has been closed
         run: pnpm build --base=/pr-preview/pr-${{ github.event.number }}
 
       - name: Deploy shell as preview

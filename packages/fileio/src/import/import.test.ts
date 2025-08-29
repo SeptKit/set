@@ -93,6 +93,33 @@ describe('Import', () => {
 					],
 				},
 			},
+			{
+				description:
+					'Import file with LNode, overwrite with different lnClass (should only keep latest)',
+				fileName: 'overwrite-lnode.scd',
+				fileContent: `
+        <SCL>
+            <LNode lnClass="TCTR" id="overwriteTest"></LNode>
+        </SCL>
+    `,
+				expectedFileName: 'overwrite-lnode',
+				expectedElementCounts: {
+					LNode: 1,
+				},
+			},
+			{
+				description: 'Overwrite same file: only new LNode with lnClass=PTRC remains',
+				fileName: 'overwrite-lnode.scd',
+				fileContent: `
+        <SCL>
+            <LNode lnClass="PTRC" id="overwriteTest"></LNode>
+        </SCL>
+    `,
+				expectedFileName: 'overwrite-lnode',
+				expectedElementCounts: {
+					LNode: 1,
+				},
+			},
 		]
 
 		featureTests.forEach(testFeature)
@@ -123,5 +150,45 @@ describe('Import', () => {
 				await databaseInstance.delete()
 			})
 		}
+
+		it('after overwrite-lnode.scd imported twice, only LNode "PTRC" remains', async () => {
+			// Arrange
+			const firstXml = `
+                <SCL>
+                    <LNode lnClass="TCTR" id="overwriteTest"></LNode>
+                </SCL>
+            `
+			const secondXml = `
+                <SCL>
+                    <LNode lnClass="PTRC" id="overwriteTest"></LNode>
+                </SCL>
+            `
+			const fileName = 'overwrite-lnode.scd'
+			const dbName = 'overwrite-lnode'
+
+			// Act: Import first file
+			const firstFile = new File([firstXml], fileName, { type: 'text/xml' })
+			await importXmlFiles({ files: [firstFile] })
+
+			// import second file with same name (should overwrite)
+			const secondFile = new File([secondXml], fileName, { type: 'text/xml' })
+			await importXmlFiles({ files: [secondFile] })
+
+			const db = new Dexie(dbName)
+			await db.open()
+
+			// Assert: only one LNode with lnClass=PTRC exists in DB
+			const lNodes = await db.table('LNode').toArray()
+			expect(lNodes.length).toBe(1)
+
+			const lnClass = lNodes[0].attributes?.find(
+				(a: { name: string }) => a.name === 'lnClass',
+			)?.value
+			expect(lnClass).toBe('PTRC')
+
+			// Cleanup
+			db.close()
+			await Dexie.delete(dbName)
+		})
 	})
 })
